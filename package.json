@@ -1,0 +1,16 @@
+{
+  "name": "ideageneration",
+  "version": "1.0.0",
+  "description": "这是一个基于 Python 的创意骨架生成工具。它可以从预设的“创意世界”中随机抽取组合，生成结构化的创意描述 JSON，用于后续的 AI 提示词编写或灵感激发。",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IdeaGeneration - 创意随机抽取器</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>IdeaGeneration</h1>
+            <p>从“创意世界”中随机抽取灵感骨架</p>
+        </header>
+
+        <main>
+            <div class="controls">
+                <div class="form-group">
+                    <label for="world-select">选择创意世界 (World):</label>
+                    <select id="world-select">
+                        <option value="any">Any (随机)</option>
+                        <!-- Options will be populated by JS -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="count-input">生成数量 (N):</label>
+                    <input type="number" id="count-input" value="1" min="1" max="10">
+                </div>
+
+                <button id="generate-btn">生成创意</button>
+            </div>
+
+            <div id="results-area" class="results-grid">
+                <!-- Results will be displayed here -->
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
