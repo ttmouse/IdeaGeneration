@@ -16,7 +16,7 @@ app.get('/api/worlds', (req, res) => {
 // API: 生成创意
 app.post('/api/generate', (req, res) => {
     try {
-        const { world, n = 1 } = req.body;
+        const { world, n = 1, lang = 'en' } = req.body;
         const availableWorlds = getAvailableWorlds();
         
         // 验证 world 参数
@@ -39,7 +39,7 @@ app.post('/api/generate', (req, res) => {
                 currentWorld = availableWorlds[Math.floor(Math.random() * availableWorlds.length)];
             }
             
-            results.push(generateCreativeSkeleton(currentWorld));
+            results.push(generateCreativeSkeleton(currentWorld, lang));
         }
 
         res.json(results);
