@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
         zh: {
-            document_title: "IdeaGeneration - 创意随机抽取器",
-            app_title: "IdeaGeneration",
+            document_title: "MetaGeny - 创意随机抽取器",
+            app_title: "MetaGeny",
             app_subtitle: "从“创意世界”中随机抽取灵感骨架",
             label_world: "选择创意世界 (World):",
             option_any: "Any (随机)",
