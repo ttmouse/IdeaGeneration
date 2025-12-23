@@ -178,13 +178,14 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(err => console.error('Failed to load worlds:', err));
 
     // 2. 生成创意
-    generateBtn.addEventListener('click', () => {
+    function generateIdeas() {
         const world = worldSelect.value;
         const n = 3; // 默认生成 3 个
         const lang = document.getElementById('lang-select').value; // 获取语言选择
 
         generateBtn.disabled = true;
-        generateBtn.textContent = '生成中...';
+        const currentLang = localStorage.getItem('idea_lang') || 'en';
+        generateBtn.textContent = i18n[currentLang].btn_generating;
         resultsArea.innerHTML = ''; // 清空之前的结果
 
         fetch('/api/generate', {
@@ -208,9 +209,15 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .finally(() => {
             generateBtn.disabled = false;
-            generateBtn.textContent = '生成创意';
+            const langNow = localStorage.getItem('idea_lang') || 'en';
+            generateBtn.textContent = i18n[langNow].btn_generate;
         });
-    });
+    }
+
+    generateBtn.addEventListener('click', generateIdeas);
+
+    // 页面加载时自动生成一次
+    generateIdeas();
 
     // 辅助函数：格式化 World 名称
     function formatWorldName(name) {
