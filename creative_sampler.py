@@ -222,6 +222,34 @@ WORLDS: Dict[str, Dict[str, Any]] = {
 
 
 # -----------------------------
+# 1.5) 成像主控层 (Imaging Assumptions)
+# -----------------------------
+
+IMAGING_ASSUMPTIONS: Dict[str, Dict[str, str]] = {
+    "industrial_product_photography": {
+        "id": "industrial_product_photography",
+        "desc": "Industrial Product Photography (Default)",
+        "template": "Industrial product photography, extremely high resolution, sharp focus, studio lighting, realistic textures, 8k, unreal engine 5 render style avoided, no cgi, no 3d render, authentic camera noise."
+    },
+    "jewelry_macro_photography": {
+        "id": "jewelry_macro_photography",
+        "desc": "Jewelry Macro Photography",
+        "template": "Jewelry macro photography, extreme close-up, sharp details, luxury lighting, caustics, dispersion, 8k, no cgi, highly detailed metal and gems."
+    },
+    "soft_editorial_portrait": {
+        "id": "soft_editorial_portrait",
+        "desc": "Soft Editorial Portrait",
+        "template": "Soft editorial portrait photography, natural skin texture, soft diffused lighting, fashion magazine style, 85mm lens, 8k, photorealistic."
+    },
+    "documentary_available_light": {
+        "id": "documentary_available_light",
+        "desc": "Documentary Available Light",
+        "template": "Documentary photography, available light, candid moment, leica m style, slight grain, high dynamic range, storytelling, 35mm lens."
+    }
+}
+
+
+# -----------------------------
 # 2) 互斥/白名单规则（避免乱配）
 # -----------------------------
 
@@ -248,9 +276,15 @@ def generate_creative_skeleton(
     rng: random.Random,
     world: str,
     twist_k_range: Tuple[int, int] = (2, 3),
+    imaging_assumption_key: str = "industrial_product_photography"
 ) -> Dict[str, Any]:
     cfg = WORLDS[world]
 
+    # Validate Imaging Assumption
+    if imaging_assumption_key not in IMAGING_ASSUMPTIONS:
+        imaging_assumption_key = "industrial_product_photography"
+    imaging_obj = IMAGING_ASSUMPTIONS[imaging_assumption_key]
+    
     deliverable_type = _pick(rng, cfg["deliverable_type"])
     entry_point = _pick(rng, cfg["entry_point"])
     core_tension = _pick(rng, cfg["core_tension"])
@@ -296,6 +330,7 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=None, help="Random seed")
     parser.add_argument("--world", type=str, default="any", help=f"World name or 'any'. Options: {', '.join(WORLDS.keys())}")
     parser.add_argument("--n", type=int, default=1, help="How many skeletons to generate")
+    parser.add_argument("--imaging", type=str, default="industrial_product_photography", help="Imaging assumption key")
     args = parser.parse_args()
 
     rng = random.Random(args.seed)
@@ -303,7 +338,7 @@ def main() -> None:
     results: List[Dict[str, Any]] = []
     for _ in range(args.n):
         world = choose_world(rng, args.world)
-        results.append(generate_creative_skeleton(rng, world))
+        results.append(generate_creative_skeleton(rng, world, imaging_assumption_key=args.imaging))
 
     # 输出严格 JSON
     if args.n == 1:

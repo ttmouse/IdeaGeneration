@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MetaGeny - 创意随机抽取器</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="noise-overlay"></div>
     <div class="grid-lines">
@@ -17,51 +21,148 @@
         <div class="grid-line"></div>
         <div class="grid-line"></div>
     </div>
-    
-    <div class="vertical-label">EDITORIAL / VOL. 01</div>
+    <div class="vertical-label">MetaGeny / Vol. 01</div>
 
     <div class="container">
         <div class="top-bar">
-            <div class="lang-switch">
-                <select id="lang-select">
-                    <option value="en">English</option>
-                    <option value="zh">中文</option>
-                </select>
+            <div class="nav-left">
+                <a href="/" class="brand-logo" data-i18n="app_title">MetaGeny</a>
+            </div>
+            <div class="tabs-nav">
+                <button class="tab-btn active" data-tab="generator" data-i18n="tab_generator">Generator</button>
+                <button class="tab-btn" data-tab="favorites" data-i18n="tab_favorites">Favorites</button>
+            </div>
+            <div class="nav-right">
+                <div class="lang-switch">
+                    <select id="lang-select">
+                        <option value="en">English</option>
+                        <option value="zh">中文</option>
+                    </select>
+                </div>
             </div>
         </div>
 
         <header>
-            <h1 data-i18n="app_title">IdeaGeneration</h1>
-            <p data-i18n="app_subtitle">从“创意世界”中随机抽取灵感骨架</p>
+            <p data-i18n="app_subtitle" class="hero-text">从“创意世界”中随机抽取灵感骨架</p>
         </header>
 
         <main>
-            <div class="controls">
-                <div class="form-group">
-                    <div class="decorative-line"></div>
-                    <label for="world-select" data-i18n="label_world">选择创意世界 (World):</label>
-                    <select id="world-select">
-                        <option value="any" data-i18n="option_any">Any (随机)</option>
-                        <!-- Options will be populated by JS -->
-                    </select>
+            <div id="tab-generator" class="tab-content active">
+                <!-- 灵感种子输入框 -->
+                <div class="inspiration-seed-section">
+                    <div class="form-group full-width">
+                        <label for="inspiration-seed-input">
+                            <span data-i18n="label_inspiration_seed">灵感种子</span>
+                            <span class="hint" data-i18n="hint_inspiration_seed">(输入关键词如：奢华、微观、金属、荒诞等)</span>
+                        </label>
+                        <input type="text" id="inspiration-seed-input" placeholder="luxury metal micro / 奢华 金属 微观"
+                            data-i18n-placeholder="placeholder_inspiration_seed" />
+                    </div>
                 </div>
 
-                <button id="generate-btn" data-i18n="btn_generate">生成 3 个创意</button>
+                <div class="controls world-controls">
+                    <div class="controls-row primary-row">
+                        <div class="form-group">
+                            <label for="imaging-select" data-i18n="label_imaging">成像档位 (Imaging):</label>
+                            <select id="imaging-select">
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="world-select" data-i18n="label_world">创意世界 (World):</label>
+                            <select id="world-select">
+                                <option value="any" data-i18n="option_any">Any (随机)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="intent-select" data-i18n="label_intent">创作动机 (Intent):</label>
+                            <select id="intent-select">
+                                <option value="any" data-i18n="option_any">Any (随机)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="logic-select" data-i18n="label_logic">生成逻辑 (Logic):</label>
+                            <select id="logic-select">
+                                <option value="any" data-i18n="option_any">Any (随机)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="core-select" data-i18n="label_core_tension">核心张力</label>
+                            <select id="core-select">
+                                <option value="any" data-i18n="option_any">Any (随机)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="controls-row secondary-row">
+                        <div class="form-group">
+                            <label for="twist-select" data-i18n="label_twist_mechanisms">反转机制</label>
+                            <select id="twist-select">
+                                <option value="any" data-i18n="option_any">Any (随机)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject-select" data-i18n="label_subject_kit">主体套件</label>
+                            <select id="subject-select">
+                                <option value="any" data-i18n="option_any">Any (随机)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="stage-select" data-i18n="label_stage_context">场景语境</label>
+                            <select id="stage-select">
+                                <option value="any" data-i18n="option_any">Any (随机)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="composition-select" data-i18n="label_composition_rule">构图规则</label>
+                            <select id="composition-select">
+                                <option value="any" data-i18n="option_any">Any (随机)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="lighting-select" data-i18n="label_lighting_rule">布光规则</label>
+                            <select id="lighting-select">
+                                <option value="any" data-i18n="option_any">Any (随机)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p class="controls-hint" data-i18n="hint_world_locked">选择具体创意世界以解锁手动控制</p>
+                    <button id="generate-btn">
+                        <span data-i18n="btn_generate">生成创意方案</span>
+                    </button>
+                </div>
+
+                <div id="results-area" class="results-grid">
+                    <!-- Results will be displayed here -->
+                </div>
+
+                <section class="system-panel">
+                    <div class="system-panel__header">
+                        <div>
+                            <p class="panel-eyebrow" data-i18n="system_overview_eyebrow">变量库</p>
+                            <h2 class="panel-title" data-i18n="system_overview_title">子维度变量总览</h2>
+                        </div>
+                        <div class="system-total">
+                            <span data-i18n="system_total_label">当前变量条目</span>
+                            <strong id="system-total">0</strong>
+                        </div>
+                    </div>
+                    <div id="system-summary" class="system-grid">
+                        <!-- Populated via JS -->
+                    </div>
+                </section>
             </div>
 
-            <div id="results-area" class="results-grid">
-                <!-- Results will be displayed here -->
-            </div>
-
-            <div class="favorites-section">
-                <h2 data-i18n="favorites_title">收藏夹 (Favorites)</h2>
+            <div id="tab-favorites" class="tab-content">
                 <div id="favorites-area" class="results-grid">
                     <!-- Favorites will be displayed here -->
                 </div>
             </div>
+
+
         </main>
     </div>
 
     <script src="script.js"></script>
 </body>
+
 </html>

@@ -1,6 +1,14 @@
 const express = require('express');
 const path = require('path');
-const { generateCreativeSkeleton, getAvailableWorlds } = require('./src/logic');
+const {
+    generateCreativeSkeleton,
+    getAvailableWorlds,
+    CREATION_INTENTS,
+    GENERATION_LOGICS,
+    IMAGING_ASSUMPTIONS,
+    WORLDS,
+    PromptAssemblyError
+} = require('./src/logic');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -8,47 +16,86 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// API: 获取可用世界列表
+// API: 获取配置信息 (Intents, Logics, Worlds)
+app.get('/api/config', (req, res) => {
+    res.json({
+        worlds: WORLDS,
+        intents: CREATION_INTENTS,
+        logics: GENERATION_LOGICS,
+        imaging_assumptions: IMAGING_ASSUMPTIONS
+    });
+});
+
+// API: 获取可用世界列表 (Legacy, but kept for compatibility if needed)
 app.get('/api/worlds', (req, res) => {
     res.json(getAvailableWorlds());
 });
 
 // API: 生成创意
+const VALID_MODES = new Set(['model', 'full', 'debug']);
+
+function shapeResult(payload, mode) {
+    if (mode === 'model') {
+        return payload.model_input;
+    }
+    if (mode === 'debug') {
+        return {
+            model_input: payload.model_input,
+            governance_record: payload.governance_record,
+            debug: payload.debug
+        };
+    }
+    return {
+        ...payload.governance_record,
+        model_input: payload.model_input
+    };
+}
+
 app.post('/api/generate', (req, res) => {
     try {
-        const { world, n = 1, lang = 'en' } = req.body;
+        const { world, intent, logic, imaging_assumption, n = 1, lang = 'en', mode = 'full', seed, inspirationSeed, overrides = {} } = req.body;
         const availableWorlds = getAvailableWorlds();
-        
-        // 验证 world 参数
+
         let targetWorld = world;
-        if (!targetWorld || targetWorld === 'any') {
-            targetWorld = availableWorlds[Math.floor(Math.random() * availableWorlds.length)];
-        } else if (!availableWorlds.includes(targetWorld)) {
+        if (targetWorld && targetWorld !== 'any' && !availableWorlds.includes(targetWorld)) {
             return res.status(400).json({ error: `Invalid world. Available: ${availableWorlds.join(', ')}` });
         }
 
-        const count = Math.max(1, Math.min(20, parseInt(n) || 1)); // 限制生成数量 1-20
+        const normalizedMode = VALID_MODES.has(mode) ? mode : 'full';
+        const count = Math.max(1, Math.min(20, parseInt(n, 10) || 1));
         const results = [];
 
         for (let i = 0; i < count; i++) {
-            // 如果用户选了 'any'，我们可以为每一个生成选择不同的随机世界，或者统一用同一个随机世界。
-            // 原 Python 逻辑是：如果 'any'，每次循环重新随机选一个 world。
-            // 让我们保持一致。
-            let currentWorld = targetWorld;
-            if (world === 'any' || !world) {
-                currentWorld = availableWorlds[Math.floor(Math.random() * availableWorlds.length)];
-            }
-            
-            results.push(generateCreativeSkeleton(currentWorld, lang));
+            const payload = generateCreativeSkeleton({
+                world: targetWorld,
+                lang,
+                twistKRange: [2, 3],
+                intent,
+                logic,
+                imaging_assumption,
+                seed: typeof seed === 'number' ? seed + i : null,
+                inspirationSeed: inspirationSeed || null,
+                overrides
+            });
+            results.push(shapeResult(payload, normalizedMode));
         }
 
         res.json(results);
     } catch (error) {
         console.error(error);
+        if (error instanceof PromptAssemblyError) {
+            return res.status(422).json({ error: error.message, code: error.code });
+        }
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+// 修改成3003 端口
+app.listen(3003, () => {
+    console.log(`Server is running on http://localhost:${3003}`);
 });
+
+
+// app.listen(PORT, () => {
+//     console.log(`Server is running on http://localhost:${PORT}`);
+// });
