@@ -676,9 +676,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const secondaryList = item.subject_kit.secondary_elements || [];
             if (secondaryList.length > 0) {
                 const secondary = secondaryList.map(el =>
-                    `<span class="tag" style="background:#e8f5e9; color:#2e7d32;">${t(el, lang)}</span>`
+                    `<span class="tag tag--secondary">${t(el, lang)}</span>`
                 ).join('');
-                subjectHtml = `<div class="card-value"><strong>${primary}</strong></div><div class="tags" style="margin-top:5px;">${secondary}</div>`;
+                subjectHtml = `<div class="card-value">${primary}</div><div class="tags">${secondary}</div>`;
             } else {
                 subjectHtml = `<div class="card-value">${primary}</div>`;
             }
@@ -718,77 +718,79 @@ document.addEventListener('DOMContentLoaded', () => {
             
             ${validationHtml}
 
-            <!-- 1. Imaging Assumption (Gold) -->
-            <div class="card-item item-imaging">
+            <!-- Hero Section: Imaging, Intent, Logic -->
+            <div class="card-item item--hero">
                 <span class="card-label" data-i18n-label="imaging_assumption">${labels.imaging_assumption}</span>
                 <span class="card-value">${t(item.imaging_assumption, lang)}</span>
             </div>
-
-            <!-- 2. Creation Intent -->
-            <div class="card-item">
+            <div class="card-item item--hero">
                 <span class="card-label" data-i18n-label="creation_intent">${labels.creation_intent}</span>
                 <span class="card-value">${t(item.creation_intent, lang)}</span>
             </div>
-
-            <!-- 3. Generation Logic -->
-            <div class="card-item">
+            <div class="card-item item--hero">
                 <span class="card-label" data-i18n-label="generation_logic">${labels.generation_logic}</span>
                 <span class="card-value">${t(item.generation_logic, lang)}</span>
             </div>
 
-            <!-- 4. Deliverable Type -->
-             <div class="card-item">
+            <!-- Standard Items -->
+            <div class="card-item">
                 <span class="card-label" data-i18n-label="deliverable_type">${labels.deliverable_type}</span>
                 <span class="card-value">${t(item.deliverable_type, lang)}</span>
             </div>
 
-            <!-- 5. Core Tension -->
-            <div class="card-item item-tension">
+            <div class="card-item item--tension">
                 <span class="card-label" data-i18n-label="core_tension">${labels.core_tension}</span>
-                <span class="card-value">${t(item.core_tension, lang)}</span>
+                <div class="editable-value-container">
+                    <span class="card-value editable-value" data-dimension="core_tension" data-world="${item.creative_world}">${t(item.core_tension, lang)}</span>
+                    <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
+                </div>
             </div>
 
-            <!-- 6. Twist Mechanisms -->
-             <div class="card-item">
+            <div class="card-item">
                 <span class="card-label" data-i18n-label="twist_mechanisms">${labels.twist_mechanisms}</span>
                 <div class="tags">${twistTags}</div>
             </div>
 
-            <!-- 7. Subject Kit -->
             <div class="card-item">
                 <span class="card-label" data-i18n-label="subject_kit">${labels.subject_kit}</span>
                 ${subjectHtml}
             </div>
 
-            <!-- 8. Stage Context -->
-             <div class="card-item">
+            <div class="card-item">
                 <span class="card-label" data-i18n-label="stage_context">${labels.stage_context}</span>
-                <span class="card-value">${t(item.stage_context, lang)}</span>
+                <div class="editable-value-container">
+                    <span class="card-value editable-value" data-dimension="stage_context" data-world="${item.creative_world}">${t(item.stage_context, lang)}</span>
+                     <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
+                </div>
             </div>
 
-            <!-- 9. Composition Rule -->
             <div class="card-item">
                 <span class="card-label" data-i18n-label="composition_rule">${labels.composition_rule}</span>
-                <span class="card-value">${t(item.composition_rule, lang)}</span>
+                <div class="editable-value-container">
+                    <span class="card-value editable-value" data-dimension="composition_rule" data-world="${item.creative_world}">${t(item.composition_rule, lang)}</span>
+                     <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
+                </div>
             </div>
 
-            <!-- 10. Lighting Rule -->
-             <div class="card-item">
+            <div class="card-item">
                 <span class="card-label" data-i18n-label="lighting_rule">${labels.lighting_rule}</span>
-                <span class="card-value">${t(item.lighting_rule, lang)}</span>
+                <div class="editable-value-container">
+                    <span class="card-value editable-value" data-dimension="lighting_rule" data-world="${item.creative_world}">${t(item.lighting_rule, lang)}</span>
+                     <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
+                </div>
             </div>
 
-             <!-- 11. Final Prompt (Optional Debug) -->
-             ${item.final_prompt ? `
-             <div class="card-item" style="opacity:0.6; font-size:0.8em;">
+            <!-- Prompt Preview -->
+            ${item.final_prompt ? `
+            <div class="card-item item--prompt">
                 <span class="card-label">Prompt Preview</span>
                 <div class="card-value">${item.final_prompt}</div>
-             </div>` : ''}
+            </div>` : ''}
 
-            <!-- 12. ID (Moved to bottom) -->
-            <div class="card-item item-id" style="margin-top: auto; margin-bottom: 0;">
+            <!-- ID -->
+            <div class="card-item item--id">
                 <span class="card-label" data-i18n-label="id">${labels.id}</span>
-                <span class="card-value" style="font-family:monospace; color:#888; font-size: 0.825rem;">${item.creative_id}</span>
+                <span class="card-value">${item.creative_id}</span>
             </div>
         `;
 
@@ -875,9 +877,180 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderResults(results) {
         if (!results || results.length === 0) {
             const lang = localStorage.getItem('idea_lang') || 'en';
-            resultsArea.innerHTML = `< p style = "width:100%; text-align:center;" > ${i18n[lang].no_results}</p > `;
+            resultsArea.innerHTML = `<p style="width:100%; text-align:center;">${i18n[lang].no_results}</p>`;
             return;
         }
         results.forEach(item => resultsArea.appendChild(createCardElement(item)));
+
+        // Re-attach event listeners for editable fields
+        setTimeout(() => bindEditableEvents(), 100);
+    }
+
+    /* ===== POPOVER LOGIC ===== */
+    let activeEditableConfig = null;
+    let activeEditableElement = null;
+
+    // Create Popover DOM
+    const popoverDiv = document.createElement('div');
+    popoverDiv.className = 'edit-popover';
+    popoverDiv.innerHTML = `
+        <div class="popover-header">
+            <input type="text" class="popover-search" placeholder="Search...">
+            <button class="popover-random-btn" title="Randomize"><i class="ri-shuffle-line"></i></button>
+        </div>
+        <div class="popover-list"></div>
+    `;
+    document.body.appendChild(popoverDiv);
+
+    const popoverSearch = popoverDiv.querySelector('.popover-search');
+    const popoverList = popoverDiv.querySelector('.popover-list');
+    const popoverRandomBtn = popoverDiv.querySelector('.popover-random-btn');
+
+    // Close popover on click outside
+    document.addEventListener('click', (e) => {
+        if (!popoverDiv.contains(e.target) && !e.target.classList.contains('editable-value')) {
+            popoverDiv.classList.remove('active');
+        }
+    });
+
+    function bindEditableEvents() {
+        // 1. Text Click -> Open Popover
+        document.querySelectorAll('.editable-value').forEach(el => {
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openPopover(el);
+            });
+        });
+
+        // 2. Random Button Click -> Quick Randomize
+        document.querySelectorAll('.quick-random-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Find sibling editable value
+                const container = btn.closest('.editable-value-container');
+                const valueEl = container.querySelector('.editable-value');
+                if (valueEl) quickRandomize(valueEl, btn);
+            });
+        });
+    }
+
+    function quickRandomize(el, btn) {
+        // No animation, just logic
+
+        const dimension = el.dataset.dimension;
+        let worldPrefix = el.dataset.world || '';
+        if (worldPrefix.includes(':')) worldPrefix = worldPrefix.split(':')[1];
+
+        // Find config data (Reuse logic)
+        if (!globalConfig || !globalConfig.worlds || !globalConfig.worlds[worldPrefix]) return;
+
+        let poolKey = dimension;
+        if (dimension === 'twist_mechanisms') poolKey = 'twist_mechanisms_pool';
+        if (dimension === 'subject_kit') poolKey = 'subject_kits';
+
+        const pool = globalConfig.worlds[worldPrefix][poolKey];
+        if (!pool || !Array.isArray(pool) || pool.length === 0) return;
+
+        // Pick random
+        const randomItem = pool[Math.floor(Math.random() * pool.length)];
+
+        // Update DOM
+        activeEditableElement = el; // Temporarily set for updateEditableValue
+        updateEditableValue(randomItem);
+        activeEditableElement = null;
+    }
+
+    function openPopover(el) {
+        const dimension = el.dataset.dimension;
+        let worldPrefix = el.dataset.world || '';
+        if (worldPrefix.includes(':')) worldPrefix = worldPrefix.split(':')[1];
+
+        // Find config data
+        if (!globalConfig || !globalConfig.worlds || !globalConfig.worlds[worldPrefix]) {
+            console.warn('World data not found for popover:', worldPrefix);
+            return;
+        }
+
+        // Map common dimensions to pool keys if needed (assumes direct match mostly)
+        let poolKey = dimension;
+        if (dimension === 'twist_mechanisms') poolKey = 'twist_mechanisms_pool';
+        if (dimension === 'subject_kit') poolKey = 'subject_kits';
+
+        const pool = globalConfig.worlds[worldPrefix][poolKey];
+
+        if (!pool || !Array.isArray(pool)) {
+            console.warn('Pool not found:', poolKey);
+            return;
+        }
+
+        activeEditableConfig = pool;
+        activeEditableElement = el;
+
+        // Postioning
+        const rect = el.getBoundingClientRect();
+        popoverDiv.style.top = `${window.scrollY + rect.bottom + 5}px`;
+        popoverDiv.style.left = `${window.scrollX + rect.left}px`;
+
+        // Reset Search
+        popoverSearch.value = '';
+        renderPopoverList(pool);
+
+        popoverDiv.classList.add('active');
+        setTimeout(() => popoverSearch.focus(), 50);
+    }
+
+    function renderPopoverList(items, filter = '') {
+        popoverList.innerHTML = '';
+        const lang = localStorage.getItem('idea_lang') || 'en';
+
+        const filtered = items.filter(item => {
+            const text = getDisplayText(item, lang).toLowerCase();
+            return text.includes(filter.toLowerCase());
+        });
+
+        filtered.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'popover-item';
+            div.textContent = getDisplayText(item, lang);
+            div.addEventListener('click', () => {
+                updateEditableValue(item);
+                popoverDiv.classList.remove('active');
+            });
+            popoverList.appendChild(div);
+        });
+
+        if (filtered.length === 0) {
+            popoverList.innerHTML = '<div style="padding:0.5rem; color:#999; font-size:0.8rem;">No matches</div>';
+        }
+    }
+
+    // Search Handler
+    popoverSearch.addEventListener('input', (e) => {
+        if (activeEditableConfig) renderPopoverList(activeEditableConfig, e.target.value);
+    });
+
+    // Random Handler
+    popoverRandomBtn.addEventListener('click', () => {
+        if (activeEditableConfig && activeEditableConfig.length > 0) {
+            const randomItem = activeEditableConfig[Math.floor(Math.random() * activeEditableConfig.length)];
+            updateEditableValue(randomItem);
+            // Optional: don't close popover to allow re-roll
+            // popoverDiv.classList.remove('active');
+        }
+    });
+
+    function updateEditableValue(newItem) {
+        if (!activeEditableElement) return;
+        const lang = localStorage.getItem('idea_lang') || 'en';
+
+        // Update DOM
+        activeEditableElement.textContent = getDisplayText(newItem, lang);
+
+        // Flash effect
+        activeEditableElement.style.color = 'var(--accent-color)';
+        setTimeout(() => activeEditableElement.style.color = '', 300);
+
+        // TODO: If we wanted to update the underlying data object (for copy JSON), we would need to bind it.
+        // For now this is visual-only as per P0.5 scope.
     }
 });
