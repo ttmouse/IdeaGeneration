@@ -31,6 +31,7 @@
             <div class="tabs-nav">
                 <button class="tab-btn active" data-tab="generator" data-i18n="tab_generator">Generator</button>
                 <button class="tab-btn" data-tab="favorites" data-i18n="tab_favorites">Favorites</button>
+                <button class="tab-btn" data-tab="graph" data-i18n="tab_graph">Graph</button>
             </div>
             <div class="nav-right">
                 <div class="lang-switch">
@@ -155,6 +156,26 @@
             <div id="tab-favorites" class="tab-content">
                 <div id="favorites-area" class="results-grid">
                     <!-- Favorites will be displayed here -->
+                </div>
+            </div>
+
+            <div id="tab-graph" class="tab-content">
+                <div class="graph-container" style="padding: 4rem 2rem; text-align: center; color: var(--muted-text);">
+                    <div id="graph-placeholder">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1" style="opacity:0.5; margin-bottom:1rem;">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path
+                                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                            </path>
+                        </svg>
+                        <h3 data-i18n="graph_title"
+                            style="margin:0; font-family:var(--font-heading); color:var(--text-color);">Radial Atlas
+                        </h3>
+                        <p data-i18n="graph_hint" style="max-width:400px; margin:1rem auto; font-size:0.9rem;">The star
+                            graph reveals each world's tensions, twists, and staging presets.</p>
+                    </div>
                 </div>
             </div>
 

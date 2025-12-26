@@ -18,25 +18,37 @@ document.addEventListener('DOMContentLoaded', () => {
     // 存储全局配置以便语言切换时使用
     let globalConfig = null;
 
-    // Tab switching logic (Nav Links)
+    // View State Management
+    let activeView = 'generator';
+
+    window.setView = function (viewName) {
+        if (!['generator', 'favorites', 'graph'].includes(viewName)) return;
+        activeView = viewName;
+
+        // 1. Update Tab UI
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === viewName);
+        });
+
+        // 2. toggle Content Visibility
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.toggle('active', content.id === `tab-${viewName}`);
+        });
+
+        // 3. Trigger Loaders
+        if (viewName === 'favorites') {
+            loadFavorites();
+        }
+
+        // Optional: Update URL hash for persistence
+        // history.replaceState(null, null, `#${viewName}`);
+    };
+
+    // Bind Click Events
     document.querySelectorAll('.tab-btn').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
-            const tabId = link.dataset.tab;
-
-            // Update link active state
-            document.querySelectorAll('.tab-btn').forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
-
-            // Show content
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.toggle('active', content.id === `tab-${tabId}`);
-            });
-
-            if (tabId === 'favorites') {
-                loadFavorites();
-            }
-
+            setView(link.dataset.tab);
         });
     });
 
@@ -85,6 +97,9 @@ document.addEventListener('DOMContentLoaded', () => {
             document_title: "MetaGeny - Creative Random Extractor",
             app_title: "MetaGeny",
             app_subtitle: "Randomly extract inspiration skeletons from 'Creative Worlds'",
+            tab_generator: "Generator",
+            tab_favorites: "Favorites",
+            tab_graph: "Graph",
             world_names: {
                 advertising: "Advertising",
                 product_photography: "Product Photography",
@@ -257,6 +272,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const newLang = e.target.value;
         localStorage.setItem('idea_lang', newLang);
         updateUILanguage(newLang);
+        // 重新生成卡片以应用新语言
+        if (resultsArea && resultsArea.children.length > 0) {
+            generateIdeas();
+        }
     });
 
     function updateUILanguage(lang) {

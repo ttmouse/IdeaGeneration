@@ -1,0 +1,41 @@
+{
+  "schema_version": "v1",
+  "creative_id": "2n17a5tr",
+  "creative_world": "world:advertising",
+  "creation_intent": "Showcase craft/tech/skill",
+  "generation_logic": "Form/Layout research",
+  "twist_mechanisms": [
+    "Scale Mismatch"
+  ],
+  "twist_ids": [
+    "scale_mismatch"
+  ],
+  "subject_kit": {
+    "primary_subject": "sports car model",
+    "primary_id": "subject:sports-car-model",
+    "secondary_elements": [
+      "carbon fiber texture",
+      "brand emblem",
+      "tire tread detail"
+    ],
+    "secondary_ids": [
+      "element:carbon-fiber-texture",
+      "element:brand-emblem",
+      "element:tire-tread-detail"
+    ]
+  },
+  "core_tension": "Clean vs Chaos",
+  "stage_context": "urban rooftop sunset",
+  "composition_rule": "tight crop extreme close-up",
+  "lighting_rule": "backlit with lens flare",
+  "imaging_assumption": "Industrial Product Photography",
+  "deliverable_type": "Ad Key Visual",
+  "final_prompt": "Ad Key Visual. featuring sports car model, carbon fiber texture, brand emblem, tire tread detail. inspired by Clean vs Chaos. with Scale Mismatch. set in urban rooftop sunset. following tight crop extreme close-up. lit by backlit with lens flare.",
+  "validation": {
+    "errors": [],
+    "warnings": [
+      "Deprecated prefix format for twist_mechanisms override 'twist:scale_mismatch' normalized to 'scale_mismatch'. Please use raw slug."
+    ],
+    "dropped_overrides": []
+  }
+}

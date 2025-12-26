@@ -1,0 +1,8 @@
+Server is running on http://localhost:3004
+Random selection, idx: 2
+Random selection, idx: 6
+Random selection, idx: 10
+Random selection, idx: 1
+Random selection, idx: 3
+[2025-12-26T17:34:00.206Z] POST /api/generate - 200 (6ms)
+[2025-12-26T17:34:00.315Z] GET /health - 200 (1ms)

@@ -1616,339 +1616,9 @@ function assemblePrompt(governance) {
     return parts.join('. ') + '.';
 }
 
-// -----------------------------
-// P1 Modules (Pure Functions)
-// -----------------------------
-
-// Module 1: Normalize Overrides
-function normalize_overrides({ overrides }) {
-    const clean = {};
-    const warnings = [];
-    if (!overrides) return { clean, warnings };
-
-    for (const [key, value] of Object.entries(overrides)) {
-        if (!value || value === 'any') continue;
-
-        // Handle array or single value
-        const values = Array.isArray(value) ? value : [value];
-        const normalizedValues = values.map(v => {
-            if (typeof v === 'string' && v.includes(':')) {
-                const rawSlug = v.split(':').pop();
-                warnings.push(`Deprecated prefix format for ${key} override '${v}' normalized to '${rawSlug}'. Please use raw slug.`);
-                return rawSlug;
-            }
-            return v;
-        });
-
-        clean[key] = Array.isArray(value) ? normalizedValues : normalizedValues[0];
-    }
-    return { clean, warnings };
-}
-
-// Module 2: Validate Overrides
-function validate_overrides({ clean, pools, worldConfig, lang }) {
-    const validated = {};
-    const errors = [];
-    const dropped = [];
-    const internalWarnings = [];
-
-    // Helper for checking a single dimension
-    const checkDimension = (dim, val, pool, idKey = 'id') => {
-        if (!pool) return null; // Should ideally error if pool missing but strict P0 flow might ignore
-        const vals = Array.isArray(val) ? val : [val];
-        const validItems = [];
-
-        for (const v of vals) {
-            // For subject_kit, we need special matching logic matching P0-1
-            // However, P0-1 was "select then check". 
-            // To be equivalent but pure, we try to finding matches using the same logic as selectWithRecording's matcher
-            // But selectWithRecording is complex. 
-            // We'll use a simplified find strategy that covers P0 requirements (ID match, slug match)
-
-            let candidate = null;
-            if (dim === 'subject_kit') {
-                // Special P0 Subject Kit Logic logic requires comparing against generated ID
-                // We iterate the pool to see if ANY item generates the stable ID matching the override
-                // OR matches primary_subject.en directly (common P0 usage)
-                candidate = pool.find(item => {
-                    const stableId = getStableOptionId(null, 'subject_kit', item, lang); // worldId null ok for simple ID generation
-                    const rawSlug = typeof v === 'string' ? slugify(v) : v;
-                    if (stableId === v || stableId === `subject_kit:${rawSlug}`) return true;
-                    const primarySubject = getVal(item.primary_subject, 'en');
-                    if (slugify(primarySubject) === rawSlug) return true;
-                    return false;
-                });
-            } else {
-                // Standard logic
-                candidate = pool.find(p => {
-                    const pId = p[idKey];
-                    return pId === v || pId === `${dim}:${v}`; // Support legacy prefixed ID check if pool has it
-                });
-            }
-
-            if (candidate) {
-                // Check forbidden terms
-                const candidateStr = JSON.stringify(candidate);
-                // We need forbiddenTerms. We can pass it in context or extract from worldConfig
-                const forbiddenTerms = worldConfig.forbidden_visual_terms || [];
-                if (containsForbiddenTerm(candidateStr, forbiddenTerms)) {
-                    internalWarnings.push(`Override '${v}' contains forbidden terms. Accepted with warning.`);
-                }
-                validItems.push(candidate);
-            } else {
-                dropped.push({
-                    field: dim,
-                    user_input: v,
-                    reason: 'Not found in candidate pool',
-                    fallback_used: true
-                });
-                errors.push(`Invalid override for ${dim}: '${v}' (Not found in candidate pool). Fallback applied.`);
-            }
-        }
-        return validItems.length > 0 ? (Array.isArray(val) ? validItems : validItems[0]) : null;
-    };
-
-    // Validate known dimensions
-    // We Map 'intent' -> 'creation_intent', 'logic' -> 'generation_logic' for normalization consistency with internal keys
-    // But input 'clean' has keys as provided by user.
-
-    // Mapping user keys to pool keys
-    const paramMap = {
-        'intent': { pool: pools.creation_intent, dim: 'creation_intent' },
-        'creation_intent': { pool: pools.creation_intent, dim: 'creation_intent' },
-        'logic': { pool: pools.generation_logic, dim: 'generation_logic' },
-        'generation_logic': { pool: pools.generation_logic, dim: 'generation_logic' },
-        'core_tension': { pool: pools.core_tension, dim: 'core_tension' },
-        'twist_mechanisms': { pool: pools.twist_mechanisms, dim: 'twist_mechanisms' },
-        'subject_kit': { pool: pools.subject_kit, dim: 'subject_kit' },
-        'stage_context': { pool: pools.stage_context, dim: 'stage_context' },
-        'composition_rule': { pool: pools.composition_rule, dim: 'composition_rule' },
-        'lighting_rule': { pool: pools.lighting_rule, dim: 'lighting_rule' }
-    };
-
-    for (const [key, val] of Object.entries(clean)) {
-        if (paramMap[key]) {
-            const { pool, dim } = paramMap[key];
-            const result = checkDimension(dim, val, pool);
-            if (result) validated[dim] = result;
-        } else {
-            // Pass through unknown keys? Or ignore? P0 doesn't strictly validate unknown keys but they aren't used.
-            // checking 'world' or 'seed' - those define context, not overrides effectively.
-            if (key !== 'world' && key !== 'seed') {
-                // Ignored
-            }
-        }
-    }
-
-    return { validated, errors, dropped, warnings: internalWarnings };
-}
-
-// Module 3: Apply Logic Constraints
-function apply_logic_constraints({ validated, logicObj, inspirationWeights }) {
-    // Clone validated to fixed to avoid mutation
-    const fixed = { ...validated };
-    const warnings = [];
-
-    // P0-2: Required Twist Append
-    // logicObj must be the RESOLVED logic object
-    if (logicObj && logicObj.required_twist_category) {
-        const reqCat = logicObj.required_twist_category;
-
-        // We need the Twist Pool to find the object for this category
-        // In pure function, we should have passed the pools? 
-        // P1 Design said input is { validated, logic, inspiration }. 
-        // Logic requires access to Twist Pool to resolve string ID to Object.
-        // I will assume logicObj contains enough info OR I need to look it up.
-        // The original code looked it up in 'twistPool'.
-        // I'll assume 'constraints' calculation might need the pool if we are to append the *object*.
-        // Or we append the *ID* and let Sample resolve it?
-        // Original code: Appends the OBJECT `twistSelectionRaw.push(requiredTwist)`.
-        // So I need the twist pool here. I will add it to the signature or arguments.
-    }
-
-    // Return a function or structure that 'sample_candidates' can use.
-    // We return "SelectionConstraints".
-    return {
-        fixed,
-        required_twist_append: logicObj && logicObj.required_twist_category ? logicObj.required_twist_category : null,
-        warnings
-    };
-}
-
-// Module 4: Sample Candidates
-// Merges P0 logic for "filling in the blanks"
-function sample_candidates({ constraints, pools, rng, worldId, lang, highLevel, inspirationWeights, debugStore }) {
-    const selection = {};
-    const governanceUpdates = { rule_hits: [], warnings: [] };
-
-    // Unpack context
-    const { intent, logic, imaging } = highLevel;
-    selection.creation_intent = intent;
-    selection.generation_logic = logic;
-    selection.imaging_assumption = imaging;
-
-    // We need a helper to mimic selectWithRecording for the "Random / Inspiration" part
-    // Since we have 'constraints.fixed', we prefer those.
-
-    // Helper: Resolve Selection
-    // This looks at 'fixed', then 'inspiration', then 'random'.
-    function resolve(dim, pool, matchValue, isMulti = false, kRange = null) {
-        // reuse selectWithRecording logic for P0 strictness, but we pass the "matchValue" as the FIXED value if exists
-        // selectWithRecording handles "matchValue" as strict override.
-
-        // However, selectWithRecording handles logging to governance passed in.
-        // We will create a temp governance to capture its logs, then merge.
-        const tempGov = { selected_fields: {}, source_refs: {}, rule_hits: [], warnings: [] };
-
-        // twist needs strict P0-2 logic: if matchValue exists, we use it, BUT we might append.
-        // Constraints module gave us 'required_twist_append'.
-
-        let override = matchValue;
-
-        if (dim === 'twist_mechanisms') {
-            // Handle Twist Append Logic here or ensure override includes it?
-            // If constraints.fixed.twist_mechanisms exists, it is the user override.
-            // We need to check constraints.required_twist_append.
-            if (override && constraints.required_twist_append) {
-                const reqId = constraints.required_twist_append;
-                const reqTwist = pool.find(t => t.id === reqId);
-                if (reqTwist) {
-                    const currentArr = Array.isArray(override) ? override : [override];
-                    // Check by ID
-                    const hasIt = currentArr.some(t => t.id === reqTwist.id);
-                    if (!hasIt) {
-                        override = [...currentArr, reqTwist];
-                        governanceUpdates.warnings.push(`Logic required twist '${reqId}' was appended to your overrides.`);
-                    }
-                } else {
-                    governanceUpdates.warnings.push(`Logic required twist category '${reqId}' not found in pool.`);
-                }
-            }
-
-            // If we have an override (user provided or we appended), return it!
-            if (override) {
-                return Array.isArray(override) ? override : [override];
-            }
-
-            // If NO override, we do standard selection logic which includes 'required_twist' Check (L1822)
-            // Original: "Validation: Logic requirement ... Random ... Inspiration ... If requiredTwist ... push"
-
-            if (!override) {
-                // Standard Random Logic
-                // We don't use selectWithRecording for multi-pick random in original code L1827
-                // It calls pickKUnique manually.
-                // We must replicate this manual logic for twists.
-
-                const k = Math.max(kRange[0], Math.min(kRange[1], getRandomInt(kRange[0], kRange[1], rng)));
-                // Forbidden filtering is done in pickKUnique 'available'
-                // But we need the config for forbidden terms? 
-                // P0: L1828: t => !containsForbiddenTerm(t.en, forbiddenTerms)
-                // We need forbiddenTerms from context
-                // ... (implementation details)
-            }
-        }
-
-        if (dim === 'twist_mechanisms' && !override) {
-            // Replicating Lines 1827-1841
-            const minK = kRange[0], maxK = kRange[1];
-            const k = Math.max(minK, Math.min(maxK, getRandomInt(minK, maxK, rng)));
-            const forbiddenTerms = pools.forbidden_visual_terms || [];
-            let available = pool.filter(t => !containsForbiddenTerm(t.en, forbiddenTerms));
-            let twistSelection = pickKUnique(available, k, rng);
-
-            // Inspiration
-            if (inspirationWeights && inspirationWeights.mechanisms.length > 0) {
-                const preferred = inspirationWeights.mechanisms.map(id => pool.find(m => m.id === id)).filter(Boolean);
-                for (let i = 0; i < Math.min(preferred.length, twistSelection.length); i++) twistSelection[i] = preferred[i];
-            }
-
-            // Logic Requirement (when no override)
-            if (constraints.required_twist_append) { // actually req cat
-                const reqTwist = pool.find(t => t.id === constraints.required_twist_append);
-                if (reqTwist && !twistSelection.includes(reqTwist)) {
-                    if (twistSelection.length > 0) twistSelection[0] = reqTwist;
-                    else twistSelection.push(reqTwist);
-                }
-            }
-            return twistSelection;
-        }
-
-        // Use selectWithRecording for single items
-        if (dim !== 'twist_mechanisms') {
-            // We use selectWithRecording which handles "matchValue" (Override) OR Random OR Inspiration (if we pass logic)
-            // But wait, selectWithRecording doesn't handle Inspiration weights internally!
-            // Original code lines 1887: just selectWithRecording for stage_context.
-            // Does it use inspiration?
-            // Original code L1537 parseInspirationSeed only parsed weights.
-            // But usage?
-            // L1660: World.
-            // L1748: Intent.
-            // L1764: Logic.
-            // L1778: Imaging.
-            // L1833: Twists.
-            // What about core_tension? Not explicitly usage of inspirationWeights in lines 1787.
-            // What about stage? Not usage.
-            // So for Stage/Comp/Light/Tension -> Simple selectWithRecording.
-
-            const res = selectWithRecording({
-                dimension: dim,
-                pool: pool,
-                rng,
-                lang,
-                worldId,
-                governance: tempGov,
-                debugStore,
-                matchValue: override
-            });
-
-            // Merge tempGov to governanceUpdates?
-            if (tempGov.rule_hits) governanceUpdates.rule_hits.push(...tempGov.rule_hits);
-            // ... handling logs ...
-
-            return res.raw; // we return the raw object
-        }
-    }
-
-    selection.core_tension = resolve('core_tension', pools.core_tension, constraints.fixed.core_tension);
-
-    // Twists (complex)
-    const twistK = pools.twistKRange || [2, 3]; // passed in inputs
-    selection.twist_mechanisms = resolve('twist_mechanisms', pools.twist_mechanisms, constraints.fixed.twist_mechanisms, true, twistK);
-
-    selection.subject_kit = resolve('subject_kit', pools.subject_kit, constraints.fixed.subject_kit);
-
-    selection.stage_context = resolve('stage_context', pools.stage_context, constraints.fixed.stage_context);
-    selection.composition_rule = resolve('composition_rule', pools.composition_rule, constraints.fixed.composition_rule);
-    selection.lighting_rule = resolve('lighting_rule', pools.lighting_rule, constraints.fixed.lighting_rule);
-
-    return { selection, governanceUpdates };
-}
-
-// Module 5: Assemble Prompt
-// (Wraps existing assemblePrompt logic)
-function assemble_prompt({ selection, worldConfig, lang }) {
-    // Reconstruct a "governance" object that assemblePrompt expects
-    const governance = {
-        deliverable_type: getVal(worldConfig.deliverable_type[0], lang), // Simplified per P0
-        core_tension: getVal(selection.core_tension, lang),
-        twist_mechanisms: selection.twist_mechanisms.map(t => getVal(t, lang)),
-        subject_kit: {
-            primary_subject: getVal(selection.subject_kit.primary_subject, lang),
-            secondary_elements: (selection.subject_kit.secondary_elements || []).map(e => getVal(e, lang))
-        },
-        stage_context: getVal(selection.stage_context, lang),
-        composition_rule: getVal(selection.composition_rule, lang),
-        lighting_rule: getVal(selection.lighting_rule, lang)
-    };
-    return assemblePrompt(governance);
-}
-
-// -----------------------------
-// Orchestrator
-// -----------------------------
+// Main logic
 
 function generateCreativeSkeleton(options = {}) {
-    // 1. Setup & Context
     const {
         world: forcedWorld = null,
         lang = 'en',
@@ -1958,168 +1628,344 @@ function generateCreativeSkeleton(options = {}) {
         imaging_assumption: forcedImagingAssumption = null,
         seed = null,
         inspirationSeed = null,
-        overrides: rawOverrides = {}
+        overrides = {}
     } = options;
+
+    // [OBSERVATION-STEP-1] Log raw overrides
+    console.log('--- [DEBUG] Raw Overrides Received:', JSON.stringify(overrides));
 
     const rng = createRNG(seed);
     const debugStore = { selected_fields_verbose: {}, seed: rng.seed };
+    const validation = { errors: [], warnings: [], dropped_overrides: [] };
 
-    // Inspiration Parsing
-    const inspirationWeights = parseInspirationSeed(inspirationSeed);
-
-    // World Selection (Orchestrator Responsibility to setup pools)
-    const allWorlds = Object.keys(WORLDS);
-    let world = forcedWorld;
-    // Inspiration Handling (World)
-    if (!world || world === 'any' || !WORLDS[world]) {
-        if (inspirationWeights && Object.keys(inspirationWeights.worlds).length > 0) {
-            let best = null, maxW = 0;
-            // Original code used 2x weight logic
-            const weightPool = [];
-            Object.entries(inspirationWeights.worlds).forEach(([w, weight]) => {
-                for (let i = 0; i < weight * 2; i++) weightPool.push(w);
-            });
-            // ... fallback logic if pool empty?
-            if (weightPool.length > 0) world = weightPool[Math.floor(rng() * weightPool.length)];
-        }
-        if (!world || world === 'any') {
-            world = allWorlds[Math.floor(rng() * allWorlds.length)];
-        }
-    }
-    if (!WORLDS[world]) world = 'advertising'; // Strict safety
-
-    const worldConfig = WORLDS[world];
-    const pools = {
-        creation_intent: Object.values(CREATION_INTENTS),
-        generation_logic: Object.values(GENERATION_LOGICS),
-        core_tension: worldConfig.core_tension,
-        twist_mechanisms: worldConfig.twist_mechanisms_pool,
-        subject_kit: worldConfig.subject_kits,
-        stage_context: worldConfig.stage_context,
-        composition_rule: worldConfig.composition_rule,
-        lighting_rule: worldConfig.lighting_rule,
-        forbidden_visual_terms: worldConfig.forbidden_visual_terms
+    // Initialize Governance
+    const governance = {
+        creative_id: `${generateId()}`,
+        schema_version: 'v1',
+        seed: rng.seed,
+        ruleset_version: RULESET_VERSION,
+        source_refs: {},
+        selected_fields: {},
+        rule_hits: [],
+        rule_blocks: [],
+        warnings: [],
+        reject_reason: null
     };
 
-    // 2. Normalize Overrides
-    const { clean: cleanOverrides, warnings: normWarnings } = normalize_overrides({ overrides: rawOverrides });
+    // --- 1. World Selection ---
+    const allWorlds = Object.keys(WORLDS);
+    let world = forcedWorld;
 
-    // 3. Validate Overrides
-    const { validated, errors, dropped, warnings: valWarnings } = validate_overrides({
-        clean: cleanOverrides,
-        pools,
-        worldConfig,
-        lang
-    });
+    // Parse Inspiration
+    const inspirationWeights = parseInspirationSeed(inspirationSeed);
+    if (inspirationWeights) {
+        governance.inspiration_seed = inspirationSeed;
+        governance.rule_hits.push({ id: 'inspiration_seed:applied', detail: inspirationSeed });
+    }
 
-    // 4. Resolve High Level (Intent/Logic/Imaging)
-    // We prioritize Validated Override > Forced > Inspiration > Random
-    // This replicates the logic around L1744-1774
-    function resolveHL(dim, pool, override, forced, inspMap, threshold) {
-        if (override) return override; // already validated object
-        if (forced && forced !== 'any') { // 'forced' in options is ID string usually
-            return pool.find(i => i.id === forced) || null;
+    // World Fallback if Invalid or 'any'
+    if (!world || world === 'any' || !WORLDS[world]) {
+        const weights = {};
+        if (inspirationWeights && Object.keys(inspirationWeights.worlds).length > 0) {
+            Object.entries(inspirationWeights.worlds).forEach(([w, weight]) => {
+                weights[w] = (weights[w] || 0) + weight * 2;
+            });
         }
-        if (inspMap && Object.keys(inspMap).length > 0) {
-            const highest = Object.entries(inspMap).reduce((a, b) => a[1] > b[1] ? a : b);
-            if (highest[1] >= threshold) {
-                return pool.find(i => i.id === highest[0]) || null;
+
+        const weightedPool = [];
+        for (const w of allWorlds) {
+            let weight = weights[w] || 1;
+            for (let i = 0; i < weight; i++) weightedPool.push(w);
+        }
+        const idx = Math.floor(rng() * weightedPool.length);
+        world = weightedPool[idx];
+    }
+
+    // Strict Safety Fallback
+    if (!WORLDS[world]) {
+        world = 'advertising';
+        validation.errors.push(`Invalid world selection, fallback to ${world}`);
+    }
+    const worldConfig = WORLDS[world];
+    const forbiddenTerms = worldConfig.forbidden_visual_terms || [];
+    governance.creative_world = world;
+
+    // --- 2. Validation Helper ---
+    // Policies: 
+    // - ID Must exist in pool 
+    // - Forbidden terms in value => warning
+    function validateAndGet(dimensionKey, overrideVal, pool, idKey = 'id') {
+        if (!overrideVal || overrideVal === 'any') return null;
+        const vals = Array.isArray(overrideVal) ? overrideVal : [overrideVal];
+        const validItems = [];
+
+        for (const v of vals) {
+            // P0-3: Unified format (Only raw slug)
+            let rawSlug = v;
+            if (typeof v === 'string' && v.includes(':')) {
+                rawSlug = v.split(':').pop();
+                validation.warnings.push(`Deprecated prefix format for ${dimensionKey} override '${v}' normalized to '${rawSlug}'. Please use raw slug.`);
+            }
+
+            // Try to find candidate
+            const candidate = pool.find(p => {
+                const pId = p[idKey];
+                // Match against rawId or prefixedId or actual rawSlug
+                return pId === v || pId === rawSlug || pId === `${dimensionKey}:${rawSlug}`;
+            });
+
+            if (candidate) {
+                // Check forbidden terms
+                const candidateStr = JSON.stringify(candidate);
+                if (containsForbiddenTerm(candidateStr, forbiddenTerms)) {
+                    validation.warnings.push(`Override '${v}' contains forbidden terms. Accepted with warning.`);
+                }
+                validItems.push(candidate);
+            } else {
+                validation.dropped_overrides.push({
+                    field: dimensionKey,
+                    user_input: v,
+                    reason: 'Not found in candidate pool',
+                    fallback_used: true
+                });
+                validation.errors.push(`Invalid override for ${dimensionKey}: '${v}' (Not found in candidate pool). Fallback applied.`);
             }
         }
-        return null; // fallback to random in sample phase? 
-        // Original logic: "selectWithRecording" handles "random" if matchValue is null.
-        // So we just return null here and let sample handle it.
+        return validItems.length > 0 ? (Array.isArray(overrideVal) ? validItems : validItems[0]) : null;
     }
 
-    const hlIntent = resolveHL('creation_intent', pools.creation_intent, validated.creation_intent, forcedIntent, inspirationWeights?.intents, 3);
-    const hlLogic = resolveHL('generation_logic', pools.generation_logic, validated.generation_logic, forcedLogic, inspirationWeights?.logics, 2);
+    // [OBSERVATION-STEP-4] validateAndGet Internal Inspection
+    // We cannot easily inject inside the function above without changing line numbers massively or using replace_file_content with a large block.
+    // Instead we will log candidate pool examples before usage.
 
-    // Imaging has special logic (L1777)
-    let finalImagingId = forcedImagingAssumption;
-    if (!finalImagingId && inspirationWeights?.imaging) finalImagingId = inspirationWeights.imaging;
-    if (!finalImagingId || !IMAGING_ASSUMPTIONS[finalImagingId]) finalImagingId = 'industrial_product_photography';
-    const hlImaging = IMAGING_ASSUMPTIONS[finalImagingId];
+    // --- 3. High-Level Dimensions (Intent, Logic) ---
 
-    // Wait, sample logic requires Intent/Logic objects. If null, we define random later.
-    // But Apply Constraints needs LOGIC object.
-    // If hlLogic is null, Apply Constraints (Step 5) can't check 'required_twist_category'.
-    // Original code: L1770 `logicSelection` selects a random one if logicMatch is null.
-    // So we MUST select Logic *before* Apply Constraints.
-    let selectedLogic = hlLogic;
-    if (!selectedLogic) {
-        selectedLogic = pick(pools.generation_logic, rng);
+    // Intent
+    const intentOverride = validateAndGet('creation_intent', overrides.intent || overrides.creation_intent || forcedIntent, Object.values(CREATION_INTENTS));
+    let intentMatch = intentOverride ? intentOverride.id : null;
+
+    // Apply Inspiration Logic for Intent if no override
+    if (!intentMatch && inspirationWeights && Object.keys(inspirationWeights.intents).length > 0) {
+        const highest = Object.entries(inspirationWeights.intents).reduce((a, b) => a[1] > b[1] ? a : b);
+        if (highest[1] >= 3) intentMatch = highest[0];
     }
-    // Intent as well
-    let selectedIntent = hlIntent || pick(pools.creation_intent, rng);
 
-    // 5. Apply Logic Constraints
-    const { fixed, required_twist_append, warnings: logicWarnings } = apply_logic_constraints({
-        validated: { ...validated, twist_mechanisms: validated.twist_mechanisms },
-        logicObj: selectedLogic,
-        inspirationWeights
+    const intentSelection = selectWithRecording({
+        dimension: 'creation_intent', pool: Object.values(CREATION_INTENTS),
+        rng, lang, governance, debugStore, matchValue: intentMatch
+    });
+    const intentObj = intentSelection.raw;
+    governance.creation_intent = intentObj.id;
+
+    // Logic
+    const logicOverride = validateAndGet('generation_logic', overrides.logic || overrides.generation_logic || forcedLogic, Object.values(GENERATION_LOGICS));
+    let logicMatch = logicOverride ? logicOverride.id : null;
+
+    if (!logicMatch && inspirationWeights && Object.keys(inspirationWeights.logics).length > 0) {
+        const highest = Object.entries(inspirationWeights.logics).reduce((a, b) => a[1] > b[1] ? a : b);
+        if (highest[1] >= 2) logicMatch = highest[0];
+    }
+
+    const logicSelection = selectWithRecording({
+        dimension: 'generation_logic', pool: Object.values(GENERATION_LOGICS),
+        rng, lang, governance, debugStore, matchValue: logicMatch
+    });
+    const logicObj = logicSelection.raw;
+    governance.generation_logic = logicObj.id;
+
+    // Imaging
+    let finalImaging = forcedImagingAssumption;
+    if (!finalImaging && inspirationWeights && inspirationWeights.imaging) finalImaging = inspirationWeights.imaging;
+    if (!finalImaging || !IMAGING_ASSUMPTIONS[finalImaging]) finalImaging = 'industrial_product_photography';
+    const imagingObj = IMAGING_ASSUMPTIONS[finalImaging];
+
+    // --- 4. Sub-Dimensions ---
+
+    // Core Tension
+    const tensionPool = worldConfig.core_tension || [];
+    const tensionOverride = validateAndGet('core_tension', overrides.core_tension, tensionPool);
+    const tensionSelection = selectWithRecording({
+        dimension: 'core_tension', pool: tensionPool,
+        rng, lang, governance, worldId: world, debugStore, matchValue: tensionOverride ? tensionOverride.id : null
+    });
+    const coreTensionRaw = tensionSelection.raw;
+
+    // Twist Mechanisms
+    const twistPool = worldConfig.twist_mechanisms_pool || [];
+    // [OBSERVATION-STEP-4] Pool ID Format Check
+    if (twistPool.length > 0) {
+        console.log('--- [DEBUG] Twist Pool ID Examples (first 3):', twistPool.slice(0, 3).map(t => t.id));
+    }
+    console.log('--- [DEBUG] Twist Override Input:', overrides.twist_mechanisms);
+    const twistOverride = validateAndGet('twist_mechanisms', overrides.twist_mechanisms, twistPool);
+
+    let twistSelectionRaw = [];
+    if (twistOverride) {
+        twistSelectionRaw = Array.isArray(twistOverride) ? twistOverride : [twistOverride];
+        governance.rule_hits.push({ id: 'override:twist_mechanisms', detail: 'Applied override' });
+
+        // P0-2: Decision A - "override 存在时仍然追加 required twist" (ID-based)
+        if (logicObj.required_twist_category) {
+            const requiredTwist = twistPool.find(t => t.id === logicObj.required_twist_category);
+            if (requiredTwist) {
+                if (!twistSelectionRaw.some(t => t.id === requiredTwist.id)) {
+                    twistSelectionRaw.push(requiredTwist);
+                    validation.warnings.push(`Logic required twist '${requiredTwist.id}' was appended to your overrides.`);
+                }
+            } else {
+                validation.errors.push(`Logic required twist category '${logicObj.required_twist_category}' not found in pool.`);
+            }
+        }
+    } else {
+        // Validation: Logic requirement
+        let requiredTwist = null;
+        if (logicObj.required_twist_category) {
+            requiredTwist = twistPool.find(t => t.id === logicObj.required_twist_category);
+        }
+
+        // Random selection
+        const k = Math.max(twistKRange[0], Math.min(twistKRange[1], getRandomInt(twistKRange[0], twistKRange[1], rng)));
+        let available = twistPool.filter(t => !containsForbiddenTerm(t.en, forbiddenTerms));
+
+        twistSelectionRaw = pickKUnique(available, k, rng);
+
+        // Inspiration injection
+        if (inspirationWeights && inspirationWeights.mechanisms.length > 0) {
+            const preferred = inspirationWeights.mechanisms.map(id => twistPool.find(m => m.id === id)).filter(Boolean);
+            for (let i = 0; i < Math.min(preferred.length, twistSelectionRaw.length); i++) twistSelectionRaw[i] = preferred[i];
+        }
+
+        if (requiredTwist && !twistSelectionRaw.includes(requiredTwist)) {
+            if (twistSelectionRaw.length > 0) twistSelectionRaw[0] = requiredTwist;
+            else twistSelectionRaw.push(requiredTwist);
+        }
+    }
+    console.log('--- [DEBUG] Final Twist Selection IDs:', twistSelectionRaw.map(t => t.id));
+
+    // Subject Kit
+    // Subject kits in existing code are objects without IDs, mostly. 
+    // Original code matches overrides by complex logic or string.
+    // We will attempt to match primary_subject string if passed.
+    const subjectPool = worldConfig.subject_kits || [];
+    // P0-1: Eliminate subject_kit override silent fail
+    const subjectSelection = selectWithRecording({
+        dimension: 'subject_kit', pool: subjectPool,
+        rng, lang, governance, worldId: world, debugStore,
+        matchValue: overrides.subject_kit
     });
 
-    // 6. Sample Candidates
-    const { selection, governanceUpdates } = sample_candidates({
-        constraints: { fixed, required_twist_append },
-        pools: { ...pools, twistKRange }, // Pass K Range 
-        rng,
-        worldId: world,
-        lang,
-        highLevel: { intent: selectedIntent, logic: selectedLogic, imaging: hlImaging },
-        inspirationWeights,
-        debugStore
+    if (overrides.subject_kit && overrides.subject_kit !== 'any') {
+        // Check if selection was random due to miss
+        const matchedId = getStableOptionId(world, 'subject_kit', subjectSelection.raw, lang);
+
+        // Expected ID normalization for comparison
+        let normalizedOverride = overrides.subject_kit;
+        if (typeof normalizedOverride === 'string' && normalizedOverride.includes(':')) {
+            normalizedOverride = normalizedOverride.split(':').pop();
+            validation.warnings.push(`Deprecated prefix format for subject_kit override '${overrides.subject_kit}' normalized to '${normalizedOverride}'.`);
+        }
+
+        const expectedId = `subject_kit:${slugify(normalizedOverride)}`;
+
+        if (matchedId !== expectedId) {
+            validation.dropped_overrides.push({
+                field: 'subject_kit',
+                user_input: overrides.subject_kit,
+                reason: 'Not found in candidate pool',
+                fallback_used: true
+            });
+            validation.errors.push(`Invalid override for subject_kit: '${overrides.subject_kit}' (Not found in candidate pool). Fallback applied.`);
+        }
+    }
+
+    const subjectRaw = subjectSelection.raw;
+
+    // Stage, Composition, Lighting
+    const stagePool = worldConfig.stage_context || [];
+    const stageOverride = overrides.stage_context; // Simple strings usually
+    const stageSelection = selectWithRecording({
+        dimension: 'stage_context', pool: stagePool,
+        rng, lang, governance, worldId: world, debugStore, matchValue: stageOverride
     });
 
-    // 7. Assemble
-    const finalPrompt = assemble_prompt({ selection, worldConfig, lang });
+    const compSelection = selectWithRecording({
+        dimension: 'composition_rule', pool: worldConfig.composition_rule, rng, lang, worldId: world, governance, debugStore, matchValue: overrides.composition_rule
+    });
 
-    // 8. Output Construction
-    // Aggregate Validation
-    const allWarnings = [
-        ...normWarnings,
-        ...valWarnings,
-        ...logicWarnings,
-        ...governanceUpdates.warnings
-    ];
+    const lightSelection = selectWithRecording({
+        dimension: 'lighting_rule', pool: worldConfig.lighting_rule, rng, lang, worldId: world, governance, debugStore, matchValue: overrides.lighting_rule
+    });
+
+
+    // --- 5. Assemble & Normalize Output (P0 Goals) ---
 
     const safeT = (item) => getVal(item, lang);
     const safeSlug = (val) => slugify(val || 'unknown');
+    // Helper to generate Fact ID
     const factId = (prefix, item) => {
         if (item && item.id) return `${prefix}:${item.id}`;
-        const val = item && (item.en || item.zh || item);
+        const val = item && (item.en || item.zh || item); // Handle objects or strings
         return `${prefix}:${safeSlug(val)}`;
     };
 
+    // Prepare standardized fields
+    const twistTexts = twistSelectionRaw.map(t => safeT(t));
+    const twistIds = twistSelectionRaw.map(t => {
+        if (t && t.id) return t.id;
+        const val = t && (t.en || t.zh || t);
+        return safeSlug(val);
+    });
+
+    const subjectKitFinal = {
+        primary_subject: safeT(subjectRaw.primary_subject),
+        primary_id: factId('subject', subjectRaw.primary_subject),
+        secondary_elements: (subjectRaw.secondary_elements || []).map(e => safeT(e)),
+        secondary_ids: (subjectRaw.secondary_elements || []).map(e => factId('element', e))
+    };
+
+    // Populate Governance for Prompt Assembly
+    // (We reuse the sanitized raw values)
+    governance.deliverable_type = safeT(worldConfig.deliverable_type[0]); // Simplified
+    governance.core_tension = safeT(coreTensionRaw);
+    governance.twist_mechanisms = twistTexts;
+    governance.subject_kit = subjectKitFinal;
+    governance.stage_context = safeT(stageSelection.raw);
+    governance.composition_rule = safeT(compSelection.raw);
+    governance.lighting_rule = safeT(lightSelection.raw);
+
+    const finalPrompt = assemblePrompt(governance);
+
+    // Final Public Skeleton (The Safe Contract)
+    const publicSkeleton = {
+        schema_version: 'v1',
+        creative_id: governance.creative_id,
+        creative_world: `world:${world}`, // Unified ID
+
+        creation_intent: safeT(intentObj.desc),
+        generation_logic: safeT(logicObj.desc),
+
+        // Normalized Arrays/Objects
+        twist_mechanisms: twistTexts,
+        twist_ids: twistIds,
+
+        subject_kit: subjectKitFinal,
+
+        core_tension: governance.core_tension,
+        stage_context: governance.stage_context,
+        composition_rule: governance.composition_rule,
+        lighting_rule: governance.lighting_rule,
+
+        imaging_assumption: safeT(imagingObj.desc),
+        deliverable_type: governance.deliverable_type,
+
+        final_prompt: finalPrompt,
+        validation: validation
+    };
+
     return {
-        public_skeleton: {
-            schema_version: 'v1',
-            creative_id: `${generateId()}`,
-            creative_world: `world:${world}`,
-            creation_intent: safeT(selection.creation_intent.desc),
-            generation_logic: safeT(selection.generation_logic.desc),
-            twist_mechanisms: selection.twist_mechanisms.map(t => safeT(t)),
-            twist_ids: selection.twist_mechanisms.map(t => t.id || safeSlug(getVal(t))),
-            subject_kit: {
-                primary_subject: safeT(selection.subject_kit.primary_subject),
-                primary_id: factId('subject', selection.subject_kit.primary_subject),
-                secondary_elements: (selection.subject_kit.secondary_elements || []).map(e => safeT(e)),
-                secondary_ids: (selection.subject_kit.secondary_elements || []).map(e => factId('element', e))
-            },
-            core_tension: safeT(selection.core_tension),
-            stage_context: safeT(selection.stage_context),
-            composition_rule: safeT(selection.composition_rule),
-            lighting_rule: safeT(selection.lighting_rule),
-            imaging_assumption: safeT(selection.imaging_assumption.desc),
-            deliverable_type: safeT(worldConfig.deliverable_type[0]),
-            final_prompt: finalPrompt,
-            validation: {
-                errors: errors,
-                warnings: allWarnings,
-                dropped_overrides: dropped
-            }
-        },
-        debug: debugStore
+        public_skeleton: publicSkeleton,
+        // debug: debugStore // we can hide debug for public
+        debug: {}
     };
 }
 
@@ -2142,7 +1988,6 @@ function getAvailableWorlds() {
 // Generate a random ID (helper)
 const generateId = () => Math.random().toString(36).substring(2, 10);
 
-// Exports
 module.exports = {
     generateCreativeSkeleton,
     getAvailableWorlds,
@@ -2151,11 +1996,5 @@ module.exports = {
     CREATION_INTENTS,
     GENERATION_LOGICS,
     IMAGING_ASSUMPTIONS,
-    PromptAssemblyError,
-    // Export pure functions for testing if needed
-    normalize_overrides,
-    validate_overrides,
-    apply_logic_constraints,
-    sample_candidates,
-    assemble_prompt
+    PromptAssemblyError
 };

@@ -130,7 +130,8 @@ body {
     border-bottom: 1px solid rgba(26, 26, 26, 0.08);
 }
 
-.nav-center {
+.nav-center,
+.tabs-nav {
     display: flex;
     gap: 2rem;
 }
@@ -838,4 +839,26 @@ button span {
 
 .editable-dimension:hover strong {
     color: var(--accent-color);
+}
+
+/* Tab Content Switching */
+.tab-content {
+    display: none !important;
+    animation: fadeIn 0.4s ease-out;
+}
+
+.tab-content.active {
+    display: block !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
