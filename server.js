@@ -16,6 +16,26 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Request logging middleware
+app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        console.log(`[${new Date().toISOString()}] ${req.method} ${req.path} - ${res.statusCode} (${duration}ms)`);
+    });
+    next();
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.json({
+        ok: true,
+        pid: process.pid,
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString()
+    });
+});
+
 // API: 获取配置信息 (Intents, Logics, Worlds)
 app.get('/api/config', (req, res) => {
     res.json({
@@ -35,20 +55,13 @@ app.get('/api/worlds', (req, res) => {
 const VALID_MODES = new Set(['model', 'full', 'debug']);
 
 function shapeResult(payload, mode) {
-    if (mode === 'model') {
-        return payload.model_input;
-    }
     if (mode === 'debug') {
         return {
-            model_input: payload.model_input,
-            governance_record: payload.governance_record,
+            ...payload.public_skeleton,
             debug: payload.debug
         };
     }
-    return {
-        ...payload.governance_record,
-        model_input: payload.model_input
-    };
+    return payload.public_skeleton;
 }
 
 app.post('/api/generate', (req, res) => {
@@ -66,6 +79,7 @@ app.post('/api/generate', (req, res) => {
         const results = [];
 
         for (let i = 0; i < count; i++) {
+            const genStart = Date.now();
             const payload = generateCreativeSkeleton({
                 world: targetWorld,
                 lang,
@@ -77,6 +91,10 @@ app.post('/api/generate', (req, res) => {
                 inspirationSeed: inspirationSeed || null,
                 overrides
             });
+            const genDuration = Date.now() - genStart;
+            if (genDuration > 1000) {
+                console.warn(`[WARN] Generation ${i + 1}/${count} took ${genDuration}ms (>1s threshold)`);
+            }
             results.push(shapeResult(payload, normalizedMode));
         }
 

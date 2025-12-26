@@ -599,11 +599,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getOptionId(dimension, item) {
         if (item && typeof item === 'object') {
-            if (item.id) return `${dimension}:${item.id}`;
+            if (item.id) return item.id;
             const val = item.en || item.zh || (item.primary_subject ? item.primary_subject.en : null);
-            if (val) return `${dimension}:${slugify(val)}`;
+            if (val) return slugify(val);
         }
-        return `${dimension}:${slugify(String(item))}`;
+        return slugify(String(item));
     }
 
     function slugify(text) {
@@ -630,9 +630,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function createCardElement(item) {
         const lang = localStorage.getItem('idea_lang') || 'en';
         const labels = i18n[lang].card_labels;
-        const selected = item.selected_fields || {};
+
         const card = document.createElement('div');
         card.className = 'card';
+        if (item.validation && item.validation.errors.length > 0) {
+            card.className += ' card--has-errors';
+        }
 
         const clean = (val) => {
             if (typeof val === 'string' && val.includes(':')) {
@@ -641,47 +644,44 @@ document.addEventListener('DOMContentLoaded', () => {
             return val;
         };
 
-        const deliverableValue = clean(selected.deliverable_type?.selected_value || item.deliverable_type);
-        const coreValue = clean(selected.core_tension?.selected_value || item.core_tension);
-        const stageValue = clean(selected.stage_context?.selected_value || item.stage_context);
-        const compositionValue = clean(selected.composition_rule?.selected_value || item.composition_rule);
-        const lightingValue = clean(selected.lighting_rule?.selected_value || item.lighting_rule);
+        // Twist Mechanisms: Guaranteed String[]
+        const twistList = item.twist_mechanisms || [];
+        const twistTags = twistList.map(text =>
+            `<span class="tag">${t(text, lang)}</span>`
+        ).join(' ') || '<span class="tag">-</span>';
 
-        let twistData = selected.twist_mechanisms || item.twist_mechanisms || [];
-        if (twistData.selected_values && Array.isArray(twistData.selected_values)) {
-            twistData = twistData.selected_values;
-        } else if (twistData.selected_ids && Array.isArray(twistData.selected_ids)) {
-            twistData = twistData.selected_ids;
-        }
-
-        const twistList = Array.isArray(twistData) ? twistData : [twistData];
-        const twistTags = twistList
-            .map(entry => {
-                let val = (typeof entry === 'object' && entry) ? (entry.selected_value || entry.value || entry) : entry;
-                return val && `<span class="tag">${t(clean(val), lang)}</span>`;
-            })
-            .filter(Boolean)
-            .join(' ') || '<span class="tag">-</span>';
-
-        const subjectKit = selected.subject_kit?.selected_value || item.subject_kit;
+        // Subject Kit: Guaranteed Object { primary_subject, secondary_elements: [] }
         let subjectHtml = '';
-        if (subjectKit) {
-            const primary = t(subjectKit.primary_subject || subjectKit.primary || subjectKit, lang);
-            const secondaryList = (subjectKit.secondary_elements || subjectKit.secondary || []);
-            const secondary = secondaryList.map(el => `<span class="tag" style="background:#e8f5e9; color:#2e7d32;">${t(el, lang)}</span>`).join('');
-
-            if (secondary) {
+        if (item.subject_kit) {
+            const primary = t(item.subject_kit.primary_subject, lang);
+            const secondaryList = item.subject_kit.secondary_elements || [];
+            if (secondaryList.length > 0) {
+                const secondary = secondaryList.map(el =>
+                    `<span class="tag" style="background:#e8f5e9; color:#2e7d32;">${t(el, lang)}</span>`
+                ).join('');
                 subjectHtml = `<div class="card-value"><strong>${primary}</strong></div><div class="tags" style="margin-top:5px;">${secondary}</div>`;
             } else {
                 subjectHtml = `<div class="card-value">${primary}</div>`;
             }
         } else {
             subjectHtml = `<div class="card-value">-</div>`;
+        } // Fallback if server fails: -
+
+        // Validation Feedback
+        let validationHtml = '';
+        if (item.validation) {
+            if (item.validation.errors && item.validation.errors.length > 0) {
+                validationHtml += `<div class="card-alert card-alert--error" style="color:red; font-size:0.8em; padding:5px; background:#ffeeee; border-radius:4px; margin-bottom:10px;">⚠️ ${item.validation.errors.join('<br>')}</div>`;
+            }
+            if (item.validation.warnings && item.validation.warnings.length > 0) {
+                validationHtml += `<div class="card-alert card-alert--warning" style="color:orange; font-size:0.8em; padding:5px; background:#fff8e0; border-radius:4px; margin-bottom:10px;">⚠️ ${item.validation.warnings.join('<br>')}</div>`;
+            }
         }
 
         card.innerHTML = `
             <div class="card-header">
-                <h3>${formatWorldName(item.world_id || item.creative_world)}</h3>
+                <!-- P0-1: ID is raw dimension:someslug as per normalized schema, we assume we want to format world name for header -->
+                <h3>${formatWorldName(item.creative_world ? item.creative_world.replace('world:', '') : 'Unknown')}</h3>
                 <div class="card-header-actions" style="display:flex; gap:10px;">
                      <button class="icon-btn fav-btn" title="${i18n[lang].fav_add}" style="background:none; border:none; cursor:pointer; color:#95a5a6;">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
@@ -697,34 +697,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
             
+            ${validationHtml}
+
             <!-- 1. Imaging Assumption (Gold) -->
             <div class="card-item item-imaging">
                 <span class="card-label" data-i18n-label="imaging_assumption">${labels.imaging_assumption}</span>
-                <span class="card-value">${t(clean(selected.imaging_assumption?.selected_value || item.imaging_assumption), lang)}</span>
+                <span class="card-value">${t(item.imaging_assumption, lang)}</span>
             </div>
 
             <!-- 2. Creation Intent -->
             <div class="card-item">
                 <span class="card-label" data-i18n-label="creation_intent">${labels.creation_intent}</span>
-                <span class="card-value">${t(clean(selected.creation_intent?.selected_value || item.creation_intent), lang)}</span>
+                <span class="card-value">${t(item.creation_intent, lang)}</span>
             </div>
 
             <!-- 3. Generation Logic -->
             <div class="card-item">
                 <span class="card-label" data-i18n-label="generation_logic">${labels.generation_logic}</span>
-                <span class="card-value">${t(clean(selected.generation_logic?.selected_value || item.generation_logic), lang)}</span>
+                <span class="card-value">${t(item.generation_logic, lang)}</span>
             </div>
 
             <!-- 4. Deliverable Type -->
              <div class="card-item">
                 <span class="card-label" data-i18n-label="deliverable_type">${labels.deliverable_type}</span>
-                <span class="card-value">${t(deliverableValue, lang)}</span>
+                <span class="card-value">${t(item.deliverable_type, lang)}</span>
             </div>
 
             <!-- 5. Core Tension -->
             <div class="card-item item-tension">
                 <span class="card-label" data-i18n-label="core_tension">${labels.core_tension}</span>
-                <span class="card-value">${t(coreValue, lang)}</span>
+                <span class="card-value">${t(item.core_tension, lang)}</span>
             </div>
 
             <!-- 6. Twist Mechanisms -->
@@ -742,32 +744,26 @@ document.addEventListener('DOMContentLoaded', () => {
             <!-- 8. Stage Context -->
              <div class="card-item">
                 <span class="card-label" data-i18n-label="stage_context">${labels.stage_context}</span>
-                <span class="card-value">${t(stageValue, lang)}</span>
+                <span class="card-value">${t(item.stage_context, lang)}</span>
             </div>
 
             <!-- 9. Composition Rule -->
             <div class="card-item">
                 <span class="card-label" data-i18n-label="composition_rule">${labels.composition_rule}</span>
-                <span class="card-value">${t(compositionValue, lang)}</span>
+                <span class="card-value">${t(item.composition_rule, lang)}</span>
             </div>
 
             <!-- 10. Lighting Rule -->
              <div class="card-item">
                 <span class="card-label" data-i18n-label="lighting_rule">${labels.lighting_rule}</span>
-                <span class="card-value">${t(lightingValue, lang)}</span>
+                <span class="card-value">${t(item.lighting_rule, lang)}</span>
             </div>
 
-             <!-- 11. Rule Hits (Visible only if populated) -->
-             ${item.rule_hits && item.rule_hits.length > 0 ? `
-             <div class="card-item">
-                <span class="card-label" style="margin-bottom:0.5rem;">RULE HITS</span>
-                <div style="display:flex; flex-direction:column; gap:0.5rem;">
-                    ${item.rule_hits.map(hit => `
-                        <div style="font-size:0.75rem; letter-spacing:0.05em; border-bottom:1px solid rgba(0,0,0,0.1); padding-bottom:0.25rem;">
-                            ${hit}
-                        </div>
-                    `).join('')}
-                </div>
+             <!-- 11. Final Prompt (Optional Debug) -->
+             ${item.final_prompt ? `
+             <div class="card-item" style="opacity:0.6; font-size:0.8em;">
+                <span class="card-label">Prompt Preview</span>
+                <div class="card-value">${item.final_prompt}</div>
              </div>` : ''}
 
             <!-- 12. ID (Moved to bottom) -->

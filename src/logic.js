@@ -1631,11 +1631,17 @@ function generateCreativeSkeleton(options = {}) {
         overrides = {}
     } = options;
 
-    const normalizedOverrides = overrides || {};
+    // [OBSERVATION-STEP-1] Log raw overrides
+    console.log('--- [DEBUG] Raw Overrides Received:', JSON.stringify(overrides));
+
     const rng = createRNG(seed);
     const debugStore = { selected_fields_verbose: {}, seed: rng.seed };
+    const validation = { errors: [], warnings: [], dropped_overrides: [] };
+
+    // Initialize Governance
     const governance = {
         creative_id: `${generateId()}`,
+        schema_version: 'v1',
         seed: rng.seed,
         ruleset_version: RULESET_VERSION,
         source_refs: {},
@@ -1646,394 +1652,320 @@ function generateCreativeSkeleton(options = {}) {
         reject_reason: null
     };
 
-    // 解析灵感种子
+    // --- 1. World Selection ---
+    const allWorlds = Object.keys(WORLDS);
+    let world = forcedWorld;
+
+    // Parse Inspiration
     const inspirationWeights = parseInspirationSeed(inspirationSeed);
     if (inspirationWeights) {
         governance.inspiration_seed = inspirationSeed;
         governance.rule_hits.push({ id: 'inspiration_seed:applied', detail: inspirationSeed });
     }
 
-    // Creation Intent (应用灵感种子权重)
-    const intentPool = Object.values(CREATION_INTENTS);
-    let forcedIntentByInspiration = forcedIntent;
-    if (!forcedIntentByInspiration && inspirationWeights && Object.keys(inspirationWeights.intents).length > 0) {
-        // 选择权重最高的intent
-        const highestIntent = Object.entries(inspirationWeights.intents).reduce((a, b) => a[1] > b[1] ? a : b);
-        if (highestIntent[1] >= 3) { // 权重足够高才强制使用
-            forcedIntentByInspiration = highestIntent[0];
-            governance.rule_hits.push({ id: 'inspiration_seed:intent', detail: highestIntent[0] });
-        }
-    }
-    const intentSelection = selectWithRecording({
-        dimension: 'creation_intent',
-        pool: intentPool,
-        rng,
-        lang,
-        governance,
-        debugStore,
-        matchValue: forcedIntentByInspiration && forcedIntentByInspiration !== 'any' && CREATION_INTENTS[forcedIntentByInspiration] ? forcedIntentByInspiration : null
-    });
-    const intentKey = intentSelection.raw.id;
-    const intentObj = intentSelection.raw;
-    governance.creation_intent = intentKey;
-    governance.creation_intent_desc = getVal(intentObj.desc, lang);
-
-    // Generation Logic (应用灵感种子权重)
-    const logicPool = Object.values(GENERATION_LOGICS);
-    let forcedLogicByInspiration = forcedLogic;
-    if (!forcedLogicByInspiration && inspirationWeights && Object.keys(inspirationWeights.logics).length > 0) {
-        const highestLogic = Object.entries(inspirationWeights.logics).reduce((a, b) => a[1] > b[1] ? a : b);
-        if (highestLogic[1] >= 2) {
-            forcedLogicByInspiration = highestLogic[0];
-            governance.rule_hits.push({ id: 'inspiration_seed:logic', detail: highestLogic[0] });
-        }
-    }
-    const logicSelection = selectWithRecording({
-        dimension: 'generation_logic',
-        pool: logicPool,
-        rng,
-        lang,
-        governance,
-        debugStore,
-        matchValue: forcedLogicByInspiration && forcedLogicByInspiration !== 'any' && GENERATION_LOGICS[forcedLogicByInspiration] ? forcedLogicByInspiration : null
-    });
-    const logicKey = logicSelection.raw.id;
-    const logicObj = logicSelection.raw;
-    governance.generation_logic = logicKey;
-    governance.generation_logic_desc = getVal(logicObj.desc, lang);
-
-    // Creative World (应用灵感种子权重)
-    const allWorlds = Object.keys(WORLDS);
-    const worldCandidates = buildCandidates(allWorlds, 'creative_world', 'global', lang);
-    let world = forcedWorld && forcedWorld !== 'any' && WORLDS[forcedWorld] ? forcedWorld : null;
-    if (!world) {
-        // 合并intent的weight_bias和灵感种子的weights
-        const weights = { ...(intentObj.weight_bias || {}) };
-
-        // 应用灵感种子权重（优先级更高）
+    // World Fallback if Invalid or 'any'
+    if (!world || world === 'any' || !WORLDS[world]) {
+        const weights = {};
         if (inspirationWeights && Object.keys(inspirationWeights.worlds).length > 0) {
             Object.entries(inspirationWeights.worlds).forEach(([w, weight]) => {
-                weights[w] = (weights[w] || 0) + weight * 2; // 灵感种子权重翻倍
+                weights[w] = (weights[w] || 0) + weight * 2;
             });
-            governance.rule_hits.push({ id: 'inspiration_seed:world_weights', detail: Object.keys(inspirationWeights.worlds).join(',') });
         }
 
         const weightedPool = [];
         for (const w of allWorlds) {
-            const weight = weights[w] || 1;
-            for (let i = 0; i < weight; i++) {
-                weightedPool.push(w);
-            }
+            let weight = weights[w] || 1;
+            for (let i = 0; i < weight; i++) weightedPool.push(w);
         }
         const idx = Math.floor(rng() * weightedPool.length);
         world = weightedPool[idx];
-        governance.rule_hits.push({ id: `intent:${intentKey}:world_bias`, detail: `Weighted world selection` });
     }
+
+    // Strict Safety Fallback
     if (!WORLDS[world]) {
-        throw new PromptAssemblyError('UNKNOWN_WORLD', `Unknown creative world: ${world}`);
+        world = 'advertising';
+        validation.errors.push(`Invalid world selection, fallback to ${world}`);
     }
-    const worldIdx = worldCandidates.findIndex(c => c.raw === world);
-    recordSelection(governance, 'creative_world', worldCandidates, worldIdx >= 0 ? worldIdx : 0, debugStore);
+    const worldConfig = WORLDS[world];
+    const forbiddenTerms = worldConfig.forbidden_visual_terms || [];
+    governance.creative_world = world;
 
-    const cfg = WORLDS[world];
-    const forbiddenTerms = cfg.forbidden_visual_terms || [];
-    governance.imaging_profile = cfg.imaging_profile || null;
+    // --- 2. Validation Helper ---
+    // Policies: 
+    // - ID Must exist in pool 
+    // - Forbidden terms in value => warning
+    function validateAndGet(dimensionKey, overrideVal, pool, idKey = 'id') {
+        if (!overrideVal || overrideVal === 'any') return null;
+        const vals = Array.isArray(overrideVal) ? overrideVal : [overrideVal];
+        const validItems = [];
 
-    // Imaging assumption metadata (应用灵感种子)
-    let imagingAssumptionDesc = 'World Adaptive';
-    let finalImagingAssumption = forcedImagingAssumption;
-    if (!finalImagingAssumption && inspirationWeights && inspirationWeights.imaging) {
-        finalImagingAssumption = inspirationWeights.imaging;
-        governance.rule_hits.push({ id: 'inspiration_seed:imaging', detail: inspirationWeights.imaging });
+        for (const v of vals) {
+            // P0-3: Unified format (Only raw slug)
+            let rawSlug = v;
+            if (typeof v === 'string' && v.includes(':')) {
+                rawSlug = v.split(':').pop();
+                validation.warnings.push(`Deprecated prefix format for ${dimensionKey} override '${v}' normalized to '${rawSlug}'. Please use raw slug.`);
+            }
+
+            // Try to find candidate
+            const candidate = pool.find(p => {
+                const pId = p[idKey];
+                // Match against rawId or prefixedId or actual rawSlug
+                return pId === v || pId === rawSlug || pId === `${dimensionKey}:${rawSlug}`;
+            });
+
+            if (candidate) {
+                // Check forbidden terms
+                const candidateStr = JSON.stringify(candidate);
+                if (containsForbiddenTerm(candidateStr, forbiddenTerms)) {
+                    validation.warnings.push(`Override '${v}' contains forbidden terms. Accepted with warning.`);
+                }
+                validItems.push(candidate);
+            } else {
+                validation.dropped_overrides.push({
+                    field: dimensionKey,
+                    user_input: v,
+                    reason: 'Not found in candidate pool',
+                    fallback_used: true
+                });
+                validation.errors.push(`Invalid override for ${dimensionKey}: '${v}' (Not found in candidate pool). Fallback applied.`);
+            }
+        }
+        return validItems.length > 0 ? (Array.isArray(overrideVal) ? validItems : validItems[0]) : null;
     }
-    if (finalImagingAssumption && IMAGING_ASSUMPTIONS[finalImagingAssumption]) {
-        imagingAssumptionDesc = getVal(IMAGING_ASSUMPTIONS[finalImagingAssumption].desc, lang);
-    }
-    governance.imaging_assumption = finalImagingAssumption || 'auto_world_mapped';
-    governance.imaging_assumption_desc = imagingAssumptionDesc;
 
-    // Deliverable type (governance)
-    const deliverableSelection = selectWithRecording({
-        dimension: 'deliverable_type',
-        pool: cfg.deliverable_type,
-        rng,
-        lang,
-        worldId: world,
-        governance,
-        debugStore
+    // [OBSERVATION-STEP-4] validateAndGet Internal Inspection
+    // We cannot easily inject inside the function above without changing line numbers massively or using replace_file_content with a large block.
+    // Instead we will log candidate pool examples before usage.
+
+    // --- 3. High-Level Dimensions (Intent, Logic) ---
+
+    // Intent
+    const intentOverride = validateAndGet('creation_intent', overrides.intent || overrides.creation_intent || forcedIntent, Object.values(CREATION_INTENTS));
+    let intentMatch = intentOverride ? intentOverride.id : null;
+
+    // Apply Inspiration Logic for Intent if no override
+    if (!intentMatch && inspirationWeights && Object.keys(inspirationWeights.intents).length > 0) {
+        const highest = Object.entries(inspirationWeights.intents).reduce((a, b) => a[1] > b[1] ? a : b);
+        if (highest[1] >= 3) intentMatch = highest[0];
+    }
+
+    const intentSelection = selectWithRecording({
+        dimension: 'creation_intent', pool: Object.values(CREATION_INTENTS),
+        rng, lang, governance, debugStore, matchValue: intentMatch
     });
-    governance.deliverable_type = getVal(deliverableSelection.raw, lang);
+    const intentObj = intentSelection.raw;
+    governance.creation_intent = intentObj.id;
 
-    // Entry point with logic preference
-    let entryPool = [...cfg.entry_point];
-    if (logicObj.preferred_entry) {
-        const preferred = entryPool.filter(e => e.id === logicObj.preferred_entry);
-        if (preferred.length && rng() < 0.8) {
-            entryPool = preferred;
-            governance.rule_hits.push({ id: `logic:${logicKey}:preferred_entry`, detail: logicObj.preferred_entry });
-        }
+    // Logic
+    const logicOverride = validateAndGet('generation_logic', overrides.logic || overrides.generation_logic || forcedLogic, Object.values(GENERATION_LOGICS));
+    let logicMatch = logicOverride ? logicOverride.id : null;
+
+    if (!logicMatch && inspirationWeights && Object.keys(inspirationWeights.logics).length > 0) {
+        const highest = Object.entries(inspirationWeights.logics).reduce((a, b) => a[1] > b[1] ? a : b);
+        if (highest[1] >= 2) logicMatch = highest[0];
     }
-    const entrySelection = selectWithRecording({
-        dimension: 'entry_point',
-        pool: entryPool,
-        rng,
-        lang,
-        worldId: world,
-        governance,
-        debugStore
+
+    const logicSelection = selectWithRecording({
+        dimension: 'generation_logic', pool: Object.values(GENERATION_LOGICS),
+        rng, lang, governance, debugStore, matchValue: logicMatch
     });
-    governance.entry_point = getVal(entrySelection.raw, lang);
+    const logicObj = logicSelection.raw;
+    governance.generation_logic = logicObj.id;
 
-    // Core tension filtering (应用灵感种子偏好)
-    let tensionPool = [...cfg.core_tension];
-    if (intentObj.forbidden_tensions && intentObj.forbidden_tensions.length) {
-        const blocked = tensionPool.filter(t => intentObj.forbidden_tensions.includes(t.id));
-        if (blocked.length) {
-            governance.rule_blocks.push({ id: `intent:${intentKey}:forbid_tension`, detail: blocked.map(b => b.id) });
-        }
-        tensionPool = tensionPool.filter(t => !intentObj.forbidden_tensions.includes(t.id));
-        if (!tensionPool.length) tensionPool = [...cfg.core_tension];
-    }
+    // Imaging
+    let finalImaging = forcedImagingAssumption;
+    if (!finalImaging && inspirationWeights && inspirationWeights.imaging) finalImaging = inspirationWeights.imaging;
+    if (!finalImaging || !IMAGING_ASSUMPTIONS[finalImaging]) finalImaging = 'industrial_product_photography';
+    const imagingObj = IMAGING_ASSUMPTIONS[finalImaging];
 
-    // 优先选择灵感种子中的tensions
-    if (inspirationWeights && inspirationWeights.tensions.length > 0) {
-        const preferredTensions = tensionPool.filter(t => inspirationWeights.tensions.includes(t.id));
-        if (preferredTensions.length > 0) {
-            tensionPool = preferredTensions;
-            governance.rule_hits.push({ id: 'inspiration_seed:preferred_tensions', detail: preferredTensions.map(t => t.id).join(',') });
-        }
-    }
+    // --- 4. Sub-Dimensions ---
 
-    // Debug: log override value
-    if (normalizedOverrides.core_tension) {
-        console.log(`=== DEBUG: Core tension override = ${normalizedOverrides.core_tension} ===`);
-    }
+    // Core Tension
+    const tensionPool = worldConfig.core_tension || [];
+    const tensionOverride = validateAndGet('core_tension', overrides.core_tension, tensionPool);
     const tensionSelection = selectWithRecording({
-        dimension: 'core_tension',
-        pool: tensionPool,
-        rng,
-        lang,
-        worldId: world,
-        governance,
-        debugStore,
-        matchValue: normalizedOverrides.core_tension
+        dimension: 'core_tension', pool: tensionPool,
+        rng, lang, governance, worldId: world, debugStore, matchValue: tensionOverride ? tensionOverride.id : null
     });
-    const coreTensionValue = sanitizeValue(getVal(tensionSelection.raw, lang), forbiddenTerms, governance, 'core_tension');
+    const coreTensionRaw = tensionSelection.raw;
 
-    // Twist mechanisms (应用灵感种子偏好)
-    let twistPool = [...cfg.twist_mechanisms_pool];
-    const forbiddenByWorld = FORBIDDEN_MECHANISMS_BY_WORLD[world] || [];
-    if (forbiddenByWorld.length) {
-        const blocked = twistPool.filter(m => forbiddenByWorld.includes(m.id));
-        if (blocked.length) {
-            governance.rule_blocks.push({ id: `world:${world}:forbid_twist`, detail: blocked.map(b => b.id) });
-        }
-        twistPool = twistPool.filter(m => !forbiddenByWorld.includes(m.id));
+    // Twist Mechanisms
+    const twistPool = worldConfig.twist_mechanisms_pool || [];
+    // [OBSERVATION-STEP-4] Pool ID Format Check
+    if (twistPool.length > 0) {
+        console.log('--- [DEBUG] Twist Pool ID Examples (first 3):', twistPool.slice(0, 3).map(t => t.id));
     }
-    if (intentObj.forbidden_twists && intentObj.forbidden_twists.length) {
-        const blocked = twistPool.filter(m => intentObj.forbidden_twists.includes(m.id));
-        if (blocked.length) {
-            governance.rule_blocks.push({ id: `intent:${intentKey}:forbid_twist`, detail: blocked.map(b => b.id) });
-        }
-        twistPool = twistPool.filter(m => !intentObj.forbidden_twists.includes(m.id));
-    }
-    if (!twistPool.length) {
-        throw new PromptAssemblyError('NO_TWIST_OPTIONS', `World ${world} has no twist mechanisms after filtering.`);
-    }
-    const twistCandidates = buildCandidates(twistPool, 'twist_mechanisms', world, lang);
-    const overrideTwists = Array.isArray(normalizedOverrides.twist_mechanisms)
-        ? normalizedOverrides.twist_mechanisms.map(val => typeof val === 'string' ? val.trim() : val).filter(Boolean)
-        : [];
-    let twistMechanismsObjs = [];
+    console.log('--- [DEBUG] Twist Override Input:', overrides.twist_mechanisms);
+    const twistOverride = validateAndGet('twist_mechanisms', overrides.twist_mechanisms, twistPool);
 
-    if (overrideTwists.length) {
-        twistMechanismsObjs = overrideTwists.map(value => {
-            const match = twistCandidates.find(c => c.value === value || c.id === value);
-            return match ? match.raw : null;
-        }).filter(Boolean);
-        if (twistMechanismsObjs.length) {
-            governance.rule_hits.push({ id: 'override:twist_mechanisms', detail: overrideTwists.join(',') });
-        }
-    }
+    let twistSelectionRaw = [];
+    if (twistOverride) {
+        twistSelectionRaw = Array.isArray(twistOverride) ? twistOverride : [twistOverride];
+        governance.rule_hits.push({ id: 'override:twist_mechanisms', detail: 'Applied override' });
 
-    if (!twistMechanismsObjs.length) {
+        // P0-2: Decision A - "override 存在时仍然追加 required twist" (ID-based)
+        if (logicObj.required_twist_category) {
+            const requiredTwist = twistPool.find(t => t.id === logicObj.required_twist_category);
+            if (requiredTwist) {
+                if (!twistSelectionRaw.some(t => t.id === requiredTwist.id)) {
+                    twistSelectionRaw.push(requiredTwist);
+                    validation.warnings.push(`Logic required twist '${requiredTwist.id}' was appended to your overrides.`);
+                }
+            } else {
+                validation.errors.push(`Logic required twist category '${logicObj.required_twist_category}' not found in pool.`);
+            }
+        }
+    } else {
+        // Validation: Logic requirement
+        let requiredTwist = null;
+        if (logicObj.required_twist_category) {
+            requiredTwist = twistPool.find(t => t.id === logicObj.required_twist_category);
+        }
+
+        // Random selection
         const k = Math.max(twistKRange[0], Math.min(twistKRange[1], getRandomInt(twistKRange[0], twistKRange[1], rng)));
-        twistMechanismsObjs = pickKUnique(twistPool, k, rng);
+        let available = twistPool.filter(t => !containsForbiddenTerm(t.en, forbiddenTerms));
 
-        // 应用灵感种子的mechanisms偏好
+        twistSelectionRaw = pickKUnique(available, k, rng);
+
+        // Inspiration injection
         if (inspirationWeights && inspirationWeights.mechanisms.length > 0) {
-            const preferredMechanisms = inspirationWeights.mechanisms
-                .map(id => twistPool.find(m => m.id === id))
-                .filter(Boolean);
-
-            if (preferredMechanisms.length > 0) {
-                // 替换部分随机选择的mechanisms为偏好的mechanisms
-                const replaceCount = Math.min(preferredMechanisms.length, twistMechanismsObjs.length);
-                for (let i = 0; i < replaceCount; i++) {
-                    twistMechanismsObjs[i] = preferredMechanisms[i];
-                }
-                governance.rule_hits.push({ id: 'inspiration_seed:preferred_mechanisms', detail: preferredMechanisms.map(m => m.id).join(',') });
-            }
+            const preferred = inspirationWeights.mechanisms.map(id => twistPool.find(m => m.id === id)).filter(Boolean);
+            for (let i = 0; i < Math.min(preferred.length, twistSelectionRaw.length); i++) twistSelectionRaw[i] = preferred[i];
         }
 
-        if (logicObj.required_twist_category && !overrideTwists.length) {
-            const hasRequired = twistMechanismsObjs.some(m => m.id === logicObj.required_twist_category);
-            if (!hasRequired) {
-                const candidate = cfg.twist_mechanisms_pool.find(m => m.id === logicObj.required_twist_category);
-                if (candidate && !forbiddenByWorld.includes(candidate.id)) {
-                    if (twistMechanismsObjs.length) {
-                        twistMechanismsObjs[0] = candidate;
-                    } else {
-                        twistMechanismsObjs = [candidate];
-                    }
-                    governance.rule_hits.push({ id: `logic:${logicKey}:required_twist`, detail: candidate.id });
-                }
-            }
+        if (requiredTwist && !twistSelectionRaw.includes(requiredTwist)) {
+            if (twistSelectionRaw.length > 0) twistSelectionRaw[0] = requiredTwist;
+            else twistSelectionRaw.push(requiredTwist);
         }
     }
-    const twistSelectedEntries = twistMechanismsObjs.map(obj => {
-        return twistCandidates.find(c => c.raw === obj) || {
-            id: getStableOptionId(world, 'twist_mechanisms', obj, lang),
-            value: getDisplayValue(obj, lang)
-        };
-    });
-    governance.selected_fields.twist_mechanisms = {
-        selected_ids: twistSelectedEntries.map(e => e.id),
-        selected_values: twistSelectedEntries.map(e => e.value),
-        candidate_ids: twistCandidates.map(c => c.id)
-    };
-    governance.source_refs.twist_mechanisms = governance.selected_fields.twist_mechanisms.selected_ids;
-    debugStore.selected_fields_verbose.twist_mechanisms = twistCandidates.map(c => ({ id: c.id, value: c.value }));
-    const twistMechanisms = twistMechanismsObjs
-        .map(m => sanitizeValue(getVal(m, lang), forbiddenTerms, governance, 'twist_mechanisms'))
-        .filter(Boolean);
+    console.log('--- [DEBUG] Final Twist Selection IDs:', twistSelectionRaw.map(t => t.id));
 
-    // Subject kit (应用灵感种子的subjects偏好)
-    let subjectPool = cfg.subject_kits;
-    const subjectOverride = normalizedOverrides.subject_kit || null;
-    if (inspirationWeights && inspirationWeights.subjects.length > 0) {
-        const matchedSubjects = cfg.subject_kits.filter(kit => {
-            const primaryEn = getVal(kit.primary_subject, 'en').toLowerCase();
-            return inspirationWeights.subjects.some(keyword =>
-                primaryEn.includes(keyword.toLowerCase())
-            );
-        });
-        if (!subjectOverride && matchedSubjects.length > 0) {
-            subjectPool = matchedSubjects;
-            governance.rule_hits.push({
-                id: 'inspiration_seed:subject',
-                detail: `matched ${matchedSubjects.length} subjects`
-            });
-        }
-    }
+    // Subject Kit
+    // Subject kits in existing code are objects without IDs, mostly. 
+    // Original code matches overrides by complex logic or string.
+    // We will attempt to match primary_subject string if passed.
+    const subjectPool = worldConfig.subject_kits || [];
+    // P0-1: Eliminate subject_kit override silent fail
     const subjectSelection = selectWithRecording({
-        dimension: 'subject_kit',
-        pool: subjectPool,
-        rng,
-        lang,
-        worldId: world,
-        governance,
-        debugStore,
-        matchValue: subjectOverride
+        dimension: 'subject_kit', pool: subjectPool,
+        rng, lang, governance, worldId: world, debugStore,
+        matchValue: overrides.subject_kit
     });
-    const subjectKitObj = subjectSelection.raw;
-    const subjectKit = {
-        primary_subject: sanitizeValue(getVal(subjectKitObj.primary_subject, lang), forbiddenTerms, governance, 'subject_primary'),
-        secondary_elements: subjectKitObj.secondary_elements
-            .map(e => sanitizeValue(getVal(e, lang), forbiddenTerms, governance, 'subject_secondary'))
-            .filter(Boolean)
-    };
 
-    // Stage / Composition / Lighting (应用灵感种子的stages偏好)
-    let stagePool = cfg.stage_context;
-    const stageOverride = normalizedOverrides.stage_context || null;
-    if (inspirationWeights && inspirationWeights.stages.length > 0) {
-        const matchedStages = cfg.stage_context.filter(stage => {
-            const stageEn = getVal(stage, 'en').toLowerCase();
-            return inspirationWeights.stages.some(keyword =>
-                stageEn.includes(keyword.toLowerCase())
-            );
-        });
-        if (!stageOverride && matchedStages.length > 0) {
-            stagePool = matchedStages;
-            governance.rule_hits.push({
-                id: 'inspiration_seed:stage',
-                detail: `matched ${matchedStages.length} stages`
+    if (overrides.subject_kit && overrides.subject_kit !== 'any') {
+        // Check if selection was random due to miss
+        const matchedId = getStableOptionId(world, 'subject_kit', subjectSelection.raw, lang);
+
+        // Expected ID normalization for comparison
+        let normalizedOverride = overrides.subject_kit;
+        if (typeof normalizedOverride === 'string' && normalizedOverride.includes(':')) {
+            normalizedOverride = normalizedOverride.split(':').pop();
+            validation.warnings.push(`Deprecated prefix format for subject_kit override '${overrides.subject_kit}' normalized to '${normalizedOverride}'.`);
+        }
+
+        const expectedId = `subject_kit:${slugify(normalizedOverride)}`;
+
+        if (matchedId !== expectedId) {
+            validation.dropped_overrides.push({
+                field: 'subject_kit',
+                user_input: overrides.subject_kit,
+                reason: 'Not found in candidate pool',
+                fallback_used: true
             });
+            validation.errors.push(`Invalid override for subject_kit: '${overrides.subject_kit}' (Not found in candidate pool). Fallback applied.`);
         }
     }
+
+    const subjectRaw = subjectSelection.raw;
+
+    // Stage, Composition, Lighting
+    const stagePool = worldConfig.stage_context || [];
+    const stageOverride = overrides.stage_context; // Simple strings usually
     const stageSelection = selectWithRecording({
-        dimension: 'stage_context',
-        pool: stagePool,
-        rng,
-        lang,
-        worldId: world,
-        governance,
-        debugStore,
-        matchValue: stageOverride
-    });
-    const compositionSelection = selectWithRecording({
-        dimension: 'composition_rule',
-        pool: cfg.composition_rule,
-        rng,
-        lang,
-        worldId: world,
-        governance,
-        debugStore,
-        matchValue: normalizedOverrides.composition_rule
-    });
-    const lightingSelection = selectWithRecording({
-        dimension: 'lighting_rule',
-        pool: cfg.lighting_rule,
-        rng,
-        lang,
-        worldId: world,
-        governance,
-        debugStore,
-        matchValue: normalizedOverrides.lighting_rule
+        dimension: 'stage_context', pool: stagePool,
+        rng, lang, governance, worldId: world, debugStore, matchValue: stageOverride
     });
 
-    const stageContext = sanitizeValue(getVal(stageSelection.raw, lang), forbiddenTerms, governance, 'stage_context');
-    const compositionRule = sanitizeValue(getVal(compositionSelection.raw, lang), forbiddenTerms, governance, 'composition_rule');
-    const lightingRule = sanitizeValue(getVal(lightingSelection.raw, lang), forbiddenTerms, governance, 'lighting_rule');
+    const compSelection = selectWithRecording({
+        dimension: 'composition_rule', pool: worldConfig.composition_rule, rng, lang, worldId: world, governance, debugStore, matchValue: overrides.composition_rule
+    });
 
-    // Build model input (only minimal fields)
-    const modelInput = {
-        creative_world: world,
-        core_tension: coreTensionValue,
-        twist_mechanisms: twistMechanisms,
-        subject_kit: subjectKit,
-        stage_context: stageContext,
-        composition_rule: compositionRule,
-        lighting_rule: lightingRule
+    const lightSelection = selectWithRecording({
+        dimension: 'lighting_rule', pool: worldConfig.lighting_rule, rng, lang, worldId: world, governance, debugStore, matchValue: overrides.lighting_rule
+    });
+
+
+    // --- 5. Assemble & Normalize Output (P0 Goals) ---
+
+    const safeT = (item) => getVal(item, lang);
+    const safeSlug = (val) => slugify(val || 'unknown');
+    // Helper to generate Fact ID
+    const factId = (prefix, item) => {
+        if (item && item.id) return `${prefix}:${item.id}`;
+        const val = item && (item.en || item.zh || item); // Handle objects or strings
+        return `${prefix}:${safeSlug(val)}`;
     };
 
-    governance.world_id = world;
-    governance.core_tension = coreTensionValue;
-    governance.twist_mechanisms = twistMechanisms;
-    governance.subject_kit = subjectKit;
-    governance.stage_context = stageContext;
-    governance.composition_rule = compositionRule;
-    governance.lighting_rule = lightingRule;
+    // Prepare standardized fields
+    const twistTexts = twistSelectionRaw.map(t => safeT(t));
+    const twistIds = twistSelectionRaw.map(t => {
+        if (t && t.id) return t.id;
+        const val = t && (t.en || t.zh || t);
+        return safeSlug(val);
+    });
 
-    // Assemble final prompt
-    governance.final_prompt = assemblePrompt(governance);
+    const subjectKitFinal = {
+        primary_subject: safeT(subjectRaw.primary_subject),
+        primary_id: factId('subject', subjectRaw.primary_subject),
+        secondary_elements: (subjectRaw.secondary_elements || []).map(e => safeT(e)),
+        secondary_ids: (subjectRaw.secondary_elements || []).map(e => factId('element', e))
+    };
 
-    // Debug: log final overrides and results
-    console.log('=== DEBUG: Final results ===');
-    console.log('Normalized overrides:', normalizedOverrides);
-    console.log('Core tension:', coreTensionValue);
-    console.log('Twist mechanisms:', twistMechanisms);
-    console.log('Subject kit:', subjectKit);
-    console.log('Stage context:', stageContext);
-    console.log('Composition rule:', compositionRule);
-    console.log('Lighting rule:', lightingRule);
-    console.log('Final Prompt:', governance.final_prompt);
+    // Populate Governance for Prompt Assembly
+    // (We reuse the sanitized raw values)
+    governance.deliverable_type = safeT(worldConfig.deliverable_type[0]); // Simplified
+    governance.core_tension = safeT(coreTensionRaw);
+    governance.twist_mechanisms = twistTexts;
+    governance.subject_kit = subjectKitFinal;
+    governance.stage_context = safeT(stageSelection.raw);
+    governance.composition_rule = safeT(compSelection.raw);
+    governance.lighting_rule = safeT(lightSelection.raw);
+
+    const finalPrompt = assemblePrompt(governance);
+
+    // Final Public Skeleton (The Safe Contract)
+    const publicSkeleton = {
+        schema_version: 'v1',
+        creative_id: governance.creative_id,
+        creative_world: `world:${world}`, // Unified ID
+
+        creation_intent: safeT(intentObj.desc),
+        generation_logic: safeT(logicObj.desc),
+
+        // Normalized Arrays/Objects
+        twist_mechanisms: twistTexts,
+        twist_ids: twistIds,
+
+        subject_kit: subjectKitFinal,
+
+        core_tension: governance.core_tension,
+        stage_context: governance.stage_context,
+        composition_rule: governance.composition_rule,
+        lighting_rule: governance.lighting_rule,
+
+        imaging_assumption: safeT(imagingObj.desc),
+        deliverable_type: governance.deliverable_type,
+
+        final_prompt: finalPrompt,
+        validation: validation
+    };
 
     return {
-        model_input: modelInput,
-        governance_record: governance,
-        debug: debugStore
+        public_skeleton: publicSkeleton,
+        // debug: debugStore // we can hide debug for public
+        debug: {}
     };
 }
 

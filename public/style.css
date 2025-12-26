@@ -636,15 +636,60 @@ button span {
     margin-bottom: 1.5rem;
 }
 
-/* Specific styling for Imaging Assumption (Gold) */
-.item-imaging .card-value {
+/* First 3 items (Imaging, Intent, Logic) - Highlighted Box Style */
+.card-item:nth-of-type(-n+3) {
+    background-color: #FDFBF7;
+    border-left: 3px solid var(--accent-color);
+    padding: 0.75rem;
+    /* Reduced from 1rem */
+    margin-bottom: 0.25rem;
+    /* Reduced from 0.5rem */
+}
+
+.card-item:nth-of-type(-n+3) .card-label {
+    font-size: 0.65rem;
+    color: var(--muted-text);
+    margin-bottom: 0.25rem;
+}
+
+.card-item:nth-of-type(-n+3) .card-value {
+    font-family: var(--font-heading);
     color: var(--accent-color);
     font-weight: 600;
     text-transform: uppercase;
+    font-size: 1.1rem;
+    line-height: 1.3;
 }
 
-/* Specific styling for Core Tension (Italic Serif) */
-.item-tension .card-value {
+/* Subsequent items - Clean List Style */
+.card-item:nth-of-type(n+4) {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-bottom: 1rem;
+    /* Reduced from 1.5rem */
+}
+
+.card-item:nth-of-type(n+4) .card-label {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    color: var(--muted-text);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 400;
+    margin-bottom: 0.25rem;
+}
+
+.card-item:nth-of-type(n+4) .card-value {
+    font-family: var(--font-body);
+    font-size: 1.1rem;
+    color: var(--text-color);
+    line-height: 1.4;
+}
+
+/* Specific styling for Core Tension if needed (Italic Serif) */
+.card-item:nth-of-type(5) .card-value {
+    /* Assuming Core Tension is 5th */
     font-family: var(--font-heading);
     font-style: italic;
     font-weight: 500;
