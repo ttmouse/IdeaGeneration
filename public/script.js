@@ -402,6 +402,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (imagingSelect.options.length > 0) {
                 imagingSelect.selectedIndex = 0;
             }
+            // Disable dropdown as per user request
+            imagingSelect.disabled = true;
         }
 
         if (intentSelect) {
@@ -416,6 +418,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentVal && intentSelect.querySelector(`option[value="${currentVal}"]`)) {
                 intentSelect.value = currentVal;
             }
+            // Disable dropdown as per user request
+            intentSelect.disabled = true;
         }
 
         if (logicSelect) {
@@ -430,6 +434,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentVal && logicSelect.querySelector(`option[value="${currentVal}"]`)) {
                 logicSelect.value = currentVal;
             }
+            // Disable dropdown as per user request
+            logicSelect.disabled = true;
         }
 
         if (worldSelect) {
@@ -642,6 +648,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function getDisplayText(item, lang) {
         if (!item) return '';
         if (typeof item === 'string') return t(item, lang);
+        if (item.desc) return t(item.desc, lang);
         if (item.primary_subject) return t(item.primary_subject, lang);
         return t(item, lang);
     }
@@ -674,14 +681,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (item.subject_kit) {
             const primary = t(item.subject_kit.primary_subject, lang);
             const secondaryList = item.subject_kit.secondary_elements || [];
-            if (secondaryList.length > 0) {
-                const secondary = secondaryList.map(el =>
-                    `<span class="tag tag--secondary">${t(el, lang)}</span>`
-                ).join('');
-                subjectHtml = `<div class="card-value">${primary}</div><div class="tags">${secondary}</div>`;
-            } else {
-                subjectHtml = `<div class="card-value">${primary}</div>`;
-            }
+            const secondary = secondaryList.map(el =>
+                `<span class="tag tag--secondary">${t(el, lang)}</span>`
+            ).join('');
+
+            subjectHtml = `
+                <div class="editable-value-container">
+                    <div class="card-value editable-value" data-dimension="subject_kit" data-world="${item.creative_world}">${primary}</div>
+                    <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
+                </div>
+                ${secondary ? `<div class="tags" style="margin-top:0.25rem;">${secondary}</div>` : ''}
+            `;
         } else {
             subjectHtml = `<div class="card-value">-</div>`;
         } // Fallback if server fails: -
@@ -718,44 +728,67 @@ document.addEventListener('DOMContentLoaded', () => {
             
             ${validationHtml}
 
-            <!-- Hero Section: Imaging, Intent, Logic -->
-            <div class="card-item item--hero">
-                <span class="card-label" data-i18n-label="imaging_assumption">${labels.imaging_assumption}</span>
-                <span class="card-value">${t(item.imaging_assumption, lang)}</span>
-            </div>
-            <div class="card-item item--hero">
-                <span class="card-label" data-i18n-label="creation_intent">${labels.creation_intent}</span>
-                <span class="card-value">${t(item.creation_intent, lang)}</span>
-            </div>
-            <div class="card-item item--hero">
-                <span class="card-label" data-i18n-label="generation_logic">${labels.generation_logic}</span>
-                <span class="card-value">${t(item.generation_logic, lang)}</span>
-            </div>
-
-            <!-- Standard Items -->
+            <!-- Metadata Section (Subtle) -->
+            <!-- Core Context Dimensions (Restored to standard styling) -->
             <div class="card-item">
-                <span class="card-label" data-i18n-label="deliverable_type">${labels.deliverable_type}</span>
-                <span class="card-value">${t(item.deliverable_type, lang)}</span>
+                <span class="card-label" data-i18n-label="imaging_assumption">${labels.imaging_assumption}</span>
+                <div class="editable-value-container">
+                    <span class="card-value" data-dimension="imaging_assumptions">${t(item.imaging_assumption, lang)}</span>
+                </div>
+            </div>
+            <div class="card-item">
+                <span class="card-label" data-i18n-label="creation_intent">${labels.creation_intent}</span>
+                <div class="editable-value-container">
+                    <span class="card-value" data-dimension="creation_intents">${t(item.creation_intent, lang)}</span>
+                </div>
+            </div>
+            <div class="card-item">
+                <span class="card-label" data-i18n-label="generation_logic">${labels.generation_logic}</span>
+                <div class="editable-value-container">
+                    <span class="card-value" data-dimension="generation_logics">${t(item.generation_logic, lang)}</span>
+                </div>
             </div>
 
-            <div class="card-item item--tension">
-                <span class="card-label" data-i18n-label="core_tension">${labels.core_tension}</span>
+            <!-- HERO: Subject Kit -->
+            <div class="card-item item--hero" style="background:transparent; border-left:none; padding-left:0; margin-bottom:0.5rem;">
+                <span class="card-label" style="display:none;" data-i18n-label="subject_kit">${labels.subject_kit}</span>
                 <div class="editable-value-container">
-                    <span class="card-value editable-value" data-dimension="core_tension" data-world="${item.creative_world}">${t(item.core_tension, lang)}</span>
+                     <!-- Primary Subject (Large) -->
+                    <div class="card-value editable-value" data-dimension="subject_kit" data-world="${item.creative_world}" style="font-size:1.4rem; font-weight:600; color:#000;">${item.subject_kit ? t(item.subject_kit.primary_subject, lang) : '-'}</div>
+                    <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
+                </div>
+                <!-- Secondary Tags -->
+                ${item.subject_kit && item.subject_kit.secondary_elements ?
+                `<div class="tags" style="margin-top:0.25rem;">${item.subject_kit.secondary_elements.map(el => `<span class="tag tag--secondary">${t(el, lang)}</span>`).join('')}</div>`
+                : ''}
+            </div>
+
+            <!-- HERO SUB: Core Tension -->
+            <div class="card-item item--hero" style="background:transparent; border-left:3px solid var(--accent-color); padding-left:0.5rem;">
+                <span class="card-label" style="color:var(--accent-color); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;" data-i18n-label="core_tension">${labels.core_tension}</span>
+                <div class="editable-value-container">
+                    <span class="card-value editable-value" data-dimension="core_tension" data-world="${item.creative_world}" style="font-size:1.1rem; font-family:var(--font-heading); color:#2c3e50;">${t(item.core_tension, lang)}</span>
+                    <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
+                </div>
+            </div>
+
+            <!-- Standard Items Body -->
+            <div class="card-item">
+                <span class="card-label" data-i18n-label="twist_mechanisms">${labels.twist_mechanisms}</span>
+                <div class="editable-value-container">
+                    <div class="tags editable-value" data-dimension="twist_mechanisms" data-world="${item.creative_world}">${twistTags}</div>
                     <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
                 </div>
             </div>
 
             <div class="card-item">
-                <span class="card-label" data-i18n-label="twist_mechanisms">${labels.twist_mechanisms}</span>
-                <div class="tags">${twistTags}</div>
+                <span class="card-label" data-i18n-label="deliverable_type">${labels.deliverable_type}</span>
+                <div class="editable-value-container">
+                    <span class="card-value editable-value" data-dimension="deliverable_type" data-world="${item.creative_world}">${t(item.deliverable_type, lang)}</span>
+                    <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
+                </div>
             </div>
-
-            <div class="card-item">
-                <span class="card-label" data-i18n-label="subject_kit">${labels.subject_kit}</span>
-                ${subjectHtml}
-            </div>
-
+            
             <div class="card-item">
                 <span class="card-label" data-i18n-label="stage_context">${labels.stage_context}</span>
                 <div class="editable-value-container">
@@ -936,50 +969,68 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function quickRandomize(el, btn) {
         // No animation, just logic
-
         const dimension = el.dataset.dimension;
-        let worldPrefix = el.dataset.world || '';
-        if (worldPrefix.includes(':')) worldPrefix = worldPrefix.split(':')[1];
+        let pool = [];
 
-        // Find config data (Reuse logic)
-        if (!globalConfig || !globalConfig.worlds || !globalConfig.worlds[worldPrefix]) return;
+        // 1. Check Global Pools
+        if (['imaging_assumptions', 'creation_intents', 'generation_logics'].includes(dimension)) {
+            let key = dimension;
+            if (dimension === 'creation_intents') key = 'intents';
+            if (dimension === 'generation_logics') key = 'logics';
+            pool = globalConfig[key];
+        } else {
+            // 2. Check World-Specific Pools
+            let worldPrefix = el.dataset.world || '';
+            if (worldPrefix.includes(':')) worldPrefix = worldPrefix.split(':')[1];
+            if (!globalConfig || !globalConfig.worlds || !globalConfig.worlds[worldPrefix]) return;
 
-        let poolKey = dimension;
-        if (dimension === 'twist_mechanisms') poolKey = 'twist_mechanisms_pool';
-        if (dimension === 'subject_kit') poolKey = 'subject_kits';
+            let poolKey = dimension;
+            if (dimension === 'twist_mechanisms') poolKey = 'twist_mechanisms_pool';
+            if (dimension === 'subject_kit') poolKey = 'subject_kits';
 
-        const pool = globalConfig.worlds[worldPrefix][poolKey];
+            pool = globalConfig.worlds[worldPrefix][poolKey];
+        }
+
         if (!pool || !Array.isArray(pool) || pool.length === 0) return;
 
         // Pick random
         const randomItem = pool[Math.floor(Math.random() * pool.length)];
 
         // Update DOM
-        activeEditableElement = el; // Temporarily set for updateEditableValue
+        activeEditableElement = el;
         updateEditableValue(randomItem);
         activeEditableElement = null;
     }
 
     function openPopover(el) {
         const dimension = el.dataset.dimension;
-        let worldPrefix = el.dataset.world || '';
-        if (worldPrefix.includes(':')) worldPrefix = worldPrefix.split(':')[1];
+        let pool = [];
 
-        // Find config data
-        if (!globalConfig || !globalConfig.worlds || !globalConfig.worlds[worldPrefix]) {
-            console.warn('World data not found for popover:', worldPrefix);
-            return;
+        // 1. Check Global Pools
+        if (['imaging_assumptions', 'creation_intents', 'generation_logics'].includes(dimension)) {
+            let key = dimension;
+            if (dimension === 'creation_intents') key = 'intents';
+            if (dimension === 'generation_logics') key = 'logics';
+            pool = globalConfig[key];
+        } else {
+            // 2. Check World-Specific Pools
+            let worldPrefix = el.dataset.world || '';
+            if (worldPrefix.includes(':')) worldPrefix = worldPrefix.split(':')[1];
+
+            if (!globalConfig || !globalConfig.worlds || !globalConfig.worlds[worldPrefix]) {
+                console.warn('World data not found for popover:', worldPrefix);
+                return;
+            }
+
+            let poolKey = dimension;
+            if (dimension === 'twist_mechanisms') poolKey = 'twist_mechanisms_pool';
+            if (dimension === 'subject_kit') poolKey = 'subject_kits';
+
+            pool = globalConfig.worlds[worldPrefix][poolKey];
         }
 
-        // Map common dimensions to pool keys if needed (assumes direct match mostly)
-        let poolKey = dimension;
-        if (dimension === 'twist_mechanisms') poolKey = 'twist_mechanisms_pool';
-        if (dimension === 'subject_kit') poolKey = 'subject_kits';
-
-        const pool = globalConfig.worlds[worldPrefix][poolKey];
-
         if (!pool || !Array.isArray(pool)) {
-            console.warn('Pool not found:', poolKey);
+            console.warn('Pool not found:', dimension);
             return;
         }
 
@@ -1042,15 +1093,46 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateEditableValue(newItem) {
         if (!activeEditableElement) return;
         const lang = localStorage.getItem('idea_lang') || 'en';
+        const dimension = activeEditableElement.dataset.dimension;
 
-        // Update DOM
-        activeEditableElement.textContent = getDisplayText(newItem, lang);
+        // Special handling for Subject Kit (object update)
+        if (dimension === 'subject_kit' && typeof newItem === 'object') {
+            const primary = t(newItem.primary_subject, lang);
+            activeEditableElement.textContent = primary;
+
+            // Find sibling tags container
+            const container = activeEditableElement.closest('.card-item');
+            const tagsDiv = container.querySelector('.tags:not(.editable-value)');
+
+            const secondaryList = newItem.secondary_elements || [];
+            const tagsHtml = secondaryList.map(el =>
+                `<span class="tag tag--secondary">${t(el, lang)}</span>`
+            ).join('');
+
+            if (tagsDiv) {
+                tagsDiv.innerHTML = tagsHtml;
+                tagsDiv.style.display = tagsHtml ? 'flex' : 'none';
+            } else if (tagsHtml) {
+                // If tags div doesn't exist but we have tags now
+                const newTagsDiv = document.createElement('div');
+                newTagsDiv.className = 'tags';
+                newTagsDiv.style.marginTop = '0.25rem';
+                newTagsDiv.innerHTML = tagsHtml;
+                container.appendChild(newTagsDiv);
+            }
+        } else if (dimension === 'twist_mechanisms') {
+            const list = Array.isArray(newItem) ? newItem : [newItem];
+            const tagsHtml = list.map(text =>
+                `<span class="tag">${t(text, lang)}</span>`
+            ).join(' ') || '<span class="tag">-</span>';
+            activeEditableElement.innerHTML = tagsHtml;
+        } else {
+            // Plain string update
+            activeEditableElement.textContent = getDisplayText(newItem, lang);
+        }
 
         // Flash effect
         activeEditableElement.style.color = 'var(--accent-color)';
         setTimeout(() => activeEditableElement.style.color = '', 300);
-
-        // TODO: If we wanted to update the underlying data object (for copy JSON), we would need to bind it.
-        // For now this is visual-only as per P0.5 scope.
     }
 });

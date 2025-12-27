@@ -286,7 +286,7 @@ header {
     border: 1px solid rgba(26, 26, 26, 0.1);
     padding: 1rem;
     background: #fff;
-    box-shadow: 0 5px 20px rgba(26, 26, 26, 0.06);
+    box-shadow: none;
 }
 
 .system-card__title {
@@ -545,14 +545,14 @@ button span {
     opacity: 0;
     animation: fadeInSlideUp var(--transition-slow) forwards;
     transition: transform 0.7s ease, background-color 0.7s ease, box-shadow 0.7s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    box-shadow: none;
     /* Subtle initial shadow */
 }
 
 .card:hover {
     transform: translateY(-5px);
     background-color: rgba(249, 248, 246, 0.8);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    box-shadow: none;
     /* Deepened shadow */
 }
 
