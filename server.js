@@ -66,7 +66,20 @@ function shapeResult(payload, mode) {
 
 app.post('/api/generate', (req, res) => {
     try {
-        const { world, intent, logic, imaging_assumption, n = 1, lang = 'en', mode = 'full', seed, inspirationSeed, overrides = {} } = req.body;
+        const {
+            world,
+            intent,
+            logic,
+            imaging_assumption,
+            n = 1,
+            lang = 'en',
+            mode = 'full',
+            seed,
+            inspirationSeed,
+            overrides = {},
+            oblique_strategy_enabled = false,
+            provocative_directive_enabled = false
+        } = req.body;
         const availableWorlds = getAvailableWorlds();
 
         let targetWorld = world;
@@ -89,7 +102,9 @@ app.post('/api/generate', (req, res) => {
                 imaging_assumption,
                 seed: typeof seed === 'number' ? seed + i : null,
                 inspirationSeed: inspirationSeed || null,
-                overrides
+                overrides,
+                oblique_strategy_enabled,
+                provocative_directive_enabled
             });
             const genDuration = Date.now() - genStart;
             if (genDuration > 1000) {

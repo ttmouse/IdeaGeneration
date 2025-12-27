@@ -39,6 +39,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (viewName === 'favorites') {
             loadFavorites();
         }
+        if (viewName === 'graph') {
+            visualizeExplorationMap(); // Ensure map is updated when graph tab is active
+        }
 
         // Optional: Update URL hash for persistence
         // history.replaceState(null, null, `#${viewName}`);
@@ -152,8 +155,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 subject_kit: "Subject Kit",
                 stage_context: "Stage Context",
                 composition_rule: "Composition Rule",
-                lighting_rule: "Lighting Rule"
+                lighting_rule: "Lighting Rule",
+                oblique_strategy: "Oblique Strategy",
+                creative_directive: "Provocative Directive"
             },
+            label_oblique_strategy: "Enable Oblique Strategies",
+            label_provocative_directive: "Enable Provocative Directives",
+            exploration_map_title: "Exploration Map",
+            btn_explore_unknown: "Explore Unknown Areas",
             graph_subtitle: "Network",
             graph_title: "Radial Atlas",
             graph_scope_label: "All creative worlds",
@@ -226,8 +235,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 subject_kit: "主体套件",
                 stage_context: "场景语境",
                 composition_rule: "构图规则",
-                lighting_rule: "布光规则"
+                lighting_rule: "布光规则",
+                oblique_strategy: "斜行策略",
+                creative_directive: "挑衅指令"
             },
+            label_oblique_strategy: "启用斜行策略 (Oblique Strategies)",
+            label_provocative_directive: "启用挑衅指令 (Provocative Directives)",
+            exploration_map_title: "探索图谱 (Exploration Map)",
+            btn_explore_unknown: "探索未知领域",
             world_names: {
                 advertising: "广告",
                 product_photography: "产品摄影",
@@ -307,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
             populateDropdowns(globalConfig);
             renderSystemSummary(globalConfig);
             populateWorldDimensionControls(worldSelect ? worldSelect.value : 'any', true);
-
+            visualizeExplorationMap();
 
 
         } else {
@@ -388,6 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const worldKeys = Array.isArray(worlds) ? worlds : Object.keys(worlds || {});
         const lang = localStorage.getItem('idea_lang') || 'en';
 
+        // 1. Populate Imaging Assumptions
         if (imagingSelect && imaging_assumptions) {
             const currentVal = imagingSelect.value;
             imagingSelect.innerHTML = '';
@@ -402,11 +418,10 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (imagingSelect.options.length > 0) {
                 imagingSelect.selectedIndex = 0;
             }
-            // Disable dropdown as per user request
-            imagingSelect.disabled = true;
         }
 
-        if (intentSelect) {
+        // 2. Populate Intents
+        if (intentSelect && intents) {
             const currentVal = intentSelect.value;
             intentSelect.innerHTML = `<option value="any">${i18n[lang].option_any}</option>`;
             Object.values(intents).forEach(intent => {
@@ -418,11 +433,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentVal && intentSelect.querySelector(`option[value="${currentVal}"]`)) {
                 intentSelect.value = currentVal;
             }
-            // Disable dropdown as per user request
-            intentSelect.disabled = true;
         }
 
-        if (logicSelect) {
+        // 3. Populate Logics
+        if (logicSelect && logics) {
             const currentVal = logicSelect.value;
             logicSelect.innerHTML = `<option value="any">${i18n[lang].option_any}</option>`;
             Object.values(logics).forEach(logic => {
@@ -434,11 +448,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentVal && logicSelect.querySelector(`option[value="${currentVal}"]`)) {
                 logicSelect.value = currentVal;
             }
-            // Disable dropdown as per user request
-            logicSelect.disabled = true;
         }
 
-        if (worldSelect) {
+        // 4. Populate Worlds
+        if (worldSelect && worldKeys.length > 0) {
             const currentVal = worldSelect.value;
             worldSelect.innerHTML = `<option value="any">${i18n[lang].option_any}</option>`;
             worldKeys.forEach(world => {
@@ -512,9 +525,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const intent = intentSelect ? intentSelect.value : 'any';
         const logic = logicSelect ? logicSelect.value : 'any';
         const imaging_assumption = imagingSelect ? imagingSelect.value : 'industrial_product_photography';
-        const inspirationSeed = null;
+        const inspirationSeed = document.getElementById('inspiration-seed-input')?.value || null;
         const lang = document.getElementById('lang-select').value;
         const overrides = collectOverrides(world);
+        const oblique_strategy_enabled = document.getElementById('oblique-strategy-toggle')?.checked || false;
+        const provocative_directive_enabled = document.getElementById('provocative-directive-toggle')?.checked || false;
 
         generateBtn.disabled = true;
         generateBtn.style.opacity = '0.7';
@@ -523,7 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch('/api/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ world, intent, logic, imaging_assumption, n: 3, lang, mode: 'full', inspirationSeed, overrides })
+            body: JSON.stringify({ world, intent, logic, imaging_assumption, n: 3, lang, mode: 'full', inspirationSeed, overrides, oblique_strategy_enabled, provocative_directive_enabled })
         })
             .then(res => res.json())
             .then(data => {
@@ -531,6 +546,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     resultsArea.innerHTML = '';
                     renderResults(data);
                     resultsArea.scrollIntoView({ behavior: 'smooth' });
+
+                    // Track world frequency for exploration map
+                    data.forEach(item => {
+                        const worldId = item.creative_world.replace('world:', '');
+                        trackExploration(worldId);
+                    });
+                    visualizeExplorationMap();
                 }
             })
             .catch(err => console.error('Generation Error:', err))
@@ -628,6 +650,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const val = item.en || item.zh || (item.primary_subject ? item.primary_subject.en : null);
             if (val) return slugify(val);
         }
+        if (dimension === 'twist_mechanisms') return String(item);
         return slugify(String(item));
     }
 
@@ -707,10 +730,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // Emergence Display
+        let emergenceHtml = '';
+        if (item.emergence) {
+            emergenceHtml = `<div class="emergence-badge" title="Emergence Score: ${item.emergence.score}">${t(item.emergence.label, lang)}</div>`;
+        }
+
         card.innerHTML = `
-            <div class="card-header">
-                <!-- P0-1: ID is raw dimension:someslug as per normalized schema, we assume we want to format world name for header -->
-                <h3>${formatWorldName(item.creative_world ? item.creative_world.replace('world:', '') : 'Unknown')}</h3>
+            <div class="card-header" data-world-id="${item.creative_world ? item.creative_world.replace('world:', '') : ''}">
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                    <h3>${formatWorldName(item.creative_world ? item.creative_world.replace('world:', '') : 'Unknown')}</h3>
+                    ${emergenceHtml}
+                </div>
                 <div class="card-header-actions" style="display:flex; gap:10px;">
                      <button class="icon-btn fav-btn" title="${i18n[lang].fav_add}" style="background:none; border:none; cursor:pointer; color:#95a5a6;">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
@@ -725,36 +756,38 @@ document.addEventListener('DOMContentLoaded', () => {
                     </button>
                 </div>
             </div>
-            
+
             ${validationHtml}
 
-            <!-- Metadata Section (Subtle) -->
-            <!-- Core Context Dimensions (Restored to standard styling) -->
+
             <div class="card-item">
                 <span class="card-label" data-i18n-label="imaging_assumption">${labels.imaging_assumption}</span>
                 <div class="editable-value-container">
-                    <span class="card-value" data-dimension="imaging_assumptions">${t(item.imaging_assumption, lang)}</span>
+                    <span class="card-value editable-value" data-dimension="imaging_assumption" data-id="${item.imaging_assumption_id || ''}">${t(item.imaging_assumption, lang)}</span>
+                    <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
                 </div>
             </div>
             <div class="card-item">
                 <span class="card-label" data-i18n-label="creation_intent">${labels.creation_intent}</span>
                 <div class="editable-value-container">
-                    <span class="card-value" data-dimension="creation_intents">${t(item.creation_intent, lang)}</span>
+                    <span class="card-value editable-value" data-dimension="creation_intent" data-id="${item.creation_intent_id || ''}">${t(item.creation_intent, lang)}</span>
+                    <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
                 </div>
             </div>
             <div class="card-item">
                 <span class="card-label" data-i18n-label="generation_logic">${labels.generation_logic}</span>
                 <div class="editable-value-container">
-                    <span class="card-value" data-dimension="generation_logics">${t(item.generation_logic, lang)}</span>
+                    <span class="card-value editable-value" data-dimension="generation_logic" data-id="${item.generation_logic_id || ''}">${t(item.generation_logic, lang)}</span>
+                    <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
                 </div>
             </div>
 
-            <!-- HERO: Subject Kit -->
+
             <div class="card-item item--hero" style="background:transparent; border-left:none; padding-left:0; margin-bottom:0.5rem;">
                 <span class="card-label" style="display:none;" data-i18n-label="subject_kit">${labels.subject_kit}</span>
                 <div class="editable-value-container">
                      <!-- Primary Subject (Large) -->
-                    <div class="card-value editable-value" data-dimension="subject_kit" data-world="${item.creative_world}" style="font-size:1.4rem; font-weight:600; color:#000;">${item.subject_kit ? t(item.subject_kit.primary_subject, lang) : '-'}</div>
+                    <div class="card-value editable-value" data-dimension="subject_kit" data-world="${item.creative_world}" data-id="${item.subject_kit ? item.subject_kit.primary_id : ''}" style="font-size:1.4rem; font-weight:600; color:#000;">${item.subject_kit ? t(item.subject_kit.primary_subject, lang) : '-'}</div>
                     <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
                 </div>
                 <!-- Secondary Tags -->
@@ -763,20 +796,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 : ''}
             </div>
 
-            <!-- HERO SUB: Core Tension -->
+
             <div class="card-item item--hero" style="background:transparent; border-left:3px solid var(--accent-color); padding-left:0.5rem;">
                 <span class="card-label" style="color:var(--accent-color); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;" data-i18n-label="core_tension">${labels.core_tension}</span>
                 <div class="editable-value-container">
-                    <span class="card-value editable-value" data-dimension="core_tension" data-world="${item.creative_world}" style="font-size:1.1rem; font-family:var(--font-heading); color:#2c3e50;">${t(item.core_tension, lang)}</span>
+                    <span class="card-value editable-value" data-dimension="core_tension" data-world="${item.creative_world}" data-id="${item.core_tension_id || ''}" style="font-size:1.1rem; font-family:var(--font-heading); color:#2c3e50;">${t(item.core_tension, lang)}</span>
                     <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
                 </div>
             </div>
 
-            <!-- Standard Items Body -->
+
             <div class="card-item">
                 <span class="card-label" data-i18n-label="twist_mechanisms">${labels.twist_mechanisms}</span>
                 <div class="editable-value-container">
-                    <div class="tags editable-value" data-dimension="twist_mechanisms" data-world="${item.creative_world}">${twistTags}</div>
+                    <div class="tags editable-value" data-dimension="twist_mechanisms" data-world="${item.creative_world}" data-ids='${JSON.stringify(item.twist_ids || [])}'>${twistTags}</div>
                     <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
                 </div>
             </div>
@@ -792,7 +825,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="card-item">
                 <span class="card-label" data-i18n-label="stage_context">${labels.stage_context}</span>
                 <div class="editable-value-container">
-                    <span class="card-value editable-value" data-dimension="stage_context" data-world="${item.creative_world}">${t(item.stage_context, lang)}</span>
+                    <span class="card-value editable-value" data-dimension="stage_context" data-world="${item.creative_world}" data-id="${item.stage_context_id || ''}">${t(item.stage_context, lang)}</span>
                      <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
                 </div>
             </div>
@@ -800,7 +833,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="card-item">
                 <span class="card-label" data-i18n-label="composition_rule">${labels.composition_rule}</span>
                 <div class="editable-value-container">
-                    <span class="card-value editable-value" data-dimension="composition_rule" data-world="${item.creative_world}">${t(item.composition_rule, lang)}</span>
+                    <span class="card-value editable-value" data-dimension="composition_rule" data-world="${item.creative_world}" data-id="${item.composition_rule_id || ''}">${t(item.composition_rule, lang)}</span>
                      <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
                 </div>
             </div>
@@ -808,23 +841,43 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="card-item">
                 <span class="card-label" data-i18n-label="lighting_rule">${labels.lighting_rule}</span>
                 <div class="editable-value-container">
-                    <span class="card-value editable-value" data-dimension="lighting_rule" data-world="${item.creative_world}">${t(item.lighting_rule, lang)}</span>
+                    <span class="card-value editable-value" data-dimension="lighting_rule" data-world="${item.creative_world}" data-id="${item.lighting_rule_id || ''}">${t(item.lighting_rule, lang)}</span>
                      <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
                 </div>
             </div>
 
-            <!-- Prompt Preview -->
-            ${item.final_prompt ? `
-            <div class="card-item item--prompt">
-                <span class="card-label">Prompt Preview</span>
-                <div class="card-value">${item.final_prompt}</div>
-            </div>` : ''}
+            ${item.oblique_strategy ? `
+            <div class="card-breakout">
+                <strong data-i18n="label_oblique_strategy">${i18n[lang].card_labels.oblique_strategy}</strong>
+                <div class="card-value">${item.oblique_strategy.desc}</div>
+            </div>
+            ` : ''}
 
-            <!-- ID -->
+            ${item.creative_directive ? `
+            <div class="card-breakout">
+                <strong data-i18n="label_provocative_directive">${i18n[lang].card_labels.creative_directive}</strong>
+                <div class="card-value">${item.creative_directive}</div>
+            </div>
+            ` : ''}
+
             <div class="card-item item--id">
                 <span class="card-label" data-i18n-label="id">${labels.id}</span>
                 <span class="card-value">${item.creative_id}</span>
             </div>
+
+            ${item.final_prompt ? `
+            <div class="card-item item--prompt">
+                <span class="card-label">Prompt Preview</span>
+                <div class="prompt-preview" style="margin-bottom:10px;">${item.final_prompt}</div>
+                <button class="icon-btn copy-prompt-btn" title="Copy Prompt" style="background:none; border:none; cursor:pointer; color:#95a5a6; padding:0; height:auto; display:flex; align-items:center; gap:5px;">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    <span style="font-size:0.7em;">COPY PROMPT</span>
+                </button>
+            </div>` : ''
+            }
         `;
 
         const favBtn = card.querySelector('.fav-btn');
@@ -877,7 +930,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const favorites = JSON.parse(localStorage.getItem('idea_favorites') || '[]');
         favoritesArea.innerHTML = '';
         if (favorites.length === 0) {
-            favoritesArea.innerHTML = `< p style = "width:100%; text-align:center; color:#999; margin-top:2rem;" > ${i18n[lang].no_favorites}</p > `;
+            favoritesArea.innerHTML = `<p style="width:100%; text-align:center; color:#999; margin-top:2rem;">${i18n[lang].no_favorites}</p>`;
             return;
         }
         favorites.forEach(item => {
@@ -973,14 +1026,25 @@ document.addEventListener('DOMContentLoaded', () => {
         let pool = [];
 
         // 1. Check Global Pools
-        if (['imaging_assumptions', 'creation_intents', 'generation_logics'].includes(dimension)) {
-            let key = dimension;
-            if (dimension === 'creation_intents') key = 'intents';
-            if (dimension === 'generation_logics') key = 'logics';
-            pool = globalConfig[key];
+        const globalMapping = {
+            'imaging_assumption': 'imaging_assumptions',
+            'creation_intent': 'intents',
+            'generation_logic': 'logics'
+        };
+
+        if (globalMapping[dimension]) {
+            const key = globalMapping[dimension];
+            if (globalConfig[key]) pool = Object.values(globalConfig[key]);
         } else {
             // 2. Check World-Specific Pools
             let worldPrefix = el.dataset.world || '';
+            if (!worldPrefix) {
+                const card = el.closest('.card');
+                if (card) {
+                    const header = card.querySelector('.card-header');
+                    if (header && header.dataset.worldId) worldPrefix = header.dataset.worldId;
+                }
+            }
             if (worldPrefix.includes(':')) worldPrefix = worldPrefix.split(':')[1];
             if (!globalConfig || !globalConfig.worlds || !globalConfig.worlds[worldPrefix]) return;
 
@@ -1007,14 +1071,25 @@ document.addEventListener('DOMContentLoaded', () => {
         let pool = [];
 
         // 1. Check Global Pools
-        if (['imaging_assumptions', 'creation_intents', 'generation_logics'].includes(dimension)) {
-            let key = dimension;
-            if (dimension === 'creation_intents') key = 'intents';
-            if (dimension === 'generation_logics') key = 'logics';
-            pool = globalConfig[key];
+        const globalMapping = {
+            'imaging_assumption': 'imaging_assumptions',
+            'creation_intent': 'intents',
+            'generation_logic': 'logics'
+        };
+
+        if (globalMapping[dimension]) {
+            const key = globalMapping[dimension];
+            if (globalConfig[key]) pool = Object.values(globalConfig[key]);
         } else {
             // 2. Check World-Specific Pools
             let worldPrefix = el.dataset.world || '';
+            if (!worldPrefix) {
+                const card = el.closest('.card');
+                if (card) {
+                    const header = card.querySelector('.card-header');
+                    if (header && header.dataset.worldId) worldPrefix = header.dataset.worldId;
+                }
+            }
             if (worldPrefix.includes(':')) worldPrefix = worldPrefix.split(':')[1];
 
             if (!globalConfig || !globalConfig.worlds || !globalConfig.worlds[worldPrefix]) {
@@ -1131,8 +1206,102 @@ document.addEventListener('DOMContentLoaded', () => {
             activeEditableElement.textContent = getDisplayText(newItem, lang);
         }
 
+        // Real-time regeneration
+        const card = activeEditableElement.closest('.card');
+        if (card) {
+            regenerateCardWithConstraint(card, dimension, newItem);
+        }
+
         // Flash effect
-        activeEditableElement.style.color = 'var(--accent-color)';
-        setTimeout(() => activeEditableElement.style.color = '', 300);
+        const targetEl = activeEditableElement;
+        targetEl.style.color = 'var(--accent-color)';
+        setTimeout(() => targetEl.style.color = '', 300);
+    }
+
+    function regenerateCardWithConstraint(card, dimension, newItem) {
+        // Collect current values from card
+        const currentData = {
+            world: card.querySelector('.card-header')?.dataset.worldId || 'unknown',
+            overrides: {}
+        };
+
+        // Try to get more accurate world from an editable element
+        const firstEditable = card.querySelector('.editable-value');
+        if (firstEditable && firstEditable.dataset.world) {
+            currentData.world = firstEditable.dataset.world.replace('world:', '');
+        }
+
+        card.querySelectorAll('.editable-value').forEach(el => {
+            const dim = el.dataset.dimension;
+            if (!dim) return;
+
+            // Use the text content as a fallback or ID if available in dataset?
+            // Existing cards might not have the ID stored in the DOM easily.
+            // But we can pass the dimension being changed.
+
+            // For the dimension being changed, use newItem
+            if (dim === dimension) {
+                currentData.overrides[dim] = getOptionId(dim, newItem);
+            } else {
+                // Preserve existing state using stored data-id
+                if (dim === 'twist_mechanisms') {
+                    if (el.dataset.ids) {
+                        try {
+                            currentData.overrides[dim] = JSON.parse(el.dataset.ids);
+                        } catch (e) {
+                            console.warn('Failed to parse twist IDs');
+                        }
+                    }
+                } else if (el.dataset.id) {
+                    const rawId = el.dataset.id;
+                    // Strip legacy prefixes like 'subject:' if present
+                    currentData.overrides[dim] = rawId.includes(':') ? rawId.split(':').pop() : rawId;
+                }
+            }
+        });
+
+        // Simplified: Just regenerate with the NEW constraint. 
+        // If the user wanted to lock others, they should have used the top controls.
+        // But the requirement says "保持其他维度不变，只更新这个维度".
+        // This implies we should send ALL current values as overrides.
+
+        const lang = localStorage.getItem('idea_lang') || 'en';
+
+        // Let's try to find the IDs from the globalConfig if we only have text
+        // This is complex. A better way would be storing IDs on the elements.
+        // Looking at createCardElement, I didn't add data-id. Let's fix that.
+
+        const payload = {
+            world: currentData.world,
+            n: 1,
+            lang: lang,
+            mode: 'full',
+            overrides: currentData.overrides
+        };
+
+        // Show loading state on card
+        card.style.opacity = '0.5';
+        card.style.pointerEvents = 'none';
+
+        fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data) && data.length > 0) {
+                    const newData = data[0];
+                    const newCard = createCardElement(newData);
+                    card.replaceWith(newCard);
+                    // Re-bind events
+                    setTimeout(() => bindEditableEvents(), 50);
+                }
+            })
+            .catch(err => {
+                console.error('Regeneration error:', err);
+                card.style.opacity = '1';
+                card.style.pointerEvents = 'auto';
+            });
     }
 });

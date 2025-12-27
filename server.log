@@ -1,0 +1,11 @@
+
+> metageny@1.0.0 start
+> node server.js
+
+Server is running on http://localhost:3003
+Random selection, idx: 0
+Random selection, idx: 0
+Random selection, idx: 6
+Random selection, idx: 6
+Random selection, idx: 4
+[2025-12-27T06:30:44.109Z] POST /api/generate - 200 (9ms)

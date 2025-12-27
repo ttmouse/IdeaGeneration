@@ -1026,3 +1026,138 @@ button span {
         transform: translateY(0);
     }
 }
+
+/* Emergence Badge */
+.emergence-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 0.65rem;
+    font-family: var(--font-body);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+    background: transparent;
+    width: fit-content;
+}
+
+.card--has-errors .emergence-badge {
+    opacity: 0.5;
+}
+
+/* Breakout Controls */
+.breakout-row {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(26, 26, 26, 0.08);
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+    accent-color: var(--accent-color);
+}
+
+.checkbox-group label {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+/* Card Breakout Info */
+.card-breakout {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: rgba(212, 175, 55, 0.05);
+    border-left: 2px solid var(--accent-color);
+    font-size: 0.85rem;
+}
+
+.card-breakout strong {
+    display: block;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+    color: var(--accent-color);
+}
+
+/* Exploration Map */
+.exploration-map-section {
+    margin: 3rem 0;
+    padding: 2rem;
+    background: #fff;
+    border: 1px solid rgba(26, 26, 26, 0.08);
+}
+
+.map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.map-header h3 {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    margin: 0;
+}
+
+.exploration-map {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    min-height: 100px;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(26, 26, 26, 0.02);
+}
+
+.exploration-node {
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(26, 26, 26, 0.1);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    color: var(--muted-text);
+    transition: all 0.3s ease;
+    cursor: default;
+    background: #fff;
+}
+
+.exploration-node.active {
+    border-color: var(--accent-color);
+    color: var(--text-color);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.exploration-node span {
+    margin-left: 0.5rem;
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+.secondary-btn {
+    background: transparent;
+    border: 1px solid var(--text-color);
+    color: var(--text-color);
+    height: 2.5rem;
+    padding: 0 1rem;
+    font-size: 0.7rem;
+}
+
+.secondary-btn:hover {
+    background: var(--text-color);
+    color: var(--accent-fg);
+}

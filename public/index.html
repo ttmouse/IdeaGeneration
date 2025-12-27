@@ -132,9 +132,35 @@
                         </div>
                     </div>
                     <p class="controls-hint" data-i18n="hint_world_locked">选择具体创意世界以解锁手动控制</p>
+
+                    <div class="controls-row breakout-row">
+                        <div class="form-group checkbox-group">
+                            <input type="checkbox" id="oblique-strategy-toggle" />
+                            <label for="oblique-strategy-toggle" data-i18n="label_oblique_strategy">启用斜行策略 (Oblique
+                                Strategies)</label>
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <input type="checkbox" id="provocative-directive-toggle" />
+                            <label for="provocative-directive-toggle" data-i18n="label_provocative_directive">启用挑衅指令
+                                (Provocative Directives)</label>
+                        </div>
+                    </div>
+
                     <button id="generate-btn">
                         <span data-i18n="btn_generate">生成创意方案</span>
                     </button>
+                </div>
+
+                <div class="exploration-map-section">
+                    <div class="map-header">
+                        <h3 data-i18n="exploration_map_title">探索图谱 (Exploration Map)</h3>
+                        <button id="explore-unknown-btn" class="secondary-btn">
+                            <span data-i18n="btn_explore_unknown">探索未知领域</span>
+                        </button>
+                    </div>
+                    <div id="exploration-map" class="exploration-map">
+                        <!-- Visualization by JS -->
+                    </div>
                 </div>
 
                 <div id="results-area" class="results-grid">
