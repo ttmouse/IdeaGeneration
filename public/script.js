@@ -1292,10 +1292,120 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(data => {
                 if (Array.isArray(data) && data.length > 0) {
                     const newData = data[0];
-                    const newCard = createCardElement(newData);
-                    card.replaceWith(newCard);
-                    // Re-bind events
-                    setTimeout(() => bindEditableEvents(), 50);
+                    // Diff-based Update to avoid flash
+
+                    // 1. Update Emergence Badge (if changed)
+                    const header = card.querySelector('.card-header');
+                    const oldBadge = header.querySelector('.emergence-badge');
+                    if (newData.emergence) {
+                        const newBadgeHtml = `<div class="emergence-badge" title="Emergence Score: ${newData.emergence.score}">${t(newData.emergence.label, lang)}</div>`;
+                        if (oldBadge) {
+                            if (oldBadge.outerHTML !== newBadgeHtml) oldBadge.outerHTML = newBadgeHtml;
+                        } else {
+                            // Insert after title
+                            const titleDiv = header.querySelector('div');
+                            if (titleDiv) titleDiv.insertAdjacentHTML('beforeend', newBadgeHtml);
+                        }
+                    } else if (oldBadge) {
+                        oldBadge.remove();
+                    }
+
+                    // 2. Update Validation Messages (rebuild container)
+                    let validationHtml = '';
+                    if (newData.validation) {
+                        if (newData.validation.errors && newData.validation.errors.length > 0) {
+                            validationHtml += `<div class="card-alert card-alert--error" style="color:red; font-size:0.8em; padding:5px; background:#ffeeee; border-radius:4px; margin-bottom:10px;">⚠️ ${newData.validation.errors.join('<br>')}</div>`;
+                        }
+                        if (newData.validation.warnings && newData.validation.warnings.length > 0) {
+                            validationHtml += `<div class="card-alert card-alert--warning" style="color:orange; font-size:0.8em; padding:5px; background:#fff8e0; border-radius:4px; margin-bottom:10px;">⚠️ ${newData.validation.warnings.join('<br>')}</div>`;
+                        }
+                    }
+                    // Find existing validation container or insert after header
+                    let valContainer = card.querySelector('.card-alert');
+                    if (valContainer) {
+                        // If multiple alerts, remove all first
+                        card.querySelectorAll('.card-alert').forEach(el => el.remove());
+                    }
+                    if (validationHtml) {
+                        header.insertAdjacentHTML('afterend', validationHtml);
+                    }
+
+                    // 3. Update Editable Values
+                    card.querySelectorAll('.editable-value').forEach(el => {
+                        const dim = el.dataset.dimension;
+                        if (!dim) return;
+
+                        // Subject Kit Special Handling
+                        if (dim === 'subject_kit') {
+                            if (newData.subject_kit) {
+                                const newPrimary = t(newData.subject_kit.primary_subject, lang);
+
+                                // Update primary text if changed
+                                if (el.textContent !== newPrimary) {
+                                    el.textContent = newPrimary;
+                                    el.dataset.id = newData.subject_kit.primary_id;
+                                    flashElement(el);
+                                }
+
+                                // Update secondary tags
+                                const container = el.closest('.card-item');
+                                let tagsDiv = container.querySelector('.tags:not(.editable-value)');
+                                const secondaryList = newData.subject_kit.secondary_elements || [];
+                                const tagsHtml = secondaryList.map(item =>
+                                    `<span class="tag tag--secondary">${t(item, lang)}</span>`
+                                ).join('');
+
+                                if (tagsDiv) {
+                                    if (tagsDiv.innerHTML !== tagsHtml) tagsDiv.innerHTML = tagsHtml;
+                                } else if (tagsHtml) {
+                                    const newTagsDiv = document.createElement('div');
+                                    newTagsDiv.className = 'tags';
+                                    newTagsDiv.style.marginTop = '0.25rem';
+                                    newTagsDiv.innerHTML = tagsHtml;
+                                    container.appendChild(newTagsDiv);
+                                }
+                            }
+                        }
+                        // Twist Mechanisms Special Handling
+                        else if (dim === 'twist_mechanisms') {
+                            const newTwists = newData.twist_mechanisms || [];
+                            const newIds = newData.twist_ids || [];
+                            const newHtml = newTwists.map(text => `<span class="tag">${t(text, lang)}</span>`).join(' ') || '<span class="tag">-</span>';
+
+                            if (el.innerHTML !== newHtml) {
+                                el.innerHTML = newHtml;
+                                el.dataset.ids = JSON.stringify(newIds);
+                                flashElement(el);
+                            }
+                        }
+                        // Standard Fields
+                        else {
+                            const valKey = dim; // field name matches dimension for most
+                            let newVal = newData[valKey];
+                            let newId = newData[`${valKey}_id`];
+
+                            // Handling object structure if raw json returned (should actally be flattened by server for these fields usually, but checking)
+                            if (typeof newVal === 'object' && newVal !== null) {
+                                newVal = t(newVal, lang);
+                            }
+
+                            if (el.textContent !== newVal) {
+                                el.textContent = newVal || '-';
+                                if (newId) el.dataset.id = newId;
+                                flashElement(el);
+                            }
+                        }
+                    });
+
+                    // 4. Update Prompts / Breakouts (Optional, if they change)
+                    const promptEl = card.querySelector('.prompt-preview');
+                    if (promptEl && newData.final_prompt && promptEl.textContent !== newData.final_prompt) {
+                        promptEl.textContent = newData.final_prompt;
+                    }
+
+                    // Done. Remove loading state.
+                    card.style.opacity = '1';
+                    card.style.pointerEvents = 'auto';
                 }
             })
             .catch(err => {
@@ -1303,5 +1413,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.style.opacity = '1';
                 card.style.pointerEvents = 'auto';
             });
+    }
+
+    function flashElement(el) {
+        el.style.transition = 'color 0.3s ease, background-color 0.3s ease';
+        el.style.color = 'var(--accent-color)';
+        setTimeout(() => {
+            el.style.color = '';
+        }, 500);
     }
 });
