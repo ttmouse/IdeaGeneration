@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeView = 'generator';
 
     window.setView = function (viewName) {
-        if (!['generator', 'favorites', 'graph'].includes(viewName)) return;
+        if (!['generator', 'favorites', 'graph', 'rules'].includes(viewName)) return;
         activeView = viewName;
 
         // 1. Update Tab UI
@@ -46,6 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (viewName === 'graph') {
             visualizeExplorationMap(); // Ensure map is updated when graph tab is active
+        }
+        if (viewName === 'rules') {
+            loadRules();
         }
 
         // Optional: Update URL hash for persistence
@@ -548,14 +551,17 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data)) {
+                    currentResultsData = data; // Save for batch copy
+                    if (copyAllBtn) copyAllBtn.style.display = 'inline-flex'; // Show button
+
                     resultsArea.innerHTML = '';
                     renderResults(data);
                     resultsArea.scrollIntoView({ behavior: 'smooth' });
 
                     // Track world frequency for exploration map
                     data.forEach(item => {
-                        const worldId = item.creative_world.replace('world:', '');
-                        trackExploration(worldId);
+                        const worldId = item.creative_world ? item.creative_world.replace('world:', '') : (item._world || '');
+                        if (worldId) trackExploration(worldId);
                     });
                     visualizeExplorationMap();
                 }
@@ -569,6 +575,45 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (generateBtn) generateBtn.addEventListener('click', generateIdeas);
+
+    // --- Batch Copy Logic ---
+
+    const copyAllBtn = document.getElementById('copy-all-btn');
+    // const resultsActions = document.getElementById('results-actions'); // Removed
+    let currentResultsData = [];
+
+    if (copyAllBtn) {
+        copyAllBtn.addEventListener('click', () => {
+            if (!currentResultsData || currentResultsData.length === 0) return;
+
+            // User requested JSON format separated by dashes
+            const allPrompts = currentResultsData.map(item => JSON.stringify(item, null, 2)).join('\n--------\n');
+
+            navigator.clipboard.writeText(allPrompts).then(() => {
+                const icon = copyAllBtn.querySelector('i');
+                const span = copyAllBtn.querySelector('span');
+                const originalIcon = icon.className;
+                const originalText = span.textContent;
+
+                icon.className = 'ri-check-line';
+                span.textContent = 'Copied!';
+
+                setTimeout(() => {
+                    icon.className = originalIcon;
+                    span.textContent = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy to clipboard');
+            });
+        });
+    }
+
+    function returnOverrides(worldId) { // Renaming to avoid conflict if I don't delete original
+        return collectOverrides(worldId);
+    }
+
+    // --- End Batch Copy Logic ---
 
     function collectOverrides(worldId) {
         if (worldId === 'any') return {};
@@ -705,10 +750,20 @@ document.addEventListener('DOMContentLoaded', () => {
             `<span class="tag tag--secondary">${t(el, lang)}</span>`
         ).join('');
 
+        // Evaluation badge
+        const evaluation = item._evaluation || {};
+        const verdict = evaluation.verdict || 'PASS';
+        const verdictClass = verdict === 'PASS' ? 'verdict-pass' : (verdict === 'BLOCK' ? 'verdict-block' : 'verdict-degraded');
+        const verdictTitle = verdict === 'PASS' ? 'All rules satisfied' :
+            (evaluation.violations || []).map(v => v.message).join('\n');
+
         card.innerHTML = `
             <div class="card-header" data-world-id="${item._world || ''}">
                 <div style="display:flex; flex-direction:column; gap:4px;">
-                    <h3>${t(item.deliverable_type, lang)}</h3>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <h3>${t(item.deliverable_type, lang)}</h3>
+                        <span class="verdict-badge ${verdictClass}" title="${verdictTitle}">${verdict}</span>
+                    </div>
                 </div>
                 <div class="card-header-actions" style="display:flex; gap:10px;">
                      <button class="icon-btn fav-btn" title="${i18n[lang].fav_add}" style="background:none; border:none; cursor:pointer; color:#95a5a6;">
@@ -1348,11 +1403,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     card.style.opacity = '1';
                     card.style.pointerEvents = 'auto';
                 }
-            })
-            .catch(err => {
-                console.error('Regeneration error:', err);
-                card.style.opacity = '1';
-                card.style.pointerEvents = 'auto';
             });
     }
 
@@ -1363,4 +1413,146 @@ document.addEventListener('DOMContentLoaded', () => {
             el.style.color = '';
         }, 500);
     }
+
+    // --- Rule Management Logic ---
+
+    // Load Rules
+    window.loadRules = function () {
+        const list = document.getElementById('rules-list');
+        if (!list) return;
+
+        list.innerHTML = '<tr><td colspan="7">Loading rules...</td></tr>';
+
+        fetch('/api/rules')
+            .then(res => res.json())
+            .then(rules => {
+                renderRulesTable(rules);
+            })
+            .catch(err => {
+                console.error("Failed to load rules:", err);
+                list.innerHTML = '<tr><td colspan="7">Error loading rules.</td></tr>';
+            });
+    }
+
+    function renderRulesTable(rules) {
+        const list = document.getElementById('rules-list');
+        if (!list) return;
+        list.innerHTML = '';
+
+        if (rules.length === 0) {
+            list.innerHTML = '<tr><td colspan="7">No rules defined.</td></tr>';
+            return;
+        }
+
+        rules.forEach(rule => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><span class="badge ${rule.active ? 'badge-success' : 'badge-gray'}">${rule.active ? 'Active' : 'Inactive'}</span></td>
+                <td><span class="badge badge-blue">${rule.type}</span></td>
+                <td style="font-family:monospace; font-size:0.9em;">${rule.id}</td>
+                <td>${rule.desc}</td>
+                <td style="font-size:0.9em;">
+                    <span class="tag">${rule.trigger.dimension}</span> = <b>${rule.trigger.value}</b>
+                </td>
+                <td style="font-size:0.9em;">
+                    <span class="tag ${rule.consequence.action === 'require' ? 'tag-green' : 'tag-green' // bug fix: was tag-green for require, tag-red for forbid?
+                }">${rule.consequence.action.toUpperCase()}</span> 
+                    ${rule.consequence.target} = <b>${rule.consequence.value}</b>
+                </td>
+                <td>
+                    <button class="icon-btn" onclick="toggleRuleActive('${rule.id}', ${!rule.active})" title="Toggle Active">
+                        <i class="ri-toggle-${rule.active ? 'fill' : 'line'}"></i>
+                    </button>
+                    <!-- <button class="icon-btn delete-btn" onclick="deleteRule('${rule.id}')"><i class="ri-delete-bin-line"></i></button> -->
+                </td>
+            `;
+            list.appendChild(tr);
+        });
+    }
+
+    // Modal Controls
+    window.openAddRuleModal = function () {
+        document.getElementById('add-rule-modal').classList.remove('hidden');
+    };
+
+    window.closeAddRuleModal = function () {
+        document.getElementById('add-rule-modal').classList.add('hidden');
+    };
+
+    // Save New Rule
+    window.saveNewRule = function () {
+        const id = document.getElementById('rule-id').value;
+        const type = document.getElementById('rule-type').value;
+        const desc = document.getElementById('rule-desc').value;
+
+        const trigDim = document.getElementById('rule-trigger-dim').value;
+        const trigVal = document.getElementById('rule-trigger-val').value;
+
+        const actAction = document.getElementById('rule-action').value;
+        const actTarget = document.getElementById('rule-target-dim').value;
+        const actVal = document.getElementById('rule-target-val').value;
+
+        if (!id || !desc || !trigVal || !actVal) {
+            alert("Please fill all fields.");
+            return;
+        }
+
+        const newRule = {
+            id,
+            type,
+            desc,
+            active: true,
+            trigger: { dimension: trigDim, value: trigVal },
+            consequence: { action: actAction, target: actTarget, value: actVal }
+        };
+
+        fetch('/api/rules')
+            .then(res => res.json())
+            .then(currentRules => {
+                if (currentRules.some(r => r.id === id)) {
+                    alert("Rule ID already exists!");
+                    return;
+                }
+                currentRules.push(newRule);
+
+                return fetch('/api/rules', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(currentRules)
+                });
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    closeAddRuleModal();
+                    loadRules();
+                    document.getElementById('rule-id').value = '';
+                    document.getElementById('rule-desc').value = '';
+                } else {
+                    alert("Failed to save rule: " + data.error);
+                }
+            })
+            .catch(err => console.error(err));
+    };
+
+    window.toggleRuleActive = function (id, newState) {
+        fetch('/api/rules')
+            .then(res => res.json())
+            .then(currentRules => {
+                const idx = currentRules.findIndex(r => r.id === id);
+                if (idx >= 0) {
+                    currentRules[idx].active = newState;
+                    return fetch('/api/rules', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(currentRules)
+                    });
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.success) loadRules();
+            });
+    }
+
 });

@@ -5,7 +5,13 @@
 
 ---
 
-## 0. Guiding Philosophy / 核心理念
+## 0. Bootstrapping (For Human) / 自引导指令
+> 🚨 **AI 自启动指令**:
+> "首先阅读 `PROTOCOL.md`。本项目使用 **Fractal Docs Protocol**。你作为纯逻辑执行引擎。
+> **规则 1**: 在任何代码变更前，检查局部地图 (`.folder.md`) 和文件头。
+> **规则 2**: 如果地图与地形（代码）不符，立即更新地图。"
+
+## 1. Guiding Philosophy / 核心理念
 
 1️⃣ **代码是真实世界，文档是地图。地图必须跟地形同步。**
 2️⃣ **只同步真正会影响边界与协作的变化。**
@@ -20,9 +26,10 @@
 * `src/` 里的核心业务与架构代码
 * 对外暴露接口（API / Service / Adapter / Repository）
 
-以下内容 **不强制**：
+以下内容 **不强制**（但建议保留 `CLAUDE.md` 作为 AI 协作上下文）：
 
 * 配置文件、脚本、临时代码
+* `CLAUDE.md` (AI Context & Commands)
 * 纯常量、简单工具函数、re‑export 文件
 
 👉 目的：减少无意义维护，专注“影响系统协作的部分”。

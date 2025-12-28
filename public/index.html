@@ -12,6 +12,7 @@
         rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="rules.css">
 </head>
 
 <body>
@@ -19,6 +20,7 @@
     <div class="grid-lines">
         <div class="grid-line"></div>
         <div class="grid-line"></div>
+
         <div class="grid-line"></div>
         <div class="grid-line"></div>
     </div>
@@ -33,6 +35,7 @@
                 <button class="tab-btn active" data-tab="generator" data-i18n="tab_generator">Generator</button>
                 <button class="tab-btn" data-tab="favorites" data-i18n="tab_favorites">Favorites</button>
                 <button class="tab-btn" data-tab="graph" data-i18n="tab_graph">Graph</button>
+                <button class="tab-btn" data-tab="rules">Rules</button>
             </div>
             <div class="nav-right">
                 <div class="lang-switch">
@@ -146,10 +149,18 @@
                         </div>
                     </div>
 
-                    <button id="generate-btn">
-                        <span data-i18n="btn_generate">生成创意方案</span>
-                    </button>
+                    <div class="action-buttons" style="display: flex; gap: 1rem; margin-top: 1rem;">
+                        <button id="generate-btn" style="flex: 1; margin-top: 0;">
+                            <span data-i18n="btn_generate">生成创意方案</span>
+                        </button>
+                        <button id="copy-all-btn" class="secondary-btn" style="display: none; height: 3.5rem;">
+                            <i class="ri-file-copy-line"></i> <span data-i18n="btn_copy_all">Copy All</span>
+                        </button>
+                    </div>
                 </div>
+
+
+
 
 
 
@@ -182,6 +193,84 @@
                     </div>
                     <div id="exploration-map" class="exploration-map">
                         <!-- Visualization by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-rules" class="tab-content">
+                <div class="rules-header">
+                    <h2>Creative Rules Registry</h2>
+                    <button class="primary-btn" onclick="openAddRuleModal()">+ Add New Rule</button>
+                </div>
+
+                <div class="rules-table-container">
+                    <table id="rules-table">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Type</th>
+                                <th>ID</th>
+                                <th>Description</th>
+                                <th>Trigger</th>
+                                <th>Consequence</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rules-list">
+                            <!-- populated by js -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="add-rule-modal" class="modal hidden">
+                    <div class="modal-content">
+                        <h3>Add New Rule</h3>
+                        <div class="form-group">
+                            <label>ID</label>
+                            <input type="text" id="rule-id" placeholder="e.g. grammar_no_clowns">
+                        </div>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select id="rule-type">
+                                <option value="L1">L1 (Constitution)</option>
+                                <option value="L2">L2 (Intra-dim)</option>
+                                <option value="L3">L3 (Grammar)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <input type="text" id="rule-desc" placeholder="Rule explanation">
+                        </div>
+                        <div class="form-group p-4 border rounded">
+                            <strong>Trigger</strong>
+                            <div class="flex gap-2 mt-2">
+                                <select id="rule-trigger-dim">
+                                    <option value="creation_intent">Intent</option>
+                                    <option value="generation_logic">Logic</option>
+                                    <option value="creative_world">World</option>
+                                </select>
+                                <span class="p-2">=</span>
+                                <input type="text" id="rule-trigger-val" placeholder="value">
+                            </div>
+                        </div>
+                        <div class="form-group p-4 border rounded mt-2">
+                            <strong>Consequence</strong>
+                            <div class="flex gap-2 mt-2">
+                                <select id="rule-action">
+                                    <option value="require">Require</option>
+                                    <option value="forbid">Forbid</option>
+                                </select>
+                                <select id="rule-target-dim">
+                                    <option value="twist_mechanisms">Twist</option>
+                                    <option value="secondary_elements">Element</option>
+                                </select>
+                                <input type="text" id="rule-target-val" placeholder="target value">
+                            </div>
+                        </div>
+                        <div class="modal-actions">
+                            <button onclick="closeAddRuleModal()">Cancel</button>
+                            <button class="primary-btn" onclick="saveNewRule()">Save Rule</button>
+                        </div>
                     </div>
                 </div>
             </div>

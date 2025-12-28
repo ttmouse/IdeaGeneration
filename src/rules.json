@@ -1,0 +1,66 @@
+[
+  {
+    "id": "constitution_process_cutaway",
+    "type": "L1",
+    "desc": "Process-driven logic requires Cutaway Logic",
+    "active": true,
+    "severity": "error",
+    "trigger": {
+      "dimension": "generation_logic",
+      "value": "process-driven"
+    },
+    "consequence": {
+      "action": "require",
+      "target": "twist_mechanisms",
+      "value": "cutaway_logic"
+    }
+  },
+  {
+    "id": "grammar_docu_no_impossible",
+    "type": "L3",
+    "desc": "Documentary intent forbids Impossible Physics",
+    "active": true,
+    "severity": "warning",
+    "trigger": {
+      "dimension": "creation_intent",
+      "value": "documentary"
+    },
+    "consequence": {
+      "action": "forbid",
+      "target": "twist_mechanisms",
+      "value": "impossible_but_physical"
+    }
+  },
+  {
+    "id": "grammar_docu_no_material_swap",
+    "type": "L3",
+    "desc": "Documentary intent forbids Material Swap",
+    "active": true,
+    "severity": "warning",
+    "trigger": {
+      "dimension": "creation_intent",
+      "value": "documentary"
+    },
+    "consequence": {
+      "action": "forbid",
+      "target": "twist_mechanisms",
+      "value": "material_swap"
+    }
+  },
+  {
+    "id": "grammar_docu_no_time_discontinuity",
+    "type": "L3",
+    "desc": "Documentary intent forbids Time Discontinuity",
+    "active": true,
+    "severity": "warning",
+    "trigger": {
+      "dimension": "creation_intent",
+      "value": "documentary"
+    },
+    "consequence": {
+      "action": "forbid",
+      "target": "twist_mechanisms",
+      "value": "time_discontinuity"
+    }
+  }
+]

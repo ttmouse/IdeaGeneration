@@ -3,6 +3,8 @@
 // [POS]: 核心生成引擎，被 server.js 调用，不直接处理 HTTP / Core generation engine, called by server.js
 // Protocol: When updated, sync this header + parent .folder.md
 
+const { evaluate: evaluateSkeleton, reloadRules: reloadEvaluatorRules } = require('./evaluator');
+
 // -----------------------------
 // 1) 上游决策维度 (New Dimensions)
 // -----------------------------
@@ -402,6 +404,58 @@ const INSPIRATION_KEYWORDS = {
         worlds: { advertising: 3 },
         imaging: "industrial_product_photography",
         intents: { demonstrate: 3 }
+    },
+
+    // ========== 新增：多样化风格关键词 ==========
+    "悬浮|floating|levitate|suspended": {
+        worlds: { advertising: 3, concept_art: 2 },
+        mechanisms: ["zero_gravity_scatter", "gravity_defiance"],
+        imaging: "surreal_floating"
+    },
+    "碎片|fragment|shattered|mosaic": {
+        worlds: { concept_art: 4 },
+        mechanisms: ["fragment_mosaic"],
+        imaging: "sculptural_fragment_art"
+    },
+    "人像|portrait|肖像|bust": {
+        worlds: { concept_art: 3, documentary: 2 },
+        logics: { "character-centric": 3 },
+        imaging: "cinematic_portrait"
+    },
+    "食物|food|美食|gourmet": {
+        worlds: { advertising: 4, product_photography: 3 },
+        imaging: "dynamic_food_photography",
+        intents: { sell: 3, demonstrate: 2 }
+    },
+    "微缩|miniature|diorama|微观世界": {
+        worlds: { miniature_fantasy: 5, concept_art: 2 },
+        mechanisms: ["scale_mismatch"],
+        intents: { explore: 3, evoke: 2 }
+    },
+    "纸艺|paper|origami|折纸": {
+        worlds: { concept_art: 3 },
+        mechanisms: ["portrait_to_material", "fragment_mosaic"],
+        imaging: "sculptural_fragment_art"
+    },
+    "烟花|fireworks|焰火": {
+        worlds: { advertising: 3 },
+        mechanisms: ["shape_morph"],
+        intents: { evoke: 3, entertain: 2 }
+    },
+    "单色|monochrome|monochromatic|同色系": {
+        worlds: { advertising: 3, product_photography: 3 },
+        imaging: "minimalist_object_study",
+        intents: { evoke: 2, sell: 2 }
+    },
+    "盒子|box|container|容器": {
+        worlds: { miniature_fantasy: 4, concept_art: 2 },
+        mechanisms: ["scale_mismatch", "cutaway_logic"],
+        intents: { explore: 3 }
+    },
+    "品牌|brand|logo|标志": {
+        worlds: { advertising: 5 },
+        intents: { sell: 4 },
+        imaging: "industrial_product_photography"
     }
 };
 
@@ -530,6 +584,64 @@ const IMAGING_ASSUMPTIONS = {
         id: "documentary_available_light",
         desc: { en: "Documentary Available Light", zh: "纪实自然光" },
         template: "Documentary photography, available light, candid moment, leica m style, slight grain, high dynamic range, storytelling, 35mm lens."
+    },
+    "dynamic_food_photography": {
+        id: "dynamic_food_photography",
+        desc: { en: "Dynamic Food Photography", zh: "动态食品摄影" },
+        template: "High-end food photography, suspended mid-air, flying crumbs and particles, dramatic lighting, pure black background, 8k, commercial quality, motion frozen."
+    },
+    "sculptural_fragment_art": {
+        id: "sculptural_fragment_art",
+        desc: { en: "Sculptural Fragment Art", zh: "碎片雕塑艺术" },
+        template: "Sculptural bust made of fragmented stone pieces, two-tone color scheme, geometric fractures, museum lighting, white background, 8k, gallery quality."
+    },
+    "cinematic_portrait": {
+        id: "cinematic_portrait",
+        desc: { en: "Cinematic Portrait", zh: "电影感人像" },
+        template: "Cinematic portrait photography, dramatic lighting, shallow depth of field, film grain, emotional expression, 85mm lens, 8k."
+    },
+    "surreal_floating": {
+        id: "surreal_floating",
+        desc: { en: "Surreal Floating Composition", zh: "超现实悬浮构图" },
+        template: "Surreal composition, objects floating in void, zero gravity, scattered particles, dramatic rim lighting, pure background, 8k."
+    },
+    "material_metamorphosis": {
+        id: "material_metamorphosis",
+        desc: { en: "Material Metamorphosis", zh: "材质蜕变" },
+        template: "Subject transformed into unexpected material, photorealistic texture detail, studio lighting, white or black background, 8k, hyperrealistic."
+    },
+    "minimalist_object_study": {
+        id: "minimalist_object_study",
+        desc: { en: "Minimalist Object Study", zh: "极简物体研究" },
+        template: "Minimalist photography, single object, pure solid color background, soft even lighting, negative space emphasis, 8k, gallery print quality."
+    }
+};
+
+// -----------------------------
+// 1.7) 元素密度配置 (Element Density Config)
+// -----------------------------
+
+const DENSITY_CONFIG = {
+    sparse: {
+        id: "sparse",
+        secondary_element_count_range: [0, 1],
+        secondary_element_prob: 0.3,
+        twist_k_range: [1, 1], // Just one twist or none
+        optional_dimension_prob: 0.2 // Low chance of detailed staging/lighting if not critical
+    },
+    medium: {
+        id: "medium",
+        secondary_element_count_range: [2, 3],
+        secondary_element_prob: 0.8,
+        twist_k_range: [2, 3],
+        optional_dimension_prob: 0.9
+    },
+    dense: {
+        id: "dense",
+        secondary_element_count_range: [4, 6],
+        secondary_element_prob: 1.0,
+        twist_k_range: [3, 5],
+        optional_dimension_prob: 1.0
     }
 };
 
@@ -538,6 +650,7 @@ const IMAGING_ASSUMPTIONS = {
 // -----------------------------
 
 const RULESET_VERSION = 'structured-v1';
+const { evaluateRules } = require('./rule_engine');
 
 const WORLDS = {
     "advertising": {
@@ -568,7 +681,10 @@ const WORLDS = {
             { id: "label_lies", en: "Label Lies", zh: "标注反讽" },
             { id: "material_swap", en: "Material Swap", zh: "材质错置" },
             { id: "cutaway_logic", en: "Cutaway Logic", zh: "剖面逻辑" },
-            { id: "missing_essential", en: "Missing Essential", zh: "关键缺失" }
+            { id: "missing_essential", en: "Missing Essential", zh: "关键缺失" },
+            { id: "dynamic_freeze", en: "Dynamic Freeze", zh: "动态冻结" },
+            { id: "zero_gravity_scatter", en: "Zero Gravity Scatter", zh: "零重力散落" },
+            { id: "shape_morph", en: "Shape Morph", zh: "形状蜘变" }
         ],
         "stage_context": [
             { en: "clean studio tabletop", zh: "干净的摄影棚桌面" },
@@ -582,7 +698,10 @@ const WORLDS = {
             { en: "polished black acrylic", zh: "抛光黑色亚克力" },
             { en: "floating on water surface", zh: "漂浮水面" },
             { en: "suspended in mid-air", zh: "悬浮空中" },
-            { en: "neon-lit night scene", zh: "霓虹灯夜景" }
+            { en: "neon-lit night scene", zh: "霓虹灯夜景" },
+            { en: "pure black void", zh: "纯黑虚空" },
+            { en: "pure white infinity", zh: "纯白无限" },
+            { en: "gradient fade background", zh: "渐变淡出背景" }
         ],
         "composition_rule": [
             { en: "centered hero object, negative space", zh: "中心主体，留白" },
@@ -703,6 +822,30 @@ const WORLDS = {
                     { en: "gold trim", zh: "金色装饰边" },
                     { en: "shade number", zh: "色号标识" },
                     { en: "magnetic cap", zh: "磁吸盖" }
+                ]
+            },
+            {
+                primary_subject: { en: "macarons", zh: "马卡龙" },
+                secondary_elements: [
+                    { en: "flying crumbs", zh: "飞溅碎屑" },
+                    { en: "sugar crystals", zh: "糖霜颗粒" },
+                    { en: "pastel dust", zh: "粉彩粉末" }
+                ]
+            },
+            {
+                primary_subject: { en: "chocolate bar", zh: "巧克力棒" },
+                secondary_elements: [
+                    { en: "cocoa powder", zh: "可可粉" },
+                    { en: "melted drips", zh: "融化滴落" },
+                    { en: "foil wrapper", zh: "锡纸包装" }
+                ]
+            },
+            {
+                primary_subject: { en: "coffee cup", zh: "咖啡杯" },
+                secondary_elements: [
+                    { en: "coffee beans", zh: "咖啡豆" },
+                    { en: "steam wisps", zh: "热气缭绕" },
+                    { en: "spilled drops", zh: "溅出的液滴" }
                 ]
             }
         ]
@@ -876,7 +1019,9 @@ const WORLDS = {
             { id: "missing_essential", en: "Missing Essential", zh: "关键缺失" },
             { id: "impossible_but_physical", en: "Impossible but Physical", zh: "不可能但物理真实" },
             { id: "cutaway_logic", en: "Cutaway Logic", zh: "剖面逻辑" },
-            { id: "time_discontinuity", en: "Time Discontinuity", zh: "时间断裂" }
+            { id: "time_discontinuity", en: "Time Discontinuity", zh: "时间断裂" },
+            { id: "portrait_to_material", en: "Portrait to Material", zh: "人像材质化" },
+            { id: "fragment_mosaic", en: "Fragment Mosaic", zh: "碎片马赛克" }
         ],
         "stage_context": [
             { en: "empty room with subtle institutional feel", zh: "带有微妙机构感的空房间" },
@@ -888,7 +1033,9 @@ const WORLDS = {
             { en: "museum conservation workspace", zh: "博物馆修复工作间" },
             { en: "basement archive", zh: "地下档案室" },
             { en: "minimalist gallery pedestal", zh: "极简画廊展台" },
-            { en: "government office hallway", zh: "政府办公室走廊" }
+            { en: "government office hallway", zh: "政府办公室走廊" },
+            { en: "museum pedestal spotlight", zh: "博物馆展台聚光" },
+            { en: "white cyclorama with soft shadows", zh: "白色无影墙柔影" }
         ],
         "composition_rule": [
             { en: "deadpan centered framing", zh: "呆板中心构图" },
@@ -981,6 +1128,38 @@ const WORLDS = {
                     { en: "handwritten label", zh: "手写标签" },
                     { en: "cloudy liquid", zh: "浑浊液体" },
                     { en: "cork seal", zh: "软木塞封" }
+                ]
+            },
+            {
+                primary_subject: { en: "famous scientist bust", zh: "著名科学家半身像" },
+                secondary_elements: [
+                    { en: "stone fragments", zh: "石块碎片" },
+                    { en: "dust particles", zh: "尘埃颗粒" },
+                    { en: "geometric cracks", zh: "几何裂纹" }
+                ]
+            },
+            {
+                primary_subject: { en: "anonymous face", zh: "匿名面孔" },
+                secondary_elements: [
+                    { en: "metal plates", zh: "金属板片" },
+                    { en: "wire mesh", zh: "金属丝网" },
+                    { en: "fracture lines", zh: "断裂线" }
+                ]
+            },
+            {
+                primary_subject: { en: "classical sculpture head", zh: "古典雕塑头像" },
+                secondary_elements: [
+                    { en: "marble veins", zh: "大理石纹" },
+                    { en: "weathered edges", zh: "风化边缘" },
+                    { en: "missing sections", zh: "缺失部分" }
+                ]
+            },
+            {
+                primary_subject: { en: "paper craft portrait", zh: "纸艺人像" },
+                secondary_elements: [
+                    { en: "folded planes", zh: "折叠平面" },
+                    { en: "layered cuts", zh: "层叠切割" },
+                    { en: "color gradients", zh: "颜色渐变" }
                 ]
             }
         ]
@@ -1272,7 +1451,8 @@ const WORLDS = {
             { id: "scale_mismatch", en: "Scale Mismatch", zh: "尺度错位" },
             { id: "cutaway_logic", en: "Cutaway Logic", zh: "剖面逻辑" },
             { id: "function_misuse", en: "Function Misuse", zh: "功能错配" },
-            { id: "material_swap", en: "Material Swap", zh: "材质错置" }
+            { id: "material_swap", en: "Material Swap", zh: "材质错置" },
+            { id: "container_world", en: "Container World", zh: "容器世界" }
         ],
         "stage_context": [
             { en: "tabletop diorama", zh: "桌面透视画" },
@@ -1384,6 +1564,30 @@ const WORLDS = {
                     { en: "tiny skiers", zh: "微型滑雪者" },
                     { en: "sprinkles as obstacles", zh: "糖粒作为障碍" },
                     { en: "melting as avalanche", zh: "融化如雪崩" }
+                ]
+            },
+            {
+                primary_subject: { en: "a matchbox diorama", zh: "火柴盒微缩景" },
+                secondary_elements: [
+                    { en: "tiny crime scene", zh: "迷你犯罪现场" },
+                    { en: "miniature street lamps", zh: "微型路灯" },
+                    { en: "matchsticks as props", zh: "火柴作为道具" }
+                ]
+            },
+            {
+                primary_subject: { en: "a teacup festival", zh: "茶杯集市" },
+                secondary_elements: [
+                    { en: "tiny market stalls", zh: "迷你市场摆位" },
+                    { en: "festive string lights", zh: "节日灯串" },
+                    { en: "water reflection", zh: "水面倒影" }
+                ]
+            },
+            {
+                primary_subject: { en: "a vintage suitcase world", zh: "复古行李箱世界" },
+                secondary_elements: [
+                    { en: "tiny travelers", zh: "微型旅行者" },
+                    { en: "travel stickers", zh: "旅行贴纸" },
+                    { en: "miniature landmarks", zh: "迷你地标" }
                 ]
             }
         ]
@@ -1775,12 +1979,12 @@ function assemblePrompt(governance) {
 
     const parts = [
         deliverable_type,
-        `featuring ${subjects}`,
-        `inspired by ${core_tension}`,
+        subjects ? `featuring ${subjects}` : '',
+        core_tension ? `inspired by ${core_tension}` : '',
         twists ? `with ${twists}` : '',
-        `set in ${stage_context}`,
-        `following ${composition_rule}`,
-        `lit by ${lighting_rule}`
+        stage_context ? `set in ${stage_context}` : '',
+        composition_rule ? `following ${composition_rule}` : '',
+        lighting_rule ? `lit by ${lighting_rule}` : ''
     ].filter(Boolean);
 
     return parts.join('. ') + '.';
@@ -1896,26 +2100,51 @@ function validate_overrides({ clean, pools, worldConfig, lang }) {
     return { validated, errors, dropped, warnings: internalWarnings };
 }
 
-// Module 3: Apply Logic Constraints
-function apply_logic_constraints({ validated, logicObj, inspirationWeights }) {
+// Module 3: Rule Engine (L1, L2, L3)
+function apply_logic_constraints({ validated, logicObj, inspirationWeights, highLevelContext }) {
     const fixed = { ...validated };
     const warnings = [];
+    let required_twist_append = null;
+
+    // Build context for rule engine
+    // highLevelContext has { intent, logic, imaging } (objects)
+    const context = {
+        generation_logic: highLevelContext.logic,
+        creation_intent: highLevelContext.intent,
+        imaging_assumption: highLevelContext.imaging,
+        ...fixed // Overrides might control triggers too
+    };
+
+    const ruleResult = evaluateRules(context);
+
+    // Apply Requirements
+    // Currently only supporting 'twist_mechanisms' requirement for simplicity in v0
+    // But engine supports generic.
+    if (ruleResult.requirements.twist_mechanisms) {
+        // We only support ONE required category mainly in current logic flow (required_twist_append)
+        // If multiple, we might need to change architecture. For now pick first.
+        required_twist_append = ruleResult.requirements.twist_mechanisms[0];
+        warnings.push(...ruleResult.warnings);
+    }
 
     return {
         fixed,
-        required_twist_append: logicObj && logicObj.required_twist_category ? logicObj.required_twist_category : null,
+        required_twist_append,
+        forbidden: ruleResult.forbidden, // Pass forbidden list to sampler
         warnings
     };
 }
 
-// Module 4: Sample Candidates
-function sample_candidates({ constraints, pools, rng, worldId, lang, highLevel, inspirationWeights, debugStore, strategy }) {
+// Module 4: Sample Candidates (with Density & Rules)
+function sample_candidates({ constraints, pools, rng, worldId, lang, highLevel, inspirationWeights, debugStore, strategy, density = 'medium' }) {
     const selection = {};
     const governanceUpdates = { rule_hits: [], warnings: [] };
     const { intent, logic, imaging } = highLevel;
     selection.creation_intent = intent;
     selection.generation_logic = logic;
     selection.imaging_assumption = imaging;
+
+    const densitySettings = DENSITY_CONFIG[density] || DENSITY_CONFIG.medium;
 
     function resolve(dim, pool, matchValue, isMulti = false, kRange = null) {
         const tempGov = { selected_fields: {}, source_refs: {}, rule_hits: [], warnings: [] };
@@ -1925,6 +2154,18 @@ function sample_candidates({ constraints, pools, rng, worldId, lang, highLevel, 
         let activePool = pool;
         if (strategy && strategy.filter) {
             activePool = strategy.filter(pool, dim);
+        }
+
+        // --- Density Check for Optional Dimensions ---
+        // If it's an optional dimension (stage, composition, lighting) and no override is present,
+        // we might skip it based on density to reduce "Element Stacking".
+        const optionalDims = ['stage_context', 'composition_rule', 'lighting_rule'];
+        if (optionalDims.includes(dim) && !override && !isMulti) {
+            const roll = rng();
+            if (roll > densitySettings.optional_dimension_prob) {
+                // Return null implies "Default/Unspecified" -> Cleaner prompt
+                return null;
+            }
         }
 
         if (dim === 'twist_mechanisms') {
@@ -1945,28 +2186,43 @@ function sample_candidates({ constraints, pools, rng, worldId, lang, highLevel, 
                 return Array.isArray(override) ? override : [override];
             }
 
-            const minK = kRange[0], maxK = kRange[1];
+            // Density controls Twist Count
+            const effectiveKRange = kRange || densitySettings.twist_k_range || [1, 2];
+            const minK = effectiveKRange[0], maxK = effectiveKRange[1];
             const k = Math.max(minK, Math.min(maxK, getRandomInt(minK, maxK, rng)));
+
             const forbiddenTerms = pools.forbidden_visual_terms || [];
             let available = activePool.filter(t => !containsForbiddenTerm(t.en, forbiddenTerms));
+
+            // Filter out forbidden twists based on Intent (L3 Rule)
+            // L3 Rules from Rule Engine (constraints.forbidden) + Hardcoded intent.forbidden_twists (migration pending)
+            if (intent.forbidden_twists) {
+                available = available.filter(t => !intent.forbidden_twists.includes(t.id));
+            }
+            if (constraints.forbidden && constraints.forbidden.twist_mechanisms) {
+                const forbiddenIds = constraints.forbidden.twist_mechanisms;
+                available = available.filter(t => !forbiddenIds.includes(t.id));
+            }
+
             let twistSelection = pickKUnique(available, k, rng);
 
             if (inspirationWeights && inspirationWeights.mechanisms.length > 0) {
                 const preferred = inspirationWeights.mechanisms.map(id => activePool.find(m => m.id === id)).filter(Boolean);
+                // Mix in preferred
                 for (let i = 0; i < Math.min(preferred.length, twistSelection.length); i++) twistSelection[i] = preferred[i];
             }
 
             if (constraints.required_twist_append) {
                 const reqTwist = activePool.find(t => t.id === constraints.required_twist_append);
                 if (reqTwist && !twistSelection.includes(reqTwist)) {
-                    if (twistSelection.length > 0) twistSelection[0] = reqTwist;
+                    if (twistSelection.length > 0) twistSelection[0] = reqTwist; // Replace first
                     else twistSelection.push(reqTwist);
                 }
             }
             return twistSelection;
         }
 
-        if (dim !== 'twist_mechanisms') {
+        if (dim !== 'twist_mechanisms' && dim !== 'subject_kit') {
             const res = selectWithRecording({
                 dimension: dim,
                 pool: activePool,
@@ -1979,6 +2235,51 @@ function sample_candidates({ constraints, pools, rng, worldId, lang, highLevel, 
             });
             if (tempGov.rule_hits) governanceUpdates.rule_hits.push(...tempGov.rule_hits);
             return res.raw;
+        }
+
+        // Subject Kit is special (Composite)
+        if (dim === 'subject_kit') {
+            // If override is present, use it completely (assume user knows what they want)
+            if (override) {
+                // Logic to hydrate partial object could go here, but for now strict override
+                return override;
+            }
+
+            // Pick a primary kit first
+            const res = selectWithRecording({
+                dimension: 'subject_kit',
+                pool: activePool,
+                rng,
+                lang,
+                worldId,
+                governance: tempGov,
+                debugStore,
+                matchValue: override
+            });
+
+            const rawKit = res.raw;
+            if (!rawKit) return null;
+
+            // Density controls Secondary Elements
+            let finalSecondary = [];
+            if (rawKit.secondary_elements) {
+                const secCountRange = densitySettings.secondary_element_count_range;
+                const count = getRandomInt(secCountRange[0], secCountRange[1], rng);
+                const candidates = [...rawKit.secondary_elements];
+
+                // Shuffle and pick 'count' elements
+                for (let i = candidates.length - 1; i > 0; i--) {
+                    const j = Math.floor(rng() * (i + 1));
+                    [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+                }
+                finalSecondary = candidates.slice(0, count);
+            }
+
+            return {
+                primary_subject: rawKit.primary_subject,
+                secondary_elements: finalSecondary,
+                id: res.selected.id // Keep ref
+            };
         }
     }
 
@@ -2030,7 +2331,8 @@ function generateCreativeSkeleton(options = {}) {
         inspirationSeed = null,
         overrides: rawOverrides = {},
         oblique_strategy_enabled = false,
-        provocative_directive_enabled = false
+        provocative_directive_enabled = false,
+        density = 'medium'
     } = options;
 
     const rng = createRNG(seed);
@@ -2101,10 +2403,15 @@ function generateCreativeSkeleton(options = {}) {
         strategy = OBLIQUE_STRATEGIES[Math.floor(rng() * OBLIQUE_STRATEGIES.length)];
     }
 
-    const { fixed, required_twist_append, warnings: logicWarnings } = apply_logic_constraints({ validated, logicObj: selectedLogic, inspirationWeights });
+    const { fixed, required_twist_append, warnings: logicWarnings, forbidden } = apply_logic_constraints({
+        validated,
+        logicObj: selectedLogic,
+        inspirationWeights,
+        highLevelContext: { intent: selectedIntent, logic: selectedLogic, imaging: hlImaging }
+    });
 
     const { selection, governanceUpdates } = sample_candidates({
-        constraints: { fixed, required_twist_append },
+        constraints: { fixed, required_twist_append, forbidden },
         pools,
         rng,
         worldId: world,
@@ -2112,7 +2419,8 @@ function generateCreativeSkeleton(options = {}) {
         highLevel: { intent: selectedIntent, logic: selectedLogic, imaging: hlImaging },
         inspirationWeights,
         debugStore,
-        strategy
+        strategies: strategy ? [strategy] : [],
+        density
     });
 
     const finalPrompt = assemble_prompt({ selection, worldConfig, lang });
@@ -2135,36 +2443,47 @@ function generateCreativeSkeleton(options = {}) {
         return `${prefix}:${safeSlug(val)}`;
     };
 
-    return {
-        public_skeleton: {
-            _world: world,  // For UI functionality only
-            creative_id: `${generateId()}`,
-            creation_intent: safeT(selection.creation_intent.desc),
-            creation_intent_id: selection.creation_intent.id,
-            generation_logic: safeT(selection.generation_logic.desc),
-            generation_logic_id: selection.generation_logic.id,
-            subject_kit: {
-                primary_subject: safeT(selection.subject_kit.primary_subject),
-                primary_id: selection.subject_kit.primary_subject.id || safeSlug(getVal(selection.subject_kit.primary_subject)),
-                secondary_elements: (selection.subject_kit.secondary_elements || []).map(e => safeT(e)),
-                secondary_ids: (selection.subject_kit.secondary_elements || []).map(e => factId('element', e))
-            },
-            core_tension: safeT(selection.core_tension),
-            core_tension_id: selection.core_tension.id || safeSlug(getVal(selection.core_tension)),
-            twist_mechanisms: selection.twist_mechanisms.map(t => safeT(t)),
-            twist_ids: selection.twist_mechanisms.map(t => t.id || safeSlug(getVal(t))),
-            stage_context: safeT(selection.stage_context),
-            stage_context_id: selection.stage_context.id || safeSlug(getVal(selection.stage_context)),
-            composition_rule: safeT(selection.composition_rule),
-            composition_rule_id: selection.composition_rule.id || safeSlug(getVal(selection.composition_rule)),
-            lighting_rule: safeT(selection.lighting_rule),
-            lighting_rule_id: selection.lighting_rule.id || safeSlug(getVal(selection.lighting_rule)),
-            imaging_assumption: safeT(selection.imaging_assumption.desc),
-            imaging_assumption_id: selection.imaging_assumption.id,
-            deliverable_type: safeT(worldConfig.deliverable_type[0]),
-            creative_directive: directive ? safeT(directive) : null,
-            oblique_strategy: strategy ? safeT(strategy.desc) : null
+    const publicSkeleton = {
+        _world: world,  // For UI functionality only
+        creative_id: `${generateId()}`,
+        creation_intent: safeT(selection.creation_intent.desc),
+        creation_intent_id: selection.creation_intent.id,
+        generation_logic: safeT(selection.generation_logic.desc),
+        generation_logic_id: selection.generation_logic.id,
+        subject_kit: {
+            primary_subject: safeT(selection.subject_kit.primary_subject),
+            primary_id: selection.subject_kit.primary_subject.id || safeSlug(getVal(selection.subject_kit.primary_subject)),
+            secondary_elements: (selection.subject_kit.secondary_elements || []).map(e => safeT(e)),
+            secondary_ids: (selection.subject_kit.secondary_elements || []).map(e => factId('element', e))
         },
+        core_tension: safeT(selection.core_tension),
+        core_tension_id: selection.core_tension.id || safeSlug(getVal(selection.core_tension)),
+        twist_mechanisms: selection.twist_mechanisms.map(t => safeT(t)),
+        twist_ids: selection.twist_mechanisms.map(t => t.id || safeSlug(getVal(t))),
+        stage_context: safeT(selection.stage_context),
+        stage_context_id: selection.stage_context?.id || (selection.stage_context ? safeSlug(getVal(selection.stage_context)) : null),
+        composition_rule: safeT(selection.composition_rule),
+        composition_rule_id: selection.composition_rule?.id || (selection.composition_rule ? safeSlug(getVal(selection.composition_rule)) : null),
+        lighting_rule: safeT(selection.lighting_rule),
+        lighting_rule_id: selection.lighting_rule?.id || (selection.lighting_rule ? safeSlug(getVal(selection.lighting_rule)) : null),
+        imaging_assumption: safeT(selection.imaging_assumption.desc),
+        imaging_assumption_id: selection.imaging_assumption.id,
+        deliverable_type: safeT(worldConfig.deliverable_type[0]),
+        creative_directive: directive ? safeT(directive) : null,
+        oblique_strategy: strategy ? safeT(strategy.desc) : null
+    };
+
+    // Run post-generation evaluation
+    const evaluation = evaluateSkeleton(publicSkeleton, {
+        intent: selection.creation_intent,
+        logic: selection.generation_logic,
+        imaging: selection.imaging_assumption,
+        density
+    });
+
+    return {
+        public_skeleton: publicSkeleton,
+        evaluation,
         debug: debugStore
     };
 }
@@ -2206,5 +2525,6 @@ module.exports = {
     validate_overrides,
     apply_logic_constraints,
     sample_candidates,
-    assemble_prompt
+    assemble_prompt,
+    DENSITY_CONFIG
 };

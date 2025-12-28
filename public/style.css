@@ -1161,3 +1161,38 @@ button span {
     background: var(--text-color);
     color: var(--accent-fg);
 }
+/* Secondary Button (Added for Copy Feature) */
+.secondary-btn {
+    background-color: transparent;
+    color: var(--text-color);
+    border: 1px solid rgba(26, 26, 26, 0.2);
+    font-family: var(--font-body);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.secondary-btn:hover {
+    background-color: var(--text-color);
+    color: var(--bg-color);
+    border-color: var(--text-color);
+    opacity: 1;
+}
+
+.secondary-btn i {
+    font-size: 1.1em;
+}
+
+/* Fix for Secondary Button text visibility */
+.secondary-btn span, 
+.secondary-btn i {
+    color: var(--text-color);
+}
+
+.secondary-btn:hover span,
+.secondary-btn:hover i {
+    color: var(--bg-color);
+}

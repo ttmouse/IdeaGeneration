@@ -14,6 +14,7 @@ const {
     WORLDS,
     PromptAssemblyError
 } = require('./src/logic');
+const { getRules, saveRules } = require('./src/rule_engine');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -56,6 +57,23 @@ app.get('/api/worlds', (req, res) => {
     res.json(getAvailableWorlds());
 });
 
+// API: Rules Management
+app.get('/api/rules', (req, res) => {
+    res.json(getRules());
+});
+
+app.post('/api/rules', (req, res) => {
+    const rules = req.body;
+    if (!Array.isArray(rules)) {
+        return res.status(400).json({ error: "Rules must be an array" });
+    }
+    if (saveRules(rules)) {
+        res.json({ success: true, count: rules.length });
+    } else {
+        res.status(500).json({ error: "Failed to save rules" });
+    }
+});
+
 // API: 生成创意
 const VALID_MODES = new Set(['model', 'full', 'debug']);
 
@@ -82,14 +100,18 @@ function cleanResult(obj) {
 }
 
 function shapeResult(payload, mode) {
-    if (mode === 'debug') {
-        return {
-            ...payload.public_skeleton,
-            debug: payload.debug
-        };
+    const result = cleanResult(payload.public_skeleton);
+
+    // Always include evaluation
+    if (payload.evaluation) {
+        result._evaluation = payload.evaluation;
     }
-    // Clean unnecessary IDs from the output
-    return cleanResult(payload.public_skeleton);
+
+    if (mode === 'debug') {
+        result.debug = payload.debug;
+    }
+
+    return result;
 }
 
 app.post('/api/generate', (req, res) => {
