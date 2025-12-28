@@ -1,66 +1,49 @@
-# MetaGeny (创意随机抽取器 - Web 版)
+# MetaGeny — 创意骨架生成器
 
-这是一个基于 Node.js 的创意骨架生成工具。它可以从预设的“创意世界”中随机抽取组合，生成结构化的创意描述 JSON，用于后续的 AI 提示词编写或灵感激发。
+> 从预设"创意世界"中随机抽取组合，生成结构化创意描述 JSON，用于 AI 提示词编写或灵感激发。
 
-## 功能
+## 目录结构 / Directory Structure
 
-- **Web 界面**：直观的网页操作，选择创意世界和生成数量。
-- **REST API**：提供 JSON 格式的 API 接口。
-- **随机生成**：支持多种创意世界的随机组合逻辑。
+```
+.
+├── src/              # 核心生成逻辑 / Core generation engine
+├── public/           # 前端界面 / Frontend UI
+├── docs/             # 规范文档 / Specifications
+├── server.js         # API 服务器 / Express API server
+└── PROTOCOL.md       # 文档协议 / Documentation protocol
+```
 
-## 包含文件
+## 模块边界 / Module Boundaries
 
-- `server.js`: Express 服务器后端
-- `src/logic.js`: 核心生成逻辑 (移植自 Python)
-- `public/`: 前端静态资源 (HTML/CSS/JS)
+| 层级 | 职责 | 入口 |
+|------|------|------|
+| `src/` | 创意生成算法、数据配置 | `logic.js` |
+| `public/` | 用户界面、API 消费 | `index.html` |
+| `server.js` | HTTP 边界、路由 | `/api/*` endpoints |
+| `docs/` | 接口契约、数据规范 | `CONTRACT.md` |
 
-## 如何运行
+## 快速启动 / Quick Start
 
-确保您已安装 Node.js。
+```bash
+npm install
+node server.js
+# 访问 http://localhost:3003
+```
 
-1. **安装依赖**：
-   ```bash
-   npm install
-   ```
+## API 端点 / Endpoints
 
-2. **启动服务器**：
-   ```bash
-   node server.js
-   ```
+| Method | Path | 描述 |
+|--------|------|------|
+| GET | `/health` | 健康检查 |
+| GET | `/api/config` | 获取全部配置 |
+| GET | `/api/worlds` | 获取可用世界列表 |
+| POST | `/api/generate` | 生成创意骨架 |
 
-3. **访问页面**：
-   打开浏览器访问 [http://localhost:3003](http://localhost:3003)
+## 文档协议 / Documentation Protocol
 
-## API 使用
+本项目使用 **Fractal Docs Protocol V2** 维护文档一致性：
+- 宏观地图：本 README
+- 局部地图：各目录 `.folder.md`
+- 边界文件：IN/OUT/POS 三行头注释
 
-- **获取可用世界列表**:
-  `GET /api/worlds`
-
-- **生成创意**:
-  `POST /api/generate`
-  ```json
-  {
-    "world": "product_photography",
-    "n": 3
-  }
-  ```
-  *(world 可选 "any")*
-
-## P0 验收复现 (Reproduction)
-
-请执行以下命令验证 P0 版本核心逻辑：
-
-1. **基础连通**:
-   `curl --max-time 5 -s http://localhost:3003/health | jq .`
-
-2. **基础生成 (包含 validation 字段)**:
-   `curl --max-time 5 -s -X POST http://localhost:3003/api/generate -H "Content-Type: application/json" -d '{"world":"advertising"}' | jq '.[0].validation'`
-
-3. **Subject Kit Miss 报错检测**:
-   `curl --max-time 5 -s -X POST http://localhost:3003/api/generate -H "Content-Type: application/json" -d '{"world":"advertising","overrides":{"subject_kit":"NON_EXISTENT"}}' | jq '.[0].validation'`
-
-4. **Required Twist 追加检测**:
-   `curl --max-time 5 -s -X POST http://localhost:3003/api/generate -H "Content-Type: application/json" -d '{"world":"advertising","logic":"process-driven","overrides":{"twist_mechanisms":["scale_mismatch"]}}' | jq '.[0] | {twist_ids: .twist_ids, warnings: .validation.warnings}'`
-
-5. **Prefixed 输入归一化检测**:
-   `curl --max-time 5 -s -X POST http://localhost:3003/api/generate -H "Content-Type: application/json" -d '{"world":"advertising","overrides":{"twist_mechanisms":["twist:scale_mismatch"]}}' | jq '.[0] | {twist_ids: .twist_ids, warnings: .validation.warnings}'`
+> Only update documentation when boundaries, structure, or responsibilities change.

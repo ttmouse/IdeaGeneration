@@ -1,3 +1,8 @@
+// [IN]: /api/* endpoints (config, generate, worlds), DOM events
+// [OUT]: rendered UI cards, user interactions, localStorage state
+// [POS]: 前端交互层，消费 API 数据并渲染结果 / Frontend interaction layer, consumes API and renders results
+// Protocol: When updated, sync this header + parent .folder.md
+
 document.addEventListener('DOMContentLoaded', () => {
     const worldSelect = document.getElementById('world-select');
     const intentSelect = document.getElementById('intent-select');
@@ -682,65 +687,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const card = document.createElement('div');
         card.className = 'card';
-        if (item.validation && item.validation.errors.length > 0) {
-            card.className += ' card--has-errors';
-        }
-
-        const clean = (val) => {
-            if (typeof val === 'string' && val.includes(':')) {
-                return val.split(':').slice(1).join(':');
-            }
-            return val;
-        };
 
         // Twist Mechanisms: Guaranteed String[]
         const twistList = item.twist_mechanisms || [];
         const twistTags = twistList.map(text =>
             `<span class="tag">${t(text, lang)}</span>`
         ).join(' ') || '<span class="tag">-</span>';
+        const twistIds = item.twist_ids || [];
 
-        // Subject Kit: Guaranteed Object { primary_subject, secondary_elements: [] }
-        let subjectHtml = '';
-        if (item.subject_kit) {
-            const primary = t(item.subject_kit.primary_subject, lang);
-            const secondaryList = item.subject_kit.secondary_elements || [];
-            const secondary = secondaryList.map(el =>
-                `<span class="tag tag--secondary">${t(el, lang)}</span>`
-            ).join('');
-
-            subjectHtml = `
-                <div class="editable-value-container">
-                    <div class="card-value editable-value" data-dimension="subject_kit" data-world="${item.creative_world}">${primary}</div>
-                    <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
-                </div>
-                ${secondary ? `<div class="tags" style="margin-top:0.25rem;">${secondary}</div>` : ''}
-            `;
-        } else {
-            subjectHtml = `<div class="card-value">-</div>`;
-        } // Fallback if server fails: -
-
-        // Validation Feedback
-        let validationHtml = '';
-        if (item.validation) {
-            if (item.validation.errors && item.validation.errors.length > 0) {
-                validationHtml += `<div class="card-alert card-alert--error" style="color:red; font-size:0.8em; padding:5px; background:#ffeeee; border-radius:4px; margin-bottom:10px;">⚠️ ${item.validation.errors.join('<br>')}</div>`;
-            }
-            if (item.validation.warnings && item.validation.warnings.length > 0) {
-                validationHtml += `<div class="card-alert card-alert--warning" style="color:orange; font-size:0.8em; padding:5px; background:#fff8e0; border-radius:4px; margin-bottom:10px;">⚠️ ${item.validation.warnings.join('<br>')}</div>`;
-            }
-        }
-
-        // Emergence Display
-        let emergenceHtml = '';
-        if (item.emergence) {
-            emergenceHtml = `<div class="emergence-badge" title="Emergence Score: ${item.emergence.score}">${t(item.emergence.label, lang)}</div>`;
-        }
+        // Subject: { primary, secondary: [] }
+        // Fallback to item.subject for backward compatibility or if subject_kit is missing
+        const subjectKit = item.subject_kit || item.subject || {};
+        const primarySubject = subjectKit.primary_subject || subjectKit.primary || '-';
+        const primaryId = subjectKit.primary_id || null;
+        const secondaryElements = subjectKit.secondary_elements || subjectKit.secondary || [];
+        const secondaryTags = secondaryElements.map(el =>
+            `<span class="tag tag--secondary">${t(el, lang)}</span>`
+        ).join('');
 
         card.innerHTML = `
-            <div class="card-header" data-world-id="${item.creative_world ? item.creative_world.replace('world:', '') : ''}">
+            <div class="card-header" data-world-id="${item._world || ''}">
                 <div style="display:flex; flex-direction:column; gap:4px;">
-                    <h3>${formatWorldName(item.creative_world ? item.creative_world.replace('world:', '') : 'Unknown')}</h3>
-                    ${emergenceHtml}
+                    <h3>${t(item.deliverable_type, lang)}</h3>
                 </div>
                 <div class="card-header-actions" style="display:flex; gap:10px;">
                      <button class="icon-btn fav-btn" title="${i18n[lang].fav_add}" style="background:none; border:none; cursor:pointer; color:#95a5a6;">
@@ -756,9 +724,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </button>
                 </div>
             </div>
-
-            ${validationHtml}
-
 
             <div class="card-item">
                 <span class="card-label" data-i18n-label="imaging_assumption">${labels.imaging_assumption}</span>
@@ -784,23 +749,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
             <div class="card-item item--hero" style="background:transparent; border-left:none; padding-left:0; margin-bottom:0.5rem;">
-                <span class="card-label" style="display:none;" data-i18n-label="subject_kit">${labels.subject_kit}</span>
                 <div class="editable-value-container">
-                     <!-- Primary Subject (Large) -->
-                    <div class="card-value editable-value" data-dimension="subject_kit" data-world="${item.creative_world}" data-id="${item.subject_kit ? item.subject_kit.primary_id : ''}" style="font-size:1.4rem; font-weight:600; color:#000;">${item.subject_kit ? t(item.subject_kit.primary_subject, lang) : '-'}</div>
+                    <div class="card-value editable-value" data-dimension="subject_kit" data-id="${primaryId || ''}" style="font-size:1.4rem; font-weight:600; color:#000;">${t(primarySubject, lang)}</div>
                     <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
                 </div>
-                <!-- Secondary Tags -->
-                ${item.subject_kit && item.subject_kit.secondary_elements ?
-                `<div class="tags" style="margin-top:0.25rem;">${item.subject_kit.secondary_elements.map(el => `<span class="tag tag--secondary">${t(el, lang)}</span>`).join('')}</div>`
-                : ''}
+                ${secondaryTags ? `<div class="tags" style="margin-top:0.25rem;">${secondaryTags}</div>` : ''}
             </div>
 
 
             <div class="card-item item--hero" style="background:transparent; border-left:3px solid var(--accent-color); padding-left:0.5rem;">
                 <span class="card-label" style="color:var(--accent-color); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;" data-i18n-label="core_tension">${labels.core_tension}</span>
                 <div class="editable-value-container">
-                    <span class="card-value editable-value" data-dimension="core_tension" data-world="${item.creative_world}" data-id="${item.core_tension_id || ''}" style="font-size:1.1rem; font-family:var(--font-heading); color:#2c3e50;">${t(item.core_tension, lang)}</span>
+                    <span class="card-value editable-value" data-dimension="core_tension" data-id="${item.core_tension_id || ''}" style="font-size:1.1rem; font-family:var(--font-heading); color:#2c3e50;">${t(item.core_tension, lang)}</span>
                     <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
                 </div>
             </div>
@@ -809,15 +769,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="card-item">
                 <span class="card-label" data-i18n-label="twist_mechanisms">${labels.twist_mechanisms}</span>
                 <div class="editable-value-container">
-                    <div class="tags editable-value" data-dimension="twist_mechanisms" data-world="${item.creative_world}" data-ids='${JSON.stringify(item.twist_ids || [])}'>${twistTags}</div>
-                    <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
-                </div>
-            </div>
-
-            <div class="card-item">
-                <span class="card-label" data-i18n-label="deliverable_type">${labels.deliverable_type}</span>
-                <div class="editable-value-container">
-                    <span class="card-value editable-value" data-dimension="deliverable_type" data-world="${item.creative_world}">${t(item.deliverable_type, lang)}</span>
+                    <div class="tags editable-value" data-dimension="twist_mechanisms" data-ids='${JSON.stringify(twistIds)}'>${twistTags}</div>
                     <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
                 </div>
             </div>
@@ -825,31 +777,31 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="card-item">
                 <span class="card-label" data-i18n-label="stage_context">${labels.stage_context}</span>
                 <div class="editable-value-container">
-                    <span class="card-value editable-value" data-dimension="stage_context" data-world="${item.creative_world}" data-id="${item.stage_context_id || ''}">${t(item.stage_context, lang)}</span>
-                     <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
+                    <span class="card-value editable-value" data-dimension="stage_context" data-id="${item.stage_context_id || ''}">${t(item.stage_context, lang)}</span>
+                    <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
                 </div>
             </div>
 
             <div class="card-item">
                 <span class="card-label" data-i18n-label="composition_rule">${labels.composition_rule}</span>
                 <div class="editable-value-container">
-                    <span class="card-value editable-value" data-dimension="composition_rule" data-world="${item.creative_world}" data-id="${item.composition_rule_id || ''}">${t(item.composition_rule, lang)}</span>
-                     <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
+                    <span class="card-value editable-value" data-dimension="composition_rule" data-id="${item.composition_rule_id || ''}">${t(item.composition_rule, lang)}</span>
+                    <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
                 </div>
             </div>
 
             <div class="card-item">
                 <span class="card-label" data-i18n-label="lighting_rule">${labels.lighting_rule}</span>
                 <div class="editable-value-container">
-                    <span class="card-value editable-value" data-dimension="lighting_rule" data-world="${item.creative_world}" data-id="${item.lighting_rule_id || ''}">${t(item.lighting_rule, lang)}</span>
-                     <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
+                    <span class="card-value editable-value" data-dimension="lighting_rule" data-id="${item.lighting_rule_id || ''}">${t(item.lighting_rule, lang)}</span>
+                    <button class="quick-random-btn" title="Quick Randomize"><i class="ri-shuffle-line"></i></button>
                 </div>
             </div>
 
             ${item.oblique_strategy ? `
             <div class="card-breakout">
                 <strong data-i18n="label_oblique_strategy">${i18n[lang].card_labels.oblique_strategy}</strong>
-                <div class="card-value">${item.oblique_strategy.desc}</div>
+                <div class="card-value">${item.oblique_strategy}</div>
             </div>
             ` : ''}
 
@@ -860,25 +812,8 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             ` : ''}
 
-            <div class="card-item item--id">
-                <span class="card-label" data-i18n-label="id">${labels.id}</span>
-                <span class="card-value">${item.creative_id}</span>
-            </div>
-
-            ${item.final_prompt ? `
-            <div class="card-item item--prompt">
-                <span class="card-label">Prompt Preview</span>
-                <div class="prompt-preview" style="margin-bottom:10px;">${item.final_prompt}</div>
-                <button class="icon-btn copy-prompt-btn" title="Copy Prompt" style="background:none; border:none; cursor:pointer; color:#95a5a6; padding:0; height:auto; display:flex; align-items:center; gap:5px;">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                    <span style="font-size:0.7em;">COPY PROMPT</span>
-                </button>
-            </div>` : ''
-            }
         `;
+
 
         const favBtn = card.querySelector('.fav-btn');
         const favorites = JSON.parse(localStorage.getItem('idea_favorites') || '[]');
@@ -1050,7 +985,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let poolKey = dimension;
             if (dimension === 'twist_mechanisms') poolKey = 'twist_mechanisms_pool';
-            if (dimension === 'subject_kit') poolKey = 'subject_kits';
+            if (dimension === 'subject_kit' || dimension === 'subject') poolKey = 'subject_kits';
 
             pool = globalConfig.worlds[worldPrefix][poolKey];
         }
@@ -1099,7 +1034,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let poolKey = dimension;
             if (dimension === 'twist_mechanisms') poolKey = 'twist_mechanisms_pool';
-            if (dimension === 'subject_kit') poolKey = 'subject_kits';
+            if (dimension === 'subject_kit' || dimension === 'subject') poolKey = 'subject_kits';
 
             pool = globalConfig.worlds[worldPrefix][poolKey];
         }
@@ -1171,7 +1106,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dimension = activeEditableElement.dataset.dimension;
 
         // Special handling for Subject Kit (object update)
-        if (dimension === 'subject_kit' && typeof newItem === 'object') {
+        if ((dimension === 'subject_kit' || dimension === 'subject') && typeof newItem === 'object') {
             const primary = t(newItem.primary_subject, lang);
             activeEditableElement.textContent = primary;
 
@@ -1340,10 +1275,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (newData.subject_kit) {
                                 const newPrimary = t(newData.subject_kit.primary_subject, lang);
 
+                                // Always update ID
+                                if (newData.subject_kit.primary_id) {
+                                    el.dataset.id = newData.subject_kit.primary_id;
+                                }
+
                                 // Update primary text if changed
                                 if (el.textContent !== newPrimary) {
                                     el.textContent = newPrimary;
-                                    el.dataset.id = newData.subject_kit.primary_id;
                                     flashElement(el);
                                 }
 
@@ -1372,9 +1311,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             const newIds = newData.twist_ids || [];
                             const newHtml = newTwists.map(text => `<span class="tag">${t(text, lang)}</span>`).join(' ') || '<span class="tag">-</span>';
 
+                            // Always update IDs
+                            if (newIds && newIds.length > 0) {
+                                el.dataset.ids = JSON.stringify(newIds);
+                            }
+
                             if (el.innerHTML !== newHtml) {
                                 el.innerHTML = newHtml;
-                                el.dataset.ids = JSON.stringify(newIds);
                                 flashElement(el);
                             }
                         }
@@ -1389,19 +1332,17 @@ document.addEventListener('DOMContentLoaded', () => {
                                 newVal = t(newVal, lang);
                             }
 
+                            // Always update ID if present
+                            if (newId) el.dataset.id = newId;
+
                             if (el.textContent !== newVal) {
                                 el.textContent = newVal || '-';
-                                if (newId) el.dataset.id = newId;
                                 flashElement(el);
                             }
                         }
                     });
 
-                    // 4. Update Prompts / Breakouts (Optional, if they change)
-                    const promptEl = card.querySelector('.prompt-preview');
-                    if (promptEl && newData.final_prompt && promptEl.textContent !== newData.final_prompt) {
-                        promptEl.textContent = newData.final_prompt;
-                    }
+
 
                     // Done. Remove loading state.
                     card.style.opacity = '1';

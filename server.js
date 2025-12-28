@@ -1,3 +1,8 @@
+// [IN]: src/logic.js (generation engine), HTTP requests
+// [OUT]: REST API endpoints (/api/generate, /api/config, /api/worlds, /health)
+// [POS]: HTTP 边界层，协调前端与核心逻辑 / HTTP boundary, orchestrates frontend and core logic
+// Protocol: When updated, sync this header + parent .folder.md
+
 const express = require('express');
 const path = require('path');
 const {
@@ -54,6 +59,28 @@ app.get('/api/worlds', (req, res) => {
 // API: 生成创意
 const VALID_MODES = new Set(['model', 'full', 'debug']);
 
+function cleanResult(obj) {
+    if (Array.isArray(obj)) {
+        return obj.map(cleanResult);
+    } else if (obj !== null && typeof obj === 'object') {
+        const newObj = {};
+        for (const key in obj) {
+            // Keep _world specifically as it is used by frontend
+            if (key === '_world') {
+                newObj[key] = obj[key];
+                continue;
+            }
+            // Remove 'id' and keys ending in '_id' or '_ids'
+            if (key === 'id' || key.endsWith('_id') || key.endsWith('_ids')) {
+                continue;
+            }
+            newObj[key] = cleanResult(obj[key]);
+        }
+        return newObj;
+    }
+    return obj;
+}
+
 function shapeResult(payload, mode) {
     if (mode === 'debug') {
         return {
@@ -61,7 +88,8 @@ function shapeResult(payload, mode) {
             debug: payload.debug
         };
     }
-    return payload.public_skeleton;
+    // Clean unnecessary IDs from the output
+    return cleanResult(payload.public_skeleton);
 }
 
 app.post('/api/generate', (req, res) => {

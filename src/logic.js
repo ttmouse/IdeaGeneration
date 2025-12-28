@@ -1,3 +1,7 @@
+// [IN]: world configs (WORLDS, CREATION_INTENTS, GENERATION_LOGICS), user overrides, seed
+// [OUT]: generateCreativeSkeleton(), getAvailableWorlds(), exported constants
+// [POS]: 核心生成引擎，被 server.js 调用，不直接处理 HTTP / Core generation engine, called by server.js
+// Protocol: When updated, sync this header + parent .folder.md
 
 // -----------------------------
 // 1) 上游决策维度 (New Dimensions)
@@ -2133,15 +2137,12 @@ function generateCreativeSkeleton(options = {}) {
 
     return {
         public_skeleton: {
-            schema_version: 'v1',
+            _world: world,  // For UI functionality only
             creative_id: `${generateId()}`,
-            creative_world: `world:${world}`,
             creation_intent: safeT(selection.creation_intent.desc),
             creation_intent_id: selection.creation_intent.id,
             generation_logic: safeT(selection.generation_logic.desc),
             generation_logic_id: selection.generation_logic.id,
-            twist_mechanisms: selection.twist_mechanisms.map(t => safeT(t)),
-            twist_ids: selection.twist_mechanisms.map(t => t.id || safeSlug(getVal(t))),
             subject_kit: {
                 primary_subject: safeT(selection.subject_kit.primary_subject),
                 primary_id: selection.subject_kit.primary_subject.id || safeSlug(getVal(selection.subject_kit.primary_subject)),
@@ -2150,6 +2151,8 @@ function generateCreativeSkeleton(options = {}) {
             },
             core_tension: safeT(selection.core_tension),
             core_tension_id: selection.core_tension.id || safeSlug(getVal(selection.core_tension)),
+            twist_mechanisms: selection.twist_mechanisms.map(t => safeT(t)),
+            twist_ids: selection.twist_mechanisms.map(t => t.id || safeSlug(getVal(t))),
             stage_context: safeT(selection.stage_context),
             stage_context_id: selection.stage_context.id || safeSlug(getVal(selection.stage_context)),
             composition_rule: safeT(selection.composition_rule),
@@ -2159,21 +2162,8 @@ function generateCreativeSkeleton(options = {}) {
             imaging_assumption: safeT(selection.imaging_assumption.desc),
             imaging_assumption_id: selection.imaging_assumption.id,
             deliverable_type: safeT(worldConfig.deliverable_type[0]),
-            emergence: evaluateEmergence({
-                creative_world: `world:${world}`,
-                core_tension: selection.core_tension.id || selection.core_tension,
-                twist_mechanisms: selection.twist_mechanisms.map(t => t.id || t),
-                imaging_assumption: selection.imaging_assumption.id,
-                creation_intent: selectedIntent.id
-            }),
-            final_prompt: finalPrompt,
             creative_directive: directive ? safeT(directive) : null,
-            oblique_strategy: strategy ? { id: strategy.id, desc: safeT(strategy.desc) } : null,
-            validation: {
-                errors: errors,
-                warnings: allWarnings,
-                dropped_overrides: dropped
-            }
+            oblique_strategy: strategy ? safeT(strategy.desc) : null
         },
         debug: debugStore
     };
