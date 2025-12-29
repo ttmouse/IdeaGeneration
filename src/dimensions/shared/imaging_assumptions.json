@@ -1,0 +1,186 @@
+{
+    "industrial_product_photography": {
+        "id": "industrial_product_photography",
+        "desc": {
+            "en": "Industrial Product Photography",
+            "zh": "工业产品摄影"
+        },
+        "template": "Industrial product photography, extremely high resolution, sharp focus, studio lighting, realistic textures, 8k, unreal engine 5 render style avoided, no cgi, no 3d render, authentic camera noise."
+    },
+    "jewelry_macro_photography": {
+        "id": "jewelry_macro_photography",
+        "desc": {
+            "en": "Jewelry Macro Photography",
+            "zh": "珠宝微距摄影"
+        },
+        "template": "Jewelry macro photography, extreme close-up, sharp details, luxury lighting, caustics, dispersion, 8k, no cgi, highly detailed metal and gems."
+    },
+    "soft_editorial_portrait": {
+        "id": "soft_editorial_portrait",
+        "desc": {
+            "en": "Soft Editorial Portrait",
+            "zh": "柔和社论人像"
+        },
+        "template": "Soft editorial portrait photography, natural skin texture, soft diffused lighting, fashion magazine style, 85mm lens, 8k, photorealistic."
+    },
+    "documentary_available_light": {
+        "id": "documentary_available_light",
+        "desc": {
+            "en": "Documentary Available Light",
+            "zh": "纪实自然光"
+        },
+        "template": "Documentary photography, available light, candid moment, leica m style, slight grain, high dynamic range, storytelling, 35mm lens."
+    },
+    "dynamic_food_photography": {
+        "id": "dynamic_food_photography",
+        "desc": {
+            "en": "Dynamic Food Photography",
+            "zh": "动态食品摄影"
+        },
+        "template": "High-end food photography, suspended mid-air, flying crumbs and particles, dramatic lighting, pure black background, 8k, commercial quality, motion frozen."
+    },
+    "sculptural_fragment_art": {
+        "id": "sculptural_fragment_art",
+        "desc": {
+            "en": "Sculptural Fragment Art",
+            "zh": "碎片雕塑艺术"
+        },
+        "template": "Sculptural bust made of fragmented stone pieces, two-tone color scheme, geometric fractures, museum lighting, white background, 8k, gallery quality."
+    },
+    "cinematic_portrait": {
+        "id": "cinematic_portrait",
+        "desc": {
+            "en": "Cinematic Portrait",
+            "zh": "电影感人像"
+        },
+        "template": "Cinematic portrait photography, dramatic lighting, shallow depth of field, film grain, emotional expression, 85mm lens, 8k."
+    },
+    "surreal_floating": {
+        "id": "surreal_floating",
+        "desc": {
+            "en": "Surreal Floating Composition",
+            "zh": "超现实悬浮构图"
+        },
+        "template": "Surreal composition, objects floating in void, zero gravity, scattered particles, dramatic rim lighting, pure background, 8k."
+    },
+    "material_metamorphosis": {
+        "id": "material_metamorphosis",
+        "desc": {
+            "en": "Material Metamorphosis",
+            "zh": "材质蜕变"
+        },
+        "template": "Subject transformed into unexpected material, photorealistic texture detail, studio lighting, white or black background, 8k, hyperrealistic."
+    },
+    "minimalist_object_study": {
+        "id": "minimalist_object_study",
+        "desc": {
+            "en": "Minimalist Object Study",
+            "zh": "极简物体研究"
+        },
+        "template": "Minimalist photography, single object, pure solid color background, soft even lighting, negative space emphasis, 8k, gallery print quality."
+    },
+    "glassmorphism_neon": {
+        "id": "glassmorphism_neon",
+        "desc": {
+            "en": "Glassmorphism Neon",
+            "zh": "玻璃态霓虹"
+        },
+        "template": "Glassmorphism UI elements, frosted glass effect, neon glow accents, bokeh lights background, dark gradient, 8k, tech aesthetic."
+    },
+    "cinematic_street_bokeh": {
+        "id": "cinematic_street_bokeh",
+        "desc": {
+            "en": "Cinematic Street Bokeh",
+            "zh": "电影街头散景"
+        },
+        "template": "Cinematic street photography, rainy night, warm and cool bokeh lights, shallow depth of field, urban atmosphere, 8k."
+    },
+    "warm_tabletop_diorama": {
+        "id": "warm_tabletop_diorama",
+        "desc": {
+            "en": "Warm Tabletop Diorama",
+            "zh": "暖调桌面透视"
+        },
+        "template": "Warm tabletop diorama photography, miniature scene, cozy lighting, wooden surface, soft steam or smoke, 8k, nostalgic."
+    },
+    "cozy_storybook_diorama": {
+        "id": "cozy_storybook_diorama",
+        "desc": {
+            "en": "Cozy Storybook Diorama",
+            "zh": "温馨童话透视"
+        },
+        "template": "Cozy storybook diorama, felt creatures, cardboard box container, warm lamp glow, knitted textures, steam wisps, 8k, whimsical."
+    },
+    "rugged_action_product": {
+        "id": "rugged_action_product",
+        "desc": {
+            "en": "Rugged Action Product",
+            "zh": "硬核动态产品"
+        },
+        "template": "Rugged action product photography, dust and sand explosion, golden hour backlighting, motion frozen, commercial quality, 8k."
+    },
+    "mystical_forest_glow": {
+        "id": "mystical_forest_glow",
+        "desc": {
+            "en": "Mystical Forest Glow",
+            "zh": "神秘森林光芒"
+        },
+        "template": "Mystical forest scene, misty twilight, bioluminescent elements, silhouette with glowing parts, ethereal atmosphere, 8k."
+    },
+    "character_reference_sheet": {
+        "id": "character_reference_sheet",
+        "desc": {
+            "en": "Character Reference Sheet",
+            "zh": "角色参考图"
+        },
+        "template": "Character reference sheet, multiple views, outfit breakdown, expression variants, anime style, clean lines, beige paper texture."
+    },
+    "charcoal_motion_sketch": {
+        "id": "charcoal_motion_sketch",
+        "desc": {
+            "en": "Charcoal Motion Sketch",
+            "zh": "炭笔动态速写"
+        },
+        "template": "Charcoal sketch, dynamic motion blur, ink splatter, gestural strokes, white background, high contrast, artistic motion study."
+    },
+    "colorful_clay_render": {
+        "id": "colorful_clay_render",
+        "desc": {
+            "en": "Colorful Clay Render",
+            "zh": "彩色泥塑渲染"
+        },
+        "template": "3D clay character render, stylized proportions, vibrant solid color background, soft shadows, playful pose, 8k."
+    },
+    "cinematic_card_portrait": {
+        "id": "cinematic_card_portrait",
+        "desc": {
+            "en": "Cinematic Card Portrait",
+            "zh": "电影纸牌人像"
+        },
+        "template": "Playing card frame composition, portrait breaking through frame, stone debris, fire sparks, dramatic lighting, 8k."
+    },
+    "travel_bokeh_overlay": {
+        "id": "travel_bokeh_overlay",
+        "desc": {
+            "en": "Travel Bokeh Overlay",
+            "zh": "旅行散景叠加"
+        },
+        "template": "Paper cutout held in hand, real city bokeh background, golden hour, travel poster style, depth of field, 8k."
+    },
+    "neon_sports_action": {
+        "id": "neon_sports_action",
+        "desc": {
+            "en": "Neon Sports Action",
+            "zh": "霓虹运动动态"
+        },
+        "template": "Sports action photography, neon light trails, dynamic pose, gradient background, energy swirls, commercial quality, 8k."
+    },
+    "flat_lay_nostalgia": {
+        "id": "flat_lay_nostalgia",
+        "desc": {
+            "en": "Flat Lay Nostalgia",
+            "zh": "平铺怀旧"
+        },
+        "template": "Flat lay knolling photography, retro objects arranged in grid, solid color background, overhead view, 8k, nostalgic."
+    }
+}

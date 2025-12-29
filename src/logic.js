@@ -4,6 +4,8 @@
 // Protocol: When updated, sync this header + parent .folder.md
 
 const { evaluate: evaluateSkeleton, reloadRules: reloadEvaluatorRules } = require('./evaluator');
+const dimensionLoader = require('./dimension_loader');
+
 
 // -----------------------------
 // 1) 上游决策维度 (New Dimensions)
@@ -456,6 +458,107 @@ const INSPIRATION_KEYWORDS = {
         worlds: { advertising: 5 },
         intents: { sell: 4 },
         imaging: "industrial_product_photography"
+    },
+
+    // ========== 从图片逆向工程的新关键词 ==========
+    "键帽|keycap|artisan|机械键盘": {
+        worlds: { miniature_fantasy: 5 },
+        mechanisms: ["keycap_world", "transparent_container_reveal"],
+        intents: { explore: 3, evoke: 2 }
+    },
+    "指甲|nail|美甲|nail art": {
+        worlds: { miniature_fantasy: 4, concept_art: 2 },
+        mechanisms: ["body_as_canvas", "miniature_occupation"],
+        intents: { demonstrate: 3 }
+    },
+    "UI|界面|app|dashboard": {
+        worlds: { advertising: 4 },
+        mechanisms: ["floating_ui_cards", "digital_aura"],
+        imaging: "glassmorphism_neon"
+    },
+    "食谱|recipe|cookbook|菜谱": {
+        worlds: { miniature_fantasy: 4 },
+        mechanisms: ["book_as_stage", "miniature_occupation"],
+        imaging: "warm_tabletop_diorama"
+    },
+    "螺旋|spiral|helix|DNA": {
+        worlds: { advertising: 3, concept_art: 3 },
+        mechanisms: ["spiral_assembly"],
+        intents: { demonstrate: 2, evoke: 3 }
+    },
+    "节日|holiday|festival|christmas": {
+        worlds: { advertising: 4, miniature_fantasy: 3 },
+        mechanisms: ["tech_festive_fusion"],
+        intents: { evoke: 3, entertain: 2 }
+    },
+    "街头|street|urban|城市": {
+        worlds: { documentary: 4, concept_art: 2 },
+        imaging: "cinematic_street_bokeh",
+        intents: { evoke: 3, document: 2 }
+    },
+
+    // ========== Batch 2: 第二批图片逆向工程 ==========
+    "羊毛毡|felt|wool|毛毡": {
+        worlds: { miniature_fantasy: 5 },
+        mechanisms: ["felt_creature", "cardboard_box_diorama"],
+        imaging: "cozy_storybook_diorama",
+        intents: { evoke: 4 }
+    },
+    "户外|outdoor|rugged|抗拓": {
+        worlds: { advertising: 4, product_photography: 3 },
+        mechanisms: ["environment_assault"],
+        imaging: "rugged_action_product",
+        intents: { demonstrate: 4, sell: 2 }
+    },
+    "鹿|deer|elk|麻鹿": {
+        worlds: { concept_art: 5 },
+        mechanisms: ["bioluminescent_part", "magical_creature"],
+        imaging: "mystical_forest_glow",
+        intents: { evoke: 4 }
+    },
+    "角色设计|character design|立绘": {
+        worlds: { concept_art: 5 },
+        mechanisms: ["outfit_breakdown"],
+        imaging: "character_reference_sheet",
+        intents: { demonstrate: 3 }
+    },
+    "炭笔|charcoal|sketch|速写": {
+        worlds: { concept_art: 4 },
+        mechanisms: ["medium_as_motion"],
+        imaging: "charcoal_motion_sketch",
+        intents: { evoke: 3, explore: 2 }
+    },
+
+    // ========== Batch 3: 第三批图片逆向工程 ==========
+    "3D卡通|3d character|clay|泥塑": {
+        worlds: { advertising: 3, concept_art: 3 },
+        mechanisms: ["stylized_3d_render"],
+        imaging: "colorful_clay_render",
+        intents: { entertain: 3, evoke: 2 }
+    },
+    "纸牌|playing card|poker|扑克": {
+        worlds: { concept_art: 4, advertising: 2 },
+        mechanisms: ["card_frame_breakout"],
+        imaging: "cinematic_card_portrait",
+        intents: { evoke: 3 }
+    },
+    "书签|bookmark|明信片": {
+        worlds: { advertising: 3, miniature_fantasy: 3 },
+        mechanisms: ["paper_cutout_layer", "held_in_hand"],
+        imaging: "travel_bokeh_overlay",
+        intents: { evoke: 3, sell: 2 }
+    },
+    "运动广告|sports ad|Nike|运动品牌": {
+        worlds: { advertising: 5 },
+        mechanisms: ["energy_trail", "dynamic_freeze"],
+        imaging: "neon_sports_action",
+        intents: { sell: 4, demonstrate: 2 }
+    },
+    "怀旧|retro|vintage|80s|90s": {
+        worlds: { advertising: 3, documentary: 2 },
+        mechanisms: ["knolling_layout"],
+        imaging: "flat_lay_nostalgia",
+        intents: { evoke: 4, document: 2 }
     }
 };
 
@@ -564,58 +667,33 @@ const PROVOCATIVE_DIRECTIVES = {
 // 1.6) 成像主控层 (Imaging Assumptions)
 // -----------------------------
 
-const IMAGING_ASSUMPTIONS = {
+// Try to load from external JSON, fallback to inline data
+const IMAGING_ASSUMPTIONS_INLINE = {
     "industrial_product_photography": {
         id: "industrial_product_photography",
         desc: { en: "Industrial Product Photography", zh: "工业产品摄影" },
         template: "Industrial product photography, extremely high resolution, sharp focus, studio lighting, realistic textures, 8k, unreal engine 5 render style avoided, no cgi, no 3d render, authentic camera noise."
     },
-    "jewelry_macro_photography": {
-        id: "jewelry_macro_photography",
-        desc: { en: "Jewelry Macro Photography", zh: "珠宝微距摄影" },
-        template: "Jewelry macro photography, extreme close-up, sharp details, luxury lighting, caustics, dispersion, 8k, no cgi, highly detailed metal and gems."
-    },
-    "soft_editorial_portrait": {
-        id: "soft_editorial_portrait",
-        desc: { en: "Soft Editorial Portrait", zh: "柔和社论人像" },
-        template: "Soft editorial portrait photography, natural skin texture, soft diffused lighting, fashion magazine style, 85mm lens, 8k, photorealistic."
-    },
     "documentary_available_light": {
         id: "documentary_available_light",
         desc: { en: "Documentary Available Light", zh: "纪实自然光" },
         template: "Documentary photography, available light, candid moment, leica m style, slight grain, high dynamic range, storytelling, 35mm lens."
-    },
-    "dynamic_food_photography": {
-        id: "dynamic_food_photography",
-        desc: { en: "Dynamic Food Photography", zh: "动态食品摄影" },
-        template: "High-end food photography, suspended mid-air, flying crumbs and particles, dramatic lighting, pure black background, 8k, commercial quality, motion frozen."
-    },
-    "sculptural_fragment_art": {
-        id: "sculptural_fragment_art",
-        desc: { en: "Sculptural Fragment Art", zh: "碎片雕塑艺术" },
-        template: "Sculptural bust made of fragmented stone pieces, two-tone color scheme, geometric fractures, museum lighting, white background, 8k, gallery quality."
-    },
-    "cinematic_portrait": {
-        id: "cinematic_portrait",
-        desc: { en: "Cinematic Portrait", zh: "电影感人像" },
-        template: "Cinematic portrait photography, dramatic lighting, shallow depth of field, film grain, emotional expression, 85mm lens, 8k."
-    },
-    "surreal_floating": {
-        id: "surreal_floating",
-        desc: { en: "Surreal Floating Composition", zh: "超现实悬浮构图" },
-        template: "Surreal composition, objects floating in void, zero gravity, scattered particles, dramatic rim lighting, pure background, 8k."
-    },
-    "material_metamorphosis": {
-        id: "material_metamorphosis",
-        desc: { en: "Material Metamorphosis", zh: "材质蜕变" },
-        template: "Subject transformed into unexpected material, photorealistic texture detail, studio lighting, white or black background, 8k, hyperrealistic."
-    },
-    "minimalist_object_study": {
-        id: "minimalist_object_study",
-        desc: { en: "Minimalist Object Study", zh: "极简物体研究" },
-        template: "Minimalist photography, single object, pure solid color background, soft even lighting, negative space emphasis, 8k, gallery print quality."
     }
 };
+
+// Use external data if available, otherwise use inline fallback
+let IMAGING_ASSUMPTIONS = dimensionLoader.hasExternalData()
+    ? dimensionLoader.loadImagingAssumptions()
+    : IMAGING_ASSUMPTIONS_INLINE;
+
+// Function to reload imaging assumptions (for hot-reload)
+function reloadImagingAssumptions() {
+    if (dimensionLoader.hasExternalData()) {
+        IMAGING_ASSUMPTIONS = dimensionLoader.loadImagingAssumptions(true);
+        console.log('[Logic] Reloaded IMAGING_ASSUMPTIONS from external file');
+    }
+    return IMAGING_ASSUMPTIONS;
+}
 
 // -----------------------------
 // 1.7) 元素密度配置 (Element Density Config)
@@ -673,7 +751,13 @@ const WORLDS = {
             { id: "desire_vs_control", en: "Desire vs Control", zh: "欲望 vs 控制" },
             { id: "clean_vs_chaos", en: "Clean vs Chaos", zh: "整洁 vs 混乱" },
             { id: "luxury_vs_absurd", en: "Luxury vs Absurd", zh: "奢华 vs 荒诞" },
-            { id: "promise_vs_reality", en: "Promise vs Reality", zh: "承诺 vs 现实" }
+            { id: "promise_vs_reality", en: "Promise vs Reality", zh: "承诺 vs 现实" },
+            { id: "tech_vs_warmth", en: "Tech vs Warmth", zh: "科技 vs 温暖" },
+            { id: "speed_vs_stillness", en: "Speed vs Stillness", zh: "速度 vs 静止" },
+            { id: "digital_vs_organic", en: "Digital vs Organic", zh: "数字 vs 有机" },
+            { id: "power_vs_playfulness", en: "Power vs Playfulness", zh: "力量 vs 玩味" },
+            { id: "retro_vs_future", en: "Retro vs Future", zh: "复古 vs 未来" },
+            { id: "endurance_vs_fragility", en: "Endurance vs Fragility", zh: "耐久 vs 脆弱" }
         ],
         "twist_mechanisms_pool": [
             { id: "scale_mismatch", en: "Scale Mismatch", zh: "尺度错位" },
@@ -684,7 +768,17 @@ const WORLDS = {
             { id: "missing_essential", en: "Missing Essential", zh: "关键缺失" },
             { id: "dynamic_freeze", en: "Dynamic Freeze", zh: "动态冻结" },
             { id: "zero_gravity_scatter", en: "Zero Gravity Scatter", zh: "零重力散落" },
-            { id: "shape_morph", en: "Shape Morph", zh: "形状蜘变" }
+            { id: "shape_morph", en: "Shape Morph", zh: "形状蜕变" },
+            { id: "spiral_assembly", en: "Spiral Assembly", zh: "螺旋组装" },
+            { id: "floating_ui_cards", en: "Floating UI Cards", zh: "悬浮UI卡片" },
+            { id: "digital_aura", en: "Digital Aura", zh: "数字光环" },
+            { id: "tech_festive_fusion", en: "Tech Festive Fusion", zh: "科技节日融合" },
+            { id: "environment_assault", en: "Environment Assault", zh: "环境冲击" },
+            { id: "energy_trail", en: "Energy Trail", zh: "能量轨迹" },
+            { id: "knolling_layout", en: "Knolling Layout", zh: "平铺排列" },
+            { id: "stylized_3d_render", en: "Stylized 3D Render", zh: "风格化3D渲染" },
+            { id: "paper_cutout_layer", en: "Paper Cutout Layer", zh: "纸艺剪切层" },
+            { id: "held_in_hand", en: "Held in Hand", zh: "手持展示" }
         ],
         "stage_context": [
             { en: "clean studio tabletop", zh: "干净的摄影棚桌面" },
@@ -866,7 +960,10 @@ const WORLDS = {
         "core_tension": [
             { id: "premium_vs_raw", en: "Premium vs Raw", zh: "高端 vs 粗糙" },
             { id: "precision_vs_decay", en: "Precision vs Decay", zh: "精密 vs 腐朽" },
-            { id: "comfort_vs_clinical", en: "Comfort vs Clinical", zh: "舒适 vs 临床感" }
+            { id: "comfort_vs_clinical", en: "Comfort vs Clinical", zh: "舒适 vs 临床感" },
+            { id: "rugged_vs_refined", en: "Rugged vs Refined", zh: "粗犷 vs 精致" },
+            { id: "element_vs_protection", en: "Element vs Protection", zh: "元素侵袭 vs 保护" },
+            { id: "motion_vs_stillness", en: "Motion vs Stillness", zh: "运动 vs 静止" }
         ],
         "twist_mechanisms_pool": [
             { id: "material_swap", en: "Material Swap", zh: "材质错置" },
@@ -1011,7 +1108,13 @@ const WORLDS = {
             { id: "identity_slippage", en: "Identity Slippage", zh: "身份滑落" },
             { id: "memory_corruption", en: "Memory Corruption", zh: "记忆腐蚀" },
             { id: "control_breakdown", en: "Control Breakdown", zh: "控制崩溃" },
-            { id: "ritual_without_reason", en: "Ritual Without Reason", zh: "无理仪式" }
+            { id: "ritual_without_reason", en: "Ritual Without Reason", zh: "无理仪式" },
+            { id: "natural_vs_supernatural", en: "Natural vs Supernatural", zh: "自然 vs 超自然" },
+            { id: "form_vs_dissolution", en: "Form vs Dissolution", zh: "形态 vs 消解" },
+            { id: "stillness_vs_kinetic", en: "Stillness vs Kinetic", zh: "静止 vs 动能" },
+            { id: "reality_vs_fantasy", en: "Reality vs Fantasy", zh: "现实 vs 幻想" },
+            { id: "character_vs_archetype", en: "Character vs Archetype", zh: "角色 vs 原型" },
+            { id: "frame_vs_breakout", en: "Frame vs Breakout", zh: "框架 vs 突破" }
         ],
         "twist_mechanisms_pool": [
             { id: "scale_mismatch", en: "Scale Mismatch", zh: "尺度错位" },
@@ -1021,7 +1124,13 @@ const WORLDS = {
             { id: "cutaway_logic", en: "Cutaway Logic", zh: "剖面逻辑" },
             { id: "time_discontinuity", en: "Time Discontinuity", zh: "时间断裂" },
             { id: "portrait_to_material", en: "Portrait to Material", zh: "人像材质化" },
-            { id: "fragment_mosaic", en: "Fragment Mosaic", zh: "碎片马赛克" }
+            { id: "fragment_mosaic", en: "Fragment Mosaic", zh: "碎片马赛克" },
+            { id: "bioluminescent_part", en: "Bioluminescent Part", zh: "生物发光部件" },
+            { id: "magical_creature", en: "Magical Creature", zh: "魔法生物" },
+            { id: "medium_as_motion", en: "Medium as Motion", zh: "媒介即动态" },
+            { id: "outfit_breakdown", en: "Outfit Breakdown", zh: "服装分解" },
+            { id: "card_frame_breakout", en: "Card Frame Breakout", zh: "卡牌框架突破" },
+            { id: "stylized_3d_render", en: "Stylized 3D Render", zh: "风格化3D渲染" }
         ],
         "stage_context": [
             { en: "empty room with subtle institutional feel", zh: "带有微妙机构感的空房间" },
@@ -1445,14 +1554,28 @@ const WORLDS = {
         ],
         "core_tension": [
             { id: "tiny_labor_vs_giant_object", en: "Tiny Labor vs Giant Object", zh: "微小劳作 vs 巨大物体" },
-            { id: "whimsical_vs_real_materials", en: "Whimsical vs Real Materials", zh: "异想天开 vs 真实材质" }
+            { id: "whimsical_vs_real_materials", en: "Whimsical vs Real Materials", zh: "异想天开 vs 真实材质" },
+            { id: "cozy_vs_exposed", en: "Cozy vs Exposed", zh: "温馨 vs 暴露" },
+            { id: "handmade_vs_mechanical", en: "Handmade vs Mechanical", zh: "手工 vs 机械" },
+            { id: "contained_vs_infinite", en: "Contained vs Infinite", zh: "容纳 vs 无限" },
+            { id: "nostalgia_vs_present", en: "Nostalgia vs Present", zh: "怀旧 vs 当下" },
+            { id: "craft_vs_nature", en: "Craft vs Nature", zh: "工艺 vs 自然" }
         ],
         "twist_mechanisms_pool": [
             { id: "scale_mismatch", en: "Scale Mismatch", zh: "尺度错位" },
             { id: "cutaway_logic", en: "Cutaway Logic", zh: "剖面逻辑" },
             { id: "function_misuse", en: "Function Misuse", zh: "功能错配" },
             { id: "material_swap", en: "Material Swap", zh: "材质错置" },
-            { id: "container_world", en: "Container World", zh: "容器世界" }
+            { id: "container_world", en: "Container World", zh: "容器世界" },
+            { id: "keycap_world", en: "Keycap World", zh: "键帽世界" },
+            { id: "book_as_stage", en: "Book as Stage", zh: "书籍舞台" },
+            { id: "body_as_canvas", en: "Body as Canvas", zh: "身体画布" },
+            { id: "miniature_occupation", en: "Miniature Occupation", zh: "微缩职业" },
+            { id: "transparent_container_reveal", en: "Transparent Container Reveal", zh: "透明容器展示" },
+            { id: "felt_creature", en: "Felt Creature", zh: "羊毛毡生物" },
+            { id: "cardboard_box_diorama", en: "Cardboard Box Diorama", zh: "纸盒透视" },
+            { id: "paper_cutout_layer", en: "Paper Cutout Layer", zh: "纸艺剪切层" },
+            { id: "held_in_hand", en: "Held in Hand", zh: "手持展示" }
         ],
         "stage_context": [
             { en: "tabletop diorama", zh: "桌面透视画" },
@@ -1464,7 +1587,11 @@ const WORLDS = {
             { en: "bathroom sink port scene", zh: "浴室水槽港口场景" },
             { en: "wooden cutting board terrain", zh: "木质砧板地形" },
             { en: "window sill miniature farm", zh: "窗台微缩农场" },
-            { en: "coffee table tilt-shift", zh: "咖啡桌移轴效果" }
+            { en: "coffee table tilt-shift", zh: "咖啡桌移轴效果" },
+            { en: "open book diorama", zh: "打开的书籍透视" },
+            { en: "keyboard macro shot", zh: "键盘微距" },
+            { en: "fingernail canvas", zh: "指甲画布" },
+            { en: "artist studio tabletop", zh: "艺术家工作室桌面" }
         ],
         "composition_rule": [
             { en: "macro lens, shallow depth of field", zh: "微距镜头，浅景深" },

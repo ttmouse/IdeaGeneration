@@ -62,5 +62,133 @@
       "target": "twist_mechanisms",
       "value": "time_discontinuity"
     }
+  },
+  {
+    "id": "grammar_docu_no_floating_ui",
+    "type": "L3",
+    "desc": "Documentary intent forbids Floating UI Cards (non-realistic)",
+    "active": true,
+    "severity": "warning",
+    "trigger": {
+      "dimension": "creation_intent",
+      "value": "documentary"
+    },
+    "consequence": {
+      "action": "forbid",
+      "target": "twist_mechanisms",
+      "value": "floating_ui_cards"
+    }
+  },
+  {
+    "id": "grammar_docu_no_digital_aura",
+    "type": "L3",
+    "desc": "Documentary intent forbids Digital Aura (non-realistic)",
+    "active": true,
+    "severity": "warning",
+    "trigger": {
+      "dimension": "creation_intent",
+      "value": "documentary"
+    },
+    "consequence": {
+      "action": "forbid",
+      "target": "twist_mechanisms",
+      "value": "digital_aura"
+    }
+  },
+  {
+    "id": "L2_keycap_requires_miniature",
+    "type": "L2",
+    "desc": "Keycap World only valid in miniature_fantasy world",
+    "active": true,
+    "severity": "error",
+    "trigger": {
+      "dimension": "creative_world",
+      "value": "advertising"
+    },
+    "consequence": {
+      "action": "forbid",
+      "target": "twist_mechanisms",
+      "value": "keycap_world"
+    }
+  },
+  {
+    "id": "L2_body_canvas_not_product",
+    "type": "L2",
+    "desc": "Body as Canvas not suitable for product photography focus",
+    "active": true,
+    "severity": "warning",
+    "trigger": {
+      "dimension": "creative_world",
+      "value": "product_photography"
+    },
+    "consequence": {
+      "action": "forbid",
+      "target": "twist_mechanisms",
+      "value": "body_as_canvas"
+    }
+  },
+  {
+    "id": "L3_sell_no_miniature_occupation",
+    "type": "L3",
+    "desc": "Sell intent typically avoids Miniature Occupation (confuses product focus)",
+    "active": true,
+    "severity": "warning",
+    "trigger": {
+      "dimension": "creation_intent",
+      "value": "sell"
+    },
+    "consequence": {
+      "action": "forbid",
+      "target": "twist_mechanisms",
+      "value": "miniature_occupation"
+    }
+  },
+  {
+    "id": "L3_demonstrate_no_spiral",
+    "type": "L3",
+    "desc": "Demonstrate intent avoids Spiral Assembly (too abstract)",
+    "active": true,
+    "severity": "warning",
+    "trigger": {
+      "dimension": "creation_intent",
+      "value": "demonstrate"
+    },
+    "consequence": {
+      "action": "forbid",
+      "target": "twist_mechanisms",
+      "value": "spiral_assembly"
+    }
+  },
+  {
+    "id": "L2_glassmorphism_not_docu",
+    "type": "L2",
+    "desc": "Glassmorphism Neon imaging conflicts with Documentary imaging",
+    "active": true,
+    "severity": "error",
+    "trigger": {
+      "dimension": "imaging_assumption",
+      "value": "documentary_available_light"
+    },
+    "consequence": {
+      "action": "forbid",
+      "target": "twist_mechanisms",
+      "value": "floating_ui_cards"
+    }
+  },
+  {
+    "id": "L3_tech_festive_only_evoke_entertain",
+    "type": "L3",
+    "desc": "Tech Festive Fusion should only appear with evoke or entertain intent",
+    "active": true,
+    "severity": "warning",
+    "trigger": {
+      "dimension": "creation_intent",
+      "value": "document"
+    },
+    "consequence": {
+      "action": "forbid",
+      "target": "twist_mechanisms",
+      "value": "tech_festive_fusion"
+    }
   }
 ]
