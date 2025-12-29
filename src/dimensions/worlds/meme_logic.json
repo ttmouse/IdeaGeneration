@@ -1,0 +1,368 @@
+{
+  "name": {
+    "en": "Meme Logic",
+    "zh": "迷因逻辑"
+  },
+  "imaging_profile": "Realistic UI screenshot OR screen capture, flat lighting, system fonts, vector edges, compression artifacts",
+  "forbidden_visual_terms": [
+    "cinematic lighting",
+    "depth of field",
+    "bokeh",
+    "studio photography",
+    "8k",
+    "high resolution"
+  ],
+  "deliverable_type": [
+    {
+      "id": "screenshot_meme",
+      "en": "Screenshot Meme",
+      "zh": "截图迷因"
+    },
+    {
+      "id": "fake_ui_post",
+      "en": "Fake UI Post",
+      "zh": "伪 UI 帖子"
+    },
+    {
+      "id": "internet_poster",
+      "en": "Internet Poster",
+      "zh": "网络海报"
+    }
+  ],
+  "entry_point": [
+    {
+      "id": "text",
+      "en": "Text",
+      "zh": "文字"
+    },
+    {
+      "id": "system",
+      "en": "System",
+      "zh": "系统"
+    },
+    {
+      "id": "object",
+      "en": "Object",
+      "zh": "物体"
+    }
+  ],
+  "core_tension": [
+    {
+      "id": "deadpan_absurd",
+      "en": "Deadpan Absurd",
+      "zh": "一本正经的荒谬"
+    },
+    {
+      "id": "overexplained_simple",
+      "en": "Overexplained Simple",
+      "zh": "过度解释简单事物"
+    },
+    {
+      "id": "corporate_voice_glitch",
+      "en": "Corporate Voice Glitch",
+      "zh": "企业腔调故障"
+    }
+  ],
+  "twist_mechanisms_pool": [
+    {
+      "id": "label_lies",
+      "en": "Label Lies",
+      "zh": "标注反讽"
+    },
+    {
+      "id": "rule_breaking_ui",
+      "en": "Rule Breaking UI",
+      "zh": "打破规则的 UI"
+    },
+    {
+      "id": "function_misuse",
+      "en": "Function Misuse",
+      "zh": "功能错配"
+    },
+    {
+      "id": "missing_essential",
+      "en": "Missing Essential",
+      "zh": "关键缺失"
+    }
+  ],
+  "stage_context": [
+    {
+      "en": "mobile app screenshot",
+      "zh": "手机 App 截图"
+    },
+    {
+      "en": "fake system dialog overlay",
+      "zh": "伪系统对话框弹窗"
+    },
+    {
+      "en": "social feed card",
+      "zh": "社交媒体信息流卡片"
+    },
+    {
+      "en": "error message screen",
+      "zh": "错误信息屏幕"
+    },
+    {
+      "en": "loading screen stuck",
+      "zh": "卡住的加载界面"
+    },
+    {
+      "en": "settings menu chaos",
+      "zh": "混乱的设置菜单"
+    },
+    {
+      "en": "fake tweet composition",
+      "zh": "伪推文编辑界面"
+    },
+    {
+      "en": "corporate email signature",
+      "zh": "企业邮件签名"
+    },
+    {
+      "en": "search results page",
+      "zh": "搜索结果页面"
+    },
+    {
+      "en": "captcha challenge absurd",
+      "zh": "荒谬的验证码挑战"
+    }
+  ],
+  "composition_rule": [
+    {
+      "en": "screenshot framing, UI-first",
+      "zh": "截图构图，UI 优先"
+    },
+    {
+      "en": "poster with bold text blocks",
+      "zh": "带有粗体文本块的海报"
+    },
+    {
+      "en": "phone screen centered vertical",
+      "zh": "居中垂直手机屏幕"
+    },
+    {
+      "en": "browser window with tabs",
+      "zh": "带标签页的浏览器窗口"
+    },
+    {
+      "en": "modal popup overlay",
+      "zh": "弹出模态框覆盖层"
+    },
+    {
+      "en": "notification stack cascade",
+      "zh": "通知堆叠级联"
+    },
+    {
+      "en": "split screen comparison",
+      "zh": "分屏对比"
+    },
+    {
+      "en": "meme template grid",
+      "zh": "表情包模板网格"
+    }
+  ],
+  "lighting_rule": [
+    {
+      "en": "flat UI lighting (no cinematic)",
+      "zh": "扁平 UI 光照 (无电影感)"
+    },
+    {
+      "en": "screen glow in dark room",
+      "zh": "暗室屏幕发光"
+    },
+    {
+      "en": "high contrast UI elements",
+      "zh": "高对比度 UI 元素"
+    },
+    {
+      "en": "dark mode inverted",
+      "zh": "深色模式反转"
+    },
+    {
+      "en": "compression artifacts visible",
+      "zh": "可见压缩伪影"
+    }
+  ],
+  "subject_kits": [
+    {
+      "primary_subject": {
+        "en": "a system notification",
+        "zh": "系统通知"
+      },
+      "secondary_elements": [
+        {
+          "en": "oddly specific timestamp",
+          "zh": "奇怪的具体时间戳"
+        },
+        {
+          "en": "contradictory buttons",
+          "zh": "自相矛盾的按钮"
+        },
+        {
+          "en": "tiny watermark",
+          "zh": "微小水印"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a product listing",
+        "zh": "产品列表"
+      },
+      "secondary_elements": [
+        {
+          "en": "absurd feature bullets",
+          "zh": "荒谬的功能要点"
+        },
+        {
+          "en": "wrong category tags",
+          "zh": "错误的分类标签"
+        },
+        {
+          "en": "broken rating stars",
+          "zh": "破碎的评分星级"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a chat screenshot",
+        "zh": "聊天截图"
+      },
+      "secondary_elements": [
+        {
+          "en": "overly formal apology",
+          "zh": "过度正式的道歉"
+        },
+        {
+          "en": "glitched emoji",
+          "zh": "故障的表情符号"
+        },
+        {
+          "en": "misaligned bubbles",
+          "zh": "错位的气泡"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "terms and conditions popup",
+        "zh": "服务条款弹窗"
+      },
+      "secondary_elements": [
+        {
+          "en": "unchecked mandatory checkbox",
+          "zh": "未勾选的必选框"
+        },
+        {
+          "en": "scroll bar at 0.01%",
+          "zh": "滚动条在 0.01%"
+        },
+        {
+          "en": "legal text in Comic Sans",
+          "zh": "Comic Sans 字体法律文本"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "app update prompt",
+        "zh": "应用更新提示"
+      },
+      "secondary_elements": [
+        {
+          "en": "later button missing",
+          "zh": "没有稍后按钮"
+        },
+        {
+          "en": "update size: 99.9GB",
+          "zh": "更新大小: 99.9GB"
+        },
+        {
+          "en": "mandatory restart",
+          "zh": "强制重启"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "email unsubscribe page",
+        "zh": "退订邮件页面"
+      },
+      "secondary_elements": [
+        {
+          "en": "200 checkboxes",
+          "zh": "200 个复选框"
+        },
+        {
+          "en": "captcha after captcha",
+          "zh": "验证码后还有验证码"
+        },
+        {
+          "en": "unsubscribe from unsubscribe",
+          "zh": "退订退订功能"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "loading spinner",
+        "zh": "加载转圈"
+      },
+      "secondary_elements": [
+        {
+          "en": "progress bar going backwards",
+          "zh": "倒退的进度条"
+        },
+        {
+          "en": "time remaining: calculating",
+          "zh": "剩余时间: 计算中"
+        },
+        {
+          "en": "cancel button grayed out",
+          "zh": "灰色的取消按钮"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "cookie consent banner",
+        "zh": "Cookie 同意横幅"
+      },
+      "secondary_elements": [
+        {
+          "en": "reject requires 47 clicks",
+          "zh": "拒绝需要点击 47 次"
+        },
+        {
+          "en": "legitimate interest toggle",
+          "zh": "合法利益切换"
+        },
+        {
+          "en": "privacy partners: 742",
+          "zh": "隐私合作伙伴: 742"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "password requirements",
+        "zh": "密码要求"
+      },
+      "secondary_elements": [
+        {
+          "en": "contradictory rules",
+          "zh": "自相矛盾的规则"
+        },
+        {
+          "en": "special characters forbidden",
+          "zh": "禁止特殊字符"
+        },
+        {
+          "en": "must contain emoji",
+          "zh": "必须包含表情符号"
+        }
+      ]
+    }
+  ]
+}

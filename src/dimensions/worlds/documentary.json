@@ -1,0 +1,387 @@
+{
+  "name": {
+    "en": "Documentary",
+    "zh": "纪实摄影"
+  },
+  "imaging_profile": "Candid documentary frame, available light, motion blur allowed, ISO noise allowed, storytelling moment, 35mm lens",
+  "forbidden_visual_terms": [
+    "studio lighting",
+    "softbox",
+    "perfectly staged",
+    "3d render",
+    "cgi",
+    "hero product framing"
+  ],
+  "deliverable_type": [
+    {
+      "id": "street_photo",
+      "en": "Street Photo",
+      "zh": "街头摄影"
+    },
+    {
+      "id": "documentary_frame",
+      "en": "Documentary Frame",
+      "zh": "纪录片帧"
+    },
+    {
+      "id": "found_moment",
+      "en": "Found Moment",
+      "zh": "偶得瞬间"
+    }
+  ],
+  "entry_point": [
+    {
+      "id": "person",
+      "en": "Person",
+      "zh": "人物"
+    },
+    {
+      "id": "action",
+      "en": "Action",
+      "zh": "动作"
+    },
+    {
+      "id": "system",
+      "en": "System",
+      "zh": "系统"
+    }
+  ],
+  "core_tension": [
+    {
+      "id": "ordinary_vs_uncanny",
+      "en": "Ordinary vs Uncanny",
+      "zh": "平凡 vs 诡异"
+    },
+    {
+      "id": "routine_vs_glitch",
+      "en": "Routine vs Glitch",
+      "zh": "日常 vs 故障"
+    },
+    {
+      "id": "public_vs_private",
+      "en": "Public vs Private",
+      "zh": "公共 vs 私密"
+    }
+  ],
+  "twist_mechanisms_pool": [
+    {
+      "id": "rule_breaking_signage",
+      "en": "Rule Breaking Signage",
+      "zh": "违规标识"
+    },
+    {
+      "id": "scale_mismatch",
+      "en": "Scale Mismatch",
+      "zh": "尺度错位"
+    },
+    {
+      "id": "missing_essential",
+      "en": "Missing Essential",
+      "zh": "关键缺失"
+    }
+  ],
+  "stage_context": [
+    {
+      "en": "busy street corner",
+      "zh": "繁忙街角"
+    },
+    {
+      "en": "subway platform",
+      "zh": "地铁站台"
+    },
+    {
+      "en": "night market alley",
+      "zh": "夜市巷弄"
+    },
+    {
+      "en": "office lobby",
+      "zh": "办公大楼大堂"
+    },
+    {
+      "en": "laundromat at closing time",
+      "zh": "打烊时的自助洗衣店"
+    },
+    {
+      "en": "convenience store aisle",
+      "zh": "便利店货架走道"
+    },
+    {
+      "en": "bus terminal waiting area",
+      "zh": "公交总站候车区"
+    },
+    {
+      "en": "construction site fence",
+      "zh": "施工围栏边"
+    },
+    {
+      "en": "parking garage level 3",
+      "zh": "停车场三层"
+    },
+    {
+      "en": "hospital corridor",
+      "zh": "医院走廊"
+    },
+    {
+      "en": "shopping mall food court",
+      "zh": "商场美食广场"
+    },
+    {
+      "en": "public park bench area",
+      "zh": "公园长椅区"
+    }
+  ],
+  "composition_rule": [
+    {
+      "en": "35mm street photography framing",
+      "zh": "35mm 街头摄影构图"
+    },
+    {
+      "en": "candid mid-shot with context",
+      "zh": "抓拍中景带环境"
+    },
+    {
+      "en": "wide environmental portrait",
+      "zh": "广角环境人像"
+    },
+    {
+      "en": "off-center decisive moment",
+      "zh": "偏心决定性瞬间"
+    },
+    {
+      "en": "layered depth street scene",
+      "zh": "分层街景景深"
+    },
+    {
+      "en": "through-the-window framing",
+      "zh": "透过窗户取景"
+    },
+    {
+      "en": "compressed telephoto crowd",
+      "zh": "长焦压缩人群"
+    },
+    {
+      "en": "low angle ground level",
+      "zh": "低角度地面视角"
+    },
+    {
+      "en": "observational bird's eye",
+      "zh": "观察式鸟瞰"
+    }
+  ],
+  "lighting_rule": [
+    {
+      "en": "natural light, slightly imperfect exposure",
+      "zh": "自然光，略微曝光不足"
+    },
+    {
+      "en": "mixed urban lighting at night",
+      "zh": "夜间混合城市光"
+    },
+    {
+      "en": "harsh midday sun contrast",
+      "zh": "正午烈日对比"
+    },
+    {
+      "en": "overcast soft diffused gray",
+      "zh": "阴天柔和漫射灰调"
+    },
+    {
+      "en": "fluorescent indoor ambient",
+      "zh": "室内荧光环境光"
+    },
+    {
+      "en": "golden hour warm side light",
+      "zh": "黄金时段温暖侧光"
+    },
+    {
+      "en": "silhouette backlit window",
+      "zh": "剪影逆光窗户"
+    },
+    {
+      "en": "street lamp pools at dusk",
+      "zh": "黄昏路灯光池"
+    }
+  ],
+  "subject_kits": [
+    {
+      "primary_subject": {
+        "en": "a commuter",
+        "zh": "通勤者"
+      },
+      "secondary_elements": [
+        {
+          "en": "misprinted poster",
+          "zh": "印刷错误的各种海报"
+        },
+        {
+          "en": "odd queue markers",
+          "zh": "奇怪的排队标记"
+        },
+        {
+          "en": "taped arrows",
+          "zh": "胶带贴出的箭头"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a vendor stall",
+        "zh": "小贩摊位"
+      },
+      "secondary_elements": [
+        {
+          "en": "handwritten price tags",
+          "zh": "手写价格标签"
+        },
+        {
+          "en": "broken neon sign",
+          "zh": "坏掉的霓虹灯牌"
+        },
+        {
+          "en": "mismatched numbers",
+          "zh": "不匹配的数字"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a security guard",
+        "zh": "保安"
+      },
+      "secondary_elements": [
+        {
+          "en": "empty badge holder",
+          "zh": "空的工牌套"
+        },
+        {
+          "en": "strange floor markings",
+          "zh": "奇怪的地板标记"
+        },
+        {
+          "en": "warning tape",
+          "zh": "警戒胶带"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "street musician",
+        "zh": "街头艺人"
+      },
+      "secondary_elements": [
+        {
+          "en": "instrument case with coins",
+          "zh": "装硬币的乐器盒"
+        },
+        {
+          "en": "faded permit card",
+          "zh": "褪色许可证"
+        },
+        {
+          "en": "handwritten setlist",
+          "zh": "手写曲目单"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "delivery worker",
+        "zh": "送货员"
+      },
+      "secondary_elements": [
+        {
+          "en": "stacked boxes",
+          "zh": "堆叠纸箱"
+        },
+        {
+          "en": "phone with map",
+          "zh": "显示地图的手机"
+        },
+        {
+          "en": "reflective vest",
+          "zh": "反光背心"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "elderly person waiting",
+        "zh": "等候的老人"
+      },
+      "secondary_elements": [
+        {
+          "en": "worn shopping bag",
+          "zh": "破旧购物袋"
+        },
+        {
+          "en": "bus schedule",
+          "zh": "公交时刻表"
+        },
+        {
+          "en": "folding chair",
+          "zh": "折叠椅"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "construction worker on break",
+        "zh": "休息的工人"
+      },
+      "secondary_elements": [
+        {
+          "en": "hard hat",
+          "zh": "安全帽"
+        },
+        {
+          "en": "thermos",
+          "zh": "保温杯"
+        },
+        {
+          "en": "safety notice board",
+          "zh": "安全告示牌"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "kids playing",
+        "zh": "玩耍的孩子"
+      },
+      "secondary_elements": [
+        {
+          "en": "chalk drawings",
+          "zh": "粉笔画"
+        },
+        {
+          "en": "discarded toy",
+          "zh": "丢弃的玩具"
+        },
+        {
+          "en": "bicycle wheel",
+          "zh": "自行车轮"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "shop owner closing",
+        "zh": "关店的店主"
+      },
+      "secondary_elements": [
+        {
+          "en": "metal shutter half-down",
+          "zh": "半拉的金属卷帘"
+        },
+        {
+          "en": "today's sales note",
+          "zh": "今日营业额笔记"
+        },
+        {
+          "en": "keys in hand",
+          "zh": "手中钥匙"
+        }
+      ]
+    }
+  ]
+}

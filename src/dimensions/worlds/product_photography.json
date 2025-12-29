@@ -1,0 +1,413 @@
+{
+  "name": {
+    "en": "Product Photography",
+    "zh": "产品摄影"
+  },
+  "imaging_profile": "Industrial product photography, studio lighting, sharp focus, realistic textures, controlled reflections, authentic camera noise",
+  "forbidden_visual_terms": [
+    "illustration",
+    "painting",
+    "drawing",
+    "sketch",
+    "low quality"
+  ],
+  "deliverable_type": [
+    {
+      "id": "product_shot",
+      "en": "Product Shot",
+      "zh": "产品照"
+    },
+    {
+      "id": "catalog_cover",
+      "en": "Catalog Cover",
+      "zh": "目录封面"
+    },
+    {
+      "id": "packshot_with_twist",
+      "en": "Packshot with Twist",
+      "zh": "带反转的产品包装照"
+    }
+  ],
+  "entry_point": [
+    {
+      "id": "object",
+      "en": "Object",
+      "zh": "物体"
+    }
+  ],
+  "core_tension": [
+    {
+      "id": "premium_vs_raw",
+      "en": "Premium vs Raw",
+      "zh": "高端 vs 粗糙"
+    },
+    {
+      "id": "precision_vs_decay",
+      "en": "Precision vs Decay",
+      "zh": "精密 vs 腐朽"
+    },
+    {
+      "id": "comfort_vs_clinical",
+      "en": "Comfort vs Clinical",
+      "zh": "舒适 vs 临床感"
+    },
+    {
+      "id": "rugged_vs_refined",
+      "en": "Rugged vs Refined",
+      "zh": "粗犷 vs 精致"
+    },
+    {
+      "id": "element_vs_protection",
+      "en": "Element vs Protection",
+      "zh": "元素侵袭 vs 保护"
+    },
+    {
+      "id": "motion_vs_stillness",
+      "en": "Motion vs Stillness",
+      "zh": "运动 vs 静止"
+    }
+  ],
+  "twist_mechanisms_pool": [
+    {
+      "id": "material_swap",
+      "en": "Material Swap",
+      "zh": "材质错置"
+    },
+    {
+      "id": "scale_mismatch",
+      "en": "Scale Mismatch",
+      "zh": "尺度错位"
+    },
+    {
+      "id": "function_misuse",
+      "en": "Function Misuse",
+      "zh": "功能错配"
+    },
+    {
+      "id": "cutaway_logic",
+      "en": "Cutaway Logic",
+      "zh": "剖面逻辑"
+    },
+    {
+      "id": "rule_breaking_packaging",
+      "en": "Rule Breaking Packaging",
+      "zh": "打破规则的包装"
+    }
+  ],
+  "stage_context": [
+    {
+      "en": "clean studio tabletop",
+      "zh": "干净的摄影棚桌面"
+    },
+    {
+      "en": "white cyclorama",
+      "zh": "白色无影墙"
+    },
+    {
+      "en": "matte stone surface",
+      "zh": "哑光石材表面"
+    },
+    {
+      "en": "soft fabric surface",
+      "zh": "柔软织物表面"
+    },
+    {
+      "en": "polished wood platform",
+      "zh": "抛光木质平台"
+    },
+    {
+      "en": "brushed metal sheet",
+      "zh": "拉丝金属板"
+    },
+    {
+      "en": "concrete textured base",
+      "zh": "混凝土纹理底座"
+    },
+    {
+      "en": "frosted glass panel",
+      "zh": "磨砂玻璃板"
+    },
+    {
+      "en": "leather desk mat",
+      "zh": "皮革桌垫"
+    },
+    {
+      "en": "minimalist grid surface",
+      "zh": "极简网格表面"
+    }
+  ],
+  "composition_rule": [
+    {
+      "en": "centered, calm framing, high detail",
+      "zh": "中心平稳构图，高细节"
+    },
+    {
+      "en": "tight macro crop on materials",
+      "zh": "材质微距特写"
+    },
+    {
+      "en": "two-object comparison layout",
+      "zh": "双物体对比布局"
+    },
+    {
+      "en": "exploded view arrangement",
+      "zh": "爆炸图排列"
+    },
+    {
+      "en": "360-degree rotation sequence",
+      "zh": "360度旋转序列"
+    },
+    {
+      "en": "grid pattern multiple angles",
+      "zh": "网格模式多角度"
+    },
+    {
+      "en": "diagonal perspective showcase",
+      "zh": "对角透视展示"
+    },
+    {
+      "en": "floating overhead flat lay",
+      "zh": "悬浮俯拍平铺"
+    },
+    {
+      "en": "sequential assembly steps",
+      "zh": "顺序组装步骤"
+    }
+  ],
+  "lighting_rule": [
+    {
+      "en": "soft directional studio light, strong material definition",
+      "zh": "柔和定向影棚光，强调材质"
+    },
+    {
+      "en": "diffused top light, minimal shadows",
+      "zh": "漫射顶光，极少阴影"
+    },
+    {
+      "en": "three-point professional lighting",
+      "zh": "三点专业布光"
+    },
+    {
+      "en": "cross-lighting for texture",
+      "zh": "交叉光突出纹理"
+    },
+    {
+      "en": "tent lighting soft wrap",
+      "zh": "灯箱柔和包裹光"
+    },
+    {
+      "en": "raking light side emphasis",
+      "zh": "侧扫光侧面强调"
+    },
+    {
+      "en": "beauty dish overhead",
+      "zh": "美碟顶光"
+    },
+    {
+      "en": "strip box edge lighting",
+      "zh": "条形柔光箱边缘光"
+    }
+  ],
+  "subject_kits": [
+    {
+      "primary_subject": {
+        "en": "a premium supplement bottle",
+        "zh": "高端保健品瓶"
+      },
+      "secondary_elements": [
+        {
+          "en": "tamper seal",
+          "zh": "防伪封条"
+        },
+        {
+          "en": "tiny lounge chair",
+          "zh": "微型躺椅"
+        },
+        {
+          "en": "warning label sticker",
+          "zh": "警告标签贴纸"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a ceramic coffee mug",
+        "zh": "陶瓷咖啡杯"
+      },
+      "secondary_elements": [
+        {
+          "en": "receipt",
+          "zh": "收据"
+        },
+        {
+          "en": "stirring spoon",
+          "zh": "搅拌勺"
+        },
+        {
+          "en": "micro cracks",
+          "zh": "微裂纹"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a mechanical keyboard keycap set",
+        "zh": "机械键盘键帽"
+      },
+      "secondary_elements": [
+        {
+          "en": "dust",
+          "zh": "灰尘"
+        },
+        {
+          "en": "tiny gears",
+          "zh": "微型齿轮"
+        },
+        {
+          "en": "spec label",
+          "zh": "规格标签"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a luxury watch",
+        "zh": "奢华手表"
+      },
+      "secondary_elements": [
+        {
+          "en": "micro tools",
+          "zh": "微型工具"
+        },
+        {
+          "en": "gear fragments",
+          "zh": "齿轮碎片"
+        },
+        {
+          "en": "calibration card",
+          "zh": "校准卡"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "fountain pen",
+        "zh": "钢笔"
+      },
+      "secondary_elements": [
+        {
+          "en": "ink cartridge",
+          "zh": "墨水芯"
+        },
+        {
+          "en": "nib close-up",
+          "zh": "笔尖特写"
+        },
+        {
+          "en": "engraved details",
+          "zh": "雕刻细节"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "leather wallet",
+        "zh": "皮革钱包"
+      },
+      "secondary_elements": [
+        {
+          "en": "stitching detail",
+          "zh": "缝线细节"
+        },
+        {
+          "en": "embossed logo",
+          "zh": "压印标志"
+        },
+        {
+          "en": "card slots",
+          "zh": "卡槽"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "chef's knife",
+        "zh": "厨师刀"
+      },
+      "secondary_elements": [
+        {
+          "en": "Damascus pattern",
+          "zh": "大马士革纹理"
+        },
+        {
+          "en": "handle grain",
+          "zh": "手柄纹理"
+        },
+        {
+          "en": "blade edge reflection",
+          "zh": "刀刃反光"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "camera lens",
+        "zh": "相机镜头"
+      },
+      "secondary_elements": [
+        {
+          "en": "lens hood",
+          "zh": "遮光罩"
+        },
+        {
+          "en": "aperture blades",
+          "zh": "光圈叶片"
+        },
+        {
+          "en": "lens cap",
+          "zh": "镜头盖"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "wireless earbuds case",
+        "zh": "无线耳机盒"
+      },
+      "secondary_elements": [
+        {
+          "en": "charging indicator",
+          "zh": "充电指示灯"
+        },
+        {
+          "en": "hinge mechanism",
+          "zh": "铰链机构"
+        },
+        {
+          "en": "pairing button",
+          "zh": "配对按钮"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "Swiss army knife",
+        "zh": "瑞士军刀"
+      },
+      "secondary_elements": [
+        {
+          "en": "tool assortment",
+          "zh": "工具组合"
+        },
+        {
+          "en": "shield emblem",
+          "zh": "盾牌徽章"
+        },
+        {
+          "en": "folded configuration",
+          "zh": "折叠构造"
+        }
+      ]
+    }
+  ]
+}

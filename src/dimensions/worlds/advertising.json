@@ -1,0 +1,654 @@
+{
+  "name": {
+    "en": "Advertising",
+    "zh": "广告"
+  },
+  "imaging_profile": "High-end commercial advertising photography, polished, persuasive, 8k, professional color grading",
+  "forbidden_visual_terms": [
+    "dirty",
+    "broken",
+    "amateur",
+    "blurry"
+  ],
+  "deliverable_type": [
+    {
+      "id": "ad_key_visual",
+      "en": "Ad Key Visual",
+      "zh": "广告主视觉"
+    },
+    {
+      "id": "brand_poster",
+      "en": "Brand Poster",
+      "zh": "品牌海报"
+    },
+    {
+      "id": "social_ad",
+      "en": "Social Ad",
+      "zh": "社交媒体广告"
+    },
+    {
+      "id": "launch_teaser",
+      "en": "Launch Teaser",
+      "zh": "发布预告"
+    }
+  ],
+  "entry_point": [
+    {
+      "id": "object",
+      "en": "Object",
+      "zh": "物体"
+    },
+    {
+      "id": "person",
+      "en": "Person",
+      "zh": "人物"
+    },
+    {
+      "id": "text",
+      "en": "Text",
+      "zh": "文字"
+    },
+    {
+      "id": "system",
+      "en": "System",
+      "zh": "系统"
+    }
+  ],
+  "core_tension": [
+    {
+      "id": "desire_vs_control",
+      "en": "Desire vs Control",
+      "zh": "欲望 vs 控制"
+    },
+    {
+      "id": "clean_vs_chaos",
+      "en": "Clean vs Chaos",
+      "zh": "整洁 vs 混乱"
+    },
+    {
+      "id": "luxury_vs_absurd",
+      "en": "Luxury vs Absurd",
+      "zh": "奢华 vs 荒诞"
+    },
+    {
+      "id": "promise_vs_reality",
+      "en": "Promise vs Reality",
+      "zh": "承诺 vs 现实"
+    },
+    {
+      "id": "tech_vs_warmth",
+      "en": "Tech vs Warmth",
+      "zh": "科技 vs 温暖"
+    },
+    {
+      "id": "speed_vs_stillness",
+      "en": "Speed vs Stillness",
+      "zh": "速度 vs 静止"
+    },
+    {
+      "id": "digital_vs_organic",
+      "en": "Digital vs Organic",
+      "zh": "数字 vs 有机"
+    },
+    {
+      "id": "power_vs_playfulness",
+      "en": "Power vs Playfulness",
+      "zh": "力量 vs 玩味"
+    },
+    {
+      "id": "retro_vs_future",
+      "en": "Retro vs Future",
+      "zh": "复古 vs 未来"
+    },
+    {
+      "id": "endurance_vs_fragility",
+      "en": "Endurance vs Fragility",
+      "zh": "耐久 vs 脆弱"
+    }
+  ],
+  "twist_mechanisms_pool": [
+    {
+      "id": "scale_mismatch",
+      "en": "Scale Mismatch",
+      "zh": "尺度错位"
+    },
+    {
+      "id": "function_misuse",
+      "en": "Function Misuse",
+      "zh": "功能错配"
+    },
+    {
+      "id": "label_lies",
+      "en": "Label Lies",
+      "zh": "标注反讽"
+    },
+    {
+      "id": "material_swap",
+      "en": "Material Swap",
+      "zh": "材质错置"
+    },
+    {
+      "id": "cutaway_logic",
+      "en": "Cutaway Logic",
+      "zh": "剖面逻辑"
+    },
+    {
+      "id": "missing_essential",
+      "en": "Missing Essential",
+      "zh": "关键缺失"
+    },
+    {
+      "id": "dynamic_freeze",
+      "en": "Dynamic Freeze",
+      "zh": "动态冻结"
+    },
+    {
+      "id": "zero_gravity_scatter",
+      "en": "Zero Gravity Scatter",
+      "zh": "零重力散落"
+    },
+    {
+      "id": "shape_morph",
+      "en": "Shape Morph",
+      "zh": "形状蜕变"
+    },
+    {
+      "id": "spiral_assembly",
+      "en": "Spiral Assembly",
+      "zh": "螺旋组装"
+    },
+    {
+      "id": "floating_ui_cards",
+      "en": "Floating UI Cards",
+      "zh": "悬浮UI卡片"
+    },
+    {
+      "id": "digital_aura",
+      "en": "Digital Aura",
+      "zh": "数字光环"
+    },
+    {
+      "id": "tech_festive_fusion",
+      "en": "Tech Festive Fusion",
+      "zh": "科技节日融合"
+    },
+    {
+      "id": "environment_assault",
+      "en": "Environment Assault",
+      "zh": "环境冲击"
+    },
+    {
+      "id": "energy_trail",
+      "en": "Energy Trail",
+      "zh": "能量轨迹"
+    },
+    {
+      "id": "knolling_layout",
+      "en": "Knolling Layout",
+      "zh": "平铺排列"
+    },
+    {
+      "id": "stylized_3d_render",
+      "en": "Stylized 3D Render",
+      "zh": "风格化3D渲染"
+    },
+    {
+      "id": "paper_cutout_layer",
+      "en": "Paper Cutout Layer",
+      "zh": "纸艺剪切层"
+    },
+    {
+      "id": "held_in_hand",
+      "en": "Held in Hand",
+      "zh": "手持展示"
+    }
+  ],
+  "stage_context": [
+    {
+      "en": "clean studio tabletop",
+      "zh": "干净的摄影棚桌面"
+    },
+    {
+      "en": "minimal seamless backdrop",
+      "zh": "极简无缝背景"
+    },
+    {
+      "en": "billboard mockup environment",
+      "zh": "广告牌模拟环境"
+    },
+    {
+      "en": "retail shelf close-up",
+      "zh": "零售货架特写"
+    },
+    {
+      "en": "luxury marble surface",
+      "zh": "奢华大理石表面"
+    },
+    {
+      "en": "white infinity cove",
+      "zh": "白色无限背景"
+    },
+    {
+      "en": "urban rooftop sunset",
+      "zh": "城市屋顶日落"
+    },
+    {
+      "en": "high-end showroom floor",
+      "zh": "高端展厅地面"
+    },
+    {
+      "en": "polished black acrylic",
+      "zh": "抛光黑色亚克力"
+    },
+    {
+      "en": "floating on water surface",
+      "zh": "漂浮水面"
+    },
+    {
+      "en": "suspended in mid-air",
+      "zh": "悬浮空中"
+    },
+    {
+      "en": "neon-lit night scene",
+      "zh": "霓虹灯夜景"
+    },
+    {
+      "en": "pure black void",
+      "zh": "纯黑虚空"
+    },
+    {
+      "en": "pure white infinity",
+      "zh": "纯白无限"
+    },
+    {
+      "en": "gradient fade background",
+      "zh": "渐变淡出背景"
+    }
+  ],
+  "composition_rule": [
+    {
+      "en": "centered hero object, negative space",
+      "zh": "中心主体，留白"
+    },
+    {
+      "en": "bold asymmetry with clear hierarchy",
+      "zh": "大胆不对称，层级分明"
+    },
+    {
+      "en": "graphic layout, poster-like composition",
+      "zh": "平面设计感，海报式构图"
+    },
+    {
+      "en": "golden ratio placement",
+      "zh": "黄金比例布局"
+    },
+    {
+      "en": "diagonal dynamic composition",
+      "zh": "对角线动态构图"
+    },
+    {
+      "en": "rule of thirds hero shot",
+      "zh": "三分法主体构图"
+    },
+    {
+      "en": "floating elements arrangement",
+      "zh": "漂浮元素排列"
+    },
+    {
+      "en": "tight crop extreme close-up",
+      "zh": "紧凑裁切极特写"
+    },
+    {
+      "en": "layered depth with foreground blur",
+      "zh": "多层景深前景虚化"
+    },
+    {
+      "en": "symmetrical mirror composition",
+      "zh": "对称镜像构图"
+    }
+  ],
+  "lighting_rule": [
+    {
+      "en": "soft directional studio light",
+      "zh": "柔和定向影棚光"
+    },
+    {
+      "en": "high-contrast rim light",
+      "zh": "高反差轮廓光"
+    },
+    {
+      "en": "even commercial lighting",
+      "zh": "均匀商业照明"
+    },
+    {
+      "en": "dramatic side lighting",
+      "zh": "戏剧性侧光"
+    },
+    {
+      "en": "golden hour warm glow",
+      "zh": "黄金时段暖光"
+    },
+    {
+      "en": "backlit with lens flare",
+      "zh": "逆光带镜头光晕"
+    },
+    {
+      "en": "colored gel accent lights",
+      "zh": "彩色滤光片重点光"
+    },
+    {
+      "en": "soft box overhead beauty light",
+      "zh": "柔光箱顶部美妆光"
+    },
+    {
+      "en": "split lighting dramatic shadows",
+      "zh": "分离式打光戏剧阴影"
+    },
+    {
+      "en": "neon colored accent lighting",
+      "zh": "霓虹彩色重点照明"
+    }
+  ],
+  "subject_kits": [
+    {
+      "primary_subject": {
+        "en": "a luxury fragrance bottle",
+        "zh": "奢华香水瓶"
+      },
+      "secondary_elements": [
+        {
+          "en": "price tag sticker",
+          "zh": "价格标签"
+        },
+        {
+          "en": "micro scratch marks",
+          "zh": "微小划痕"
+        },
+        {
+          "en": "tiny warning label",
+          "zh": "微型警告标贴"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a fast-food burger",
+        "zh": "快餐汉堡"
+      },
+      "secondary_elements": [
+        {
+          "en": "measuring tape",
+          "zh": "卷尺"
+        },
+        {
+          "en": "sterile glove",
+          "zh": "无菌手套"
+        },
+        {
+          "en": "barcode label",
+          "zh": "条形码标签"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a credit card",
+        "zh": "信用卡"
+      },
+      "secondary_elements": [
+        {
+          "en": "receipt fragments",
+          "zh": "收据碎片"
+        },
+        {
+          "en": "fingerprint dust",
+          "zh": "指纹粉末"
+        },
+        {
+          "en": "security seal",
+          "zh": "安全封条"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a smartphone",
+        "zh": "智能手机"
+      },
+      "secondary_elements": [
+        {
+          "en": "cracked glass shards",
+          "zh": "碎玻璃片"
+        },
+        {
+          "en": "warranty card",
+          "zh": "保修卡"
+        },
+        {
+          "en": "tiny screws",
+          "zh": "微型螺丝"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a luxury watch",
+        "zh": "奢华手表"
+      },
+      "secondary_elements": [
+        {
+          "en": "authentication certificate",
+          "zh": "认证证书"
+        },
+        {
+          "en": "jeweler's loupe",
+          "zh": "珠宝放大镜"
+        },
+        {
+          "en": "velvet cushion",
+          "zh": "天鹅绒垫"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "designer sunglasses",
+        "zh": "设计师太阳镜"
+      },
+      "secondary_elements": [
+        {
+          "en": "lens cleaning cloth",
+          "zh": "镜片清洁布"
+        },
+        {
+          "en": "brand embossing",
+          "zh": "品牌压印"
+        },
+        {
+          "en": "protective case",
+          "zh": "保护盒"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "premium headphones",
+        "zh": "高端耳机"
+      },
+      "secondary_elements": [
+        {
+          "en": "coiled cable",
+          "zh": "盘绕线缆"
+        },
+        {
+          "en": "noise cancellation badge",
+          "zh": "降噪标识"
+        },
+        {
+          "en": "leather ear pads",
+          "zh": "皮革耳垫"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "sports car model",
+        "zh": "跑车模型"
+      },
+      "secondary_elements": [
+        {
+          "en": "carbon fiber texture",
+          "zh": "碳纤维纹理"
+        },
+        {
+          "en": "brand emblem",
+          "zh": "品牌徽标"
+        },
+        {
+          "en": "tire tread detail",
+          "zh": "轮胎花纹细节"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "coffee bag packaging",
+        "zh": "咖啡袋包装"
+      },
+      "secondary_elements": [
+        {
+          "en": "freshness valve",
+          "zh": "新鲜度阀"
+        },
+        {
+          "en": "origin label",
+          "zh": "产地标签"
+        },
+        {
+          "en": "roasting date stamp",
+          "zh": "烘焙日期戳"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "athletic sneakers",
+        "zh": "运动鞋"
+      },
+      "secondary_elements": [
+        {
+          "en": "reflective strips",
+          "zh": "反光条"
+        },
+        {
+          "en": "air cushion detail",
+          "zh": "气垫细节"
+        },
+        {
+          "en": "lacing pattern",
+          "zh": "鞋带花纹"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "wine bottle",
+        "zh": "葡萄酒瓶"
+      },
+      "secondary_elements": [
+        {
+          "en": "wax seal",
+          "zh": "蜡封"
+        },
+        {
+          "en": "vintage label",
+          "zh": "年份标签"
+        },
+        {
+          "en": "cork detail",
+          "zh": "软木塞细节"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "lipstick tube",
+        "zh": "口红管"
+      },
+      "secondary_elements": [
+        {
+          "en": "gold trim",
+          "zh": "金色装饰边"
+        },
+        {
+          "en": "shade number",
+          "zh": "色号标识"
+        },
+        {
+          "en": "magnetic cap",
+          "zh": "磁吸盖"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "macarons",
+        "zh": "马卡龙"
+      },
+      "secondary_elements": [
+        {
+          "en": "flying crumbs",
+          "zh": "飞溅碎屑"
+        },
+        {
+          "en": "sugar crystals",
+          "zh": "糖霜颗粒"
+        },
+        {
+          "en": "pastel dust",
+          "zh": "粉彩粉末"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "chocolate bar",
+        "zh": "巧克力棒"
+      },
+      "secondary_elements": [
+        {
+          "en": "cocoa powder",
+          "zh": "可可粉"
+        },
+        {
+          "en": "melted drips",
+          "zh": "融化滴落"
+        },
+        {
+          "en": "foil wrapper",
+          "zh": "锡纸包装"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "coffee cup",
+        "zh": "咖啡杯"
+      },
+      "secondary_elements": [
+        {
+          "en": "coffee beans",
+          "zh": "咖啡豆"
+        },
+        {
+          "en": "steam wisps",
+          "zh": "热气缭绕"
+        },
+        {
+          "en": "spilled drops",
+          "zh": "溅出的液滴"
+        }
+      ]
+    }
+  ]
+}

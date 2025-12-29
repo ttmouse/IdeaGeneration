@@ -1,0 +1,555 @@
+{
+  "name": {
+    "en": "Concept Art",
+    "zh": "概念艺术"
+  },
+  "imaging_profile": "Concept artwork, gallery print, mixed-media or staged installation feel, material emphasis over realism, no catalog, no studio product lighting",
+  "forbidden_visual_terms": [
+    "commercial product shot",
+    "perfect studio lighting",
+    "stock photo"
+  ],
+  "deliverable_type": [
+    {
+      "id": "concept_frame",
+      "en": "Concept Frame",
+      "zh": "概念帧"
+    },
+    {
+      "id": "gallery_print",
+      "en": "Gallery Print",
+      "zh": "画廊版画"
+    },
+    {
+      "id": "visual_metaphor",
+      "en": "Visual Metaphor",
+      "zh": "视觉隐喻"
+    }
+  ],
+  "entry_point": [
+    {
+      "id": "object",
+      "en": "Object",
+      "zh": "物体"
+    },
+    {
+      "id": "person",
+      "en": "Person",
+      "zh": "人物"
+    },
+    {
+      "id": "absence",
+      "en": "Absence",
+      "zh": "缺席"
+    },
+    {
+      "id": "system",
+      "en": "System",
+      "zh": "系统"
+    }
+  ],
+  "core_tension": [
+    {
+      "id": "identity_slippage",
+      "en": "Identity Slippage",
+      "zh": "身份滑落"
+    },
+    {
+      "id": "memory_corruption",
+      "en": "Memory Corruption",
+      "zh": "记忆腐蚀"
+    },
+    {
+      "id": "control_breakdown",
+      "en": "Control Breakdown",
+      "zh": "控制崩溃"
+    },
+    {
+      "id": "ritual_without_reason",
+      "en": "Ritual Without Reason",
+      "zh": "无理仪式"
+    },
+    {
+      "id": "natural_vs_supernatural",
+      "en": "Natural vs Supernatural",
+      "zh": "自然 vs 超自然"
+    },
+    {
+      "id": "form_vs_dissolution",
+      "en": "Form vs Dissolution",
+      "zh": "形态 vs 消解"
+    },
+    {
+      "id": "stillness_vs_kinetic",
+      "en": "Stillness vs Kinetic",
+      "zh": "静止 vs 动能"
+    },
+    {
+      "id": "reality_vs_fantasy",
+      "en": "Reality vs Fantasy",
+      "zh": "现实 vs 幻想"
+    },
+    {
+      "id": "character_vs_archetype",
+      "en": "Character vs Archetype",
+      "zh": "角色 vs 原型"
+    },
+    {
+      "id": "frame_vs_breakout",
+      "en": "Frame vs Breakout",
+      "zh": "框架 vs 突破"
+    }
+  ],
+  "twist_mechanisms_pool": [
+    {
+      "id": "scale_mismatch",
+      "en": "Scale Mismatch",
+      "zh": "尺度错位"
+    },
+    {
+      "id": "label_lies",
+      "en": "Label Lies",
+      "zh": "标注反讽"
+    },
+    {
+      "id": "missing_essential",
+      "en": "Missing Essential",
+      "zh": "关键缺失"
+    },
+    {
+      "id": "impossible_but_physical",
+      "en": "Impossible but Physical",
+      "zh": "不可能但物理真实"
+    },
+    {
+      "id": "cutaway_logic",
+      "en": "Cutaway Logic",
+      "zh": "剖面逻辑"
+    },
+    {
+      "id": "time_discontinuity",
+      "en": "Time Discontinuity",
+      "zh": "时间断裂"
+    },
+    {
+      "id": "portrait_to_material",
+      "en": "Portrait to Material",
+      "zh": "人像材质化"
+    },
+    {
+      "id": "fragment_mosaic",
+      "en": "Fragment Mosaic",
+      "zh": "碎片马赛克"
+    },
+    {
+      "id": "bioluminescent_part",
+      "en": "Bioluminescent Part",
+      "zh": "生物发光部件"
+    },
+    {
+      "id": "magical_creature",
+      "en": "Magical Creature",
+      "zh": "魔法生物"
+    },
+    {
+      "id": "medium_as_motion",
+      "en": "Medium as Motion",
+      "zh": "媒介即动态"
+    },
+    {
+      "id": "outfit_breakdown",
+      "en": "Outfit Breakdown",
+      "zh": "服装分解"
+    },
+    {
+      "id": "card_frame_breakout",
+      "en": "Card Frame Breakout",
+      "zh": "卡牌框架突破"
+    },
+    {
+      "id": "stylized_3d_render",
+      "en": "Stylized 3D Render",
+      "zh": "风格化3D渲染"
+    }
+  ],
+  "stage_context": [
+    {
+      "en": "empty room with subtle institutional feel",
+      "zh": "带有微妙机构感的空房间"
+    },
+    {
+      "en": "archive storage aisle",
+      "zh": "档案存储过道"
+    },
+    {
+      "en": "silent exhibition space",
+      "zh": "寂静的展览空间"
+    },
+    {
+      "en": "abandoned office corner",
+      "zh": "废弃的办公室角落"
+    },
+    {
+      "en": "sterile laboratory setting",
+      "zh": "无菌实验室环境"
+    },
+    {
+      "en": "waiting room with expired magazines",
+      "zh": "放着过期杂志的候诊室"
+    },
+    {
+      "en": "museum conservation workspace",
+      "zh": "博物馆修复工作间"
+    },
+    {
+      "en": "basement archive",
+      "zh": "地下档案室"
+    },
+    {
+      "en": "minimalist gallery pedestal",
+      "zh": "极简画廊展台"
+    },
+    {
+      "en": "government office hallway",
+      "zh": "政府办公室走廊"
+    },
+    {
+      "en": "museum pedestal spotlight",
+      "zh": "博物馆展台聚光"
+    },
+    {
+      "en": "white cyclorama with soft shadows",
+      "zh": "白色无影墙柔影"
+    }
+  ],
+  "composition_rule": [
+    {
+      "en": "deadpan centered framing",
+      "zh": "呆板中心构图"
+    },
+    {
+      "en": "wide shot with small subject",
+      "zh": "广角小主体"
+    },
+    {
+      "en": "symmetrical, clinical composition",
+      "zh": "对称、临床感构图"
+    },
+    {
+      "en": "grid-based systematic arrangement",
+      "zh": "网格系统排列"
+    },
+    {
+      "en": "architectural perspective",
+      "zh": "建筑透视"
+    },
+    {
+      "en": "formal frontal documentation",
+      "zh": "正式正面记录"
+    },
+    {
+      "en": "isolated object on neutral",
+      "zh": "中性背景隔离物体"
+    },
+    {
+      "en": "typological series layout",
+      "zh": "类型学序列布局"
+    }
+  ],
+  "lighting_rule": [
+    {
+      "en": "cool ambient light with a single warm source",
+      "zh": "冷环境光配单一暖源"
+    },
+    {
+      "en": "overcast soft light",
+      "zh": "阴天柔光"
+    },
+    {
+      "en": "institutional fluorescent light",
+      "zh": "机构荧光灯"
+    },
+    {
+      "en": "window light sharp shadow",
+      "zh": "窗光锐利阴影"
+    },
+    {
+      "en": "dim overhead industrial",
+      "zh": "暗淡工业顶灯"
+    },
+    {
+      "en": "cold LED strips",
+      "zh": "冷色LED灯带"
+    },
+    {
+      "en": "single bare bulb",
+      "zh": "单个裸灯泡"
+    },
+    {
+      "en": "filtered daylight gray cast",
+      "zh": "过滤日光灰调"
+    }
+  ],
+  "subject_kits": [
+    {
+      "primary_subject": {
+        "en": "a stack of documents",
+        "zh": "一叠文件"
+      },
+      "secondary_elements": [
+        {
+          "en": "redacted lines",
+          "zh": "涂黑行"
+        },
+        {
+          "en": "misaligned stamps",
+          "zh": "错位印章"
+        },
+        {
+          "en": "binder clip",
+          "zh": "长尾夹"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a chair",
+        "zh": "一把椅子"
+      },
+      "secondary_elements": [
+        {
+          "en": "torn fabric",
+          "zh": "撕裂的织物"
+        },
+        {
+          "en": "number tag",
+          "zh": "数字标签"
+        },
+        {
+          "en": "dust outline",
+          "zh": "灰尘轮廓"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a mirror",
+        "zh": "一面镜子"
+      },
+      "secondary_elements": [
+        {
+          "en": "cracked corner",
+          "zh": "碎角"
+        },
+        {
+          "en": "inventory label",
+          "zh": "库存标签"
+        },
+        {
+          "en": "fingerprint smears",
+          "zh": "指纹污渍"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a human portrait photo",
+        "zh": "人像照片"
+      },
+      "secondary_elements": [
+        {
+          "en": "missing face area",
+          "zh": "面部缺失"
+        },
+        {
+          "en": "annotation marks",
+          "zh": "批注标记"
+        },
+        {
+          "en": "archival sleeve",
+          "zh": "档案袋"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "filing cabinet",
+        "zh": "文件柜"
+      },
+      "secondary_elements": [
+        {
+          "en": "peeling label",
+          "zh": "剥落标签"
+        },
+        {
+          "en": "stuck drawer",
+          "zh": "卡住的抽屉"
+        },
+        {
+          "en": "rust spots",
+          "zh": "锈斑"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "clock without hands",
+        "zh": "无指针的时钟"
+      },
+      "secondary_elements": [
+        {
+          "en": "disconnected wire",
+          "zh": "断开的电线"
+        },
+        {
+          "en": "faded numbers",
+          "zh": "褪色数字"
+        },
+        {
+          "en": "dust ring",
+          "zh": "灰尘圈"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "empty picture frame",
+        "zh": "空相框"
+      },
+      "secondary_elements": [
+        {
+          "en": "mounting tape residue",
+          "zh": "安装胶带残留"
+        },
+        {
+          "en": "nail hole",
+          "zh": "钉孔"
+        },
+        {
+          "en": "faded outline",
+          "zh": "褪色轮廓"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "typewriter",
+        "zh": "打字机"
+      },
+      "secondary_elements": [
+        {
+          "en": "stuck keys",
+          "zh": "卡住的按键"
+        },
+        {
+          "en": "ribbon spool",
+          "zh": "色带卷"
+        },
+        {
+          "en": "correction fluid spots",
+          "zh": "涂改液斑点"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "specimen jar",
+        "zh": "标本罐"
+      },
+      "secondary_elements": [
+        {
+          "en": "handwritten label",
+          "zh": "手写标签"
+        },
+        {
+          "en": "cloudy liquid",
+          "zh": "浑浊液体"
+        },
+        {
+          "en": "cork seal",
+          "zh": "软木塞封"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "famous scientist bust",
+        "zh": "著名科学家半身像"
+      },
+      "secondary_elements": [
+        {
+          "en": "stone fragments",
+          "zh": "石块碎片"
+        },
+        {
+          "en": "dust particles",
+          "zh": "尘埃颗粒"
+        },
+        {
+          "en": "geometric cracks",
+          "zh": "几何裂纹"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "anonymous face",
+        "zh": "匿名面孔"
+      },
+      "secondary_elements": [
+        {
+          "en": "metal plates",
+          "zh": "金属板片"
+        },
+        {
+          "en": "wire mesh",
+          "zh": "金属丝网"
+        },
+        {
+          "en": "fracture lines",
+          "zh": "断裂线"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "classical sculpture head",
+        "zh": "古典雕塑头像"
+      },
+      "secondary_elements": [
+        {
+          "en": "marble veins",
+          "zh": "大理石纹"
+        },
+        {
+          "en": "weathered edges",
+          "zh": "风化边缘"
+        },
+        {
+          "en": "missing sections",
+          "zh": "缺失部分"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "paper craft portrait",
+        "zh": "纸艺人像"
+      },
+      "secondary_elements": [
+        {
+          "en": "folded planes",
+          "zh": "折叠平面"
+        },
+        {
+          "en": "layered cuts",
+          "zh": "层叠切割"
+        },
+        {
+          "en": "color gradients",
+          "zh": "颜色渐变"
+        }
+      ]
+    }
+  ]
+}

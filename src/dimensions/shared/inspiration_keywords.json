@@ -1,0 +1,1033 @@
+{
+    "奢华|luxury|豪华": {
+        "worlds": {
+            "advertising": 3,
+            "product_photography": 2
+        },
+        "intents": {
+            "sell": 3,
+            "demonstrate": 2
+        },
+        "tensions": [
+            "luxury_vs_absurd"
+        ],
+        "imaging": "industrial_product_photography"
+    },
+    "荒诞|absurd|怪诞": {
+        "worlds": {
+            "concept_art": 3,
+            "meme_logic": 2
+        },
+        "intents": {
+            "evoke": 3,
+            "entertain": 2
+        },
+        "tensions": [
+            "ritual_without_reason",
+            "deadpan_absurd"
+        ],
+        "mechanisms": [
+            "label_lies",
+            "missing_essential"
+        ]
+    },
+    "梦幻|dreamy|fantasy": {
+        "worlds": {
+            "miniature_fantasy": 4,
+            "concept_art": 2
+        },
+        "intents": {
+            "evoke": 3,
+            "explore": 2
+        },
+        "logics": {
+            "composition-study": 2
+        }
+    },
+    "真实|realistic|纪实": {
+        "worlds": {
+            "documentary": 4,
+            "product_photography": 2
+        },
+        "intents": {
+            "document": 3,
+            "demonstrate": 2
+        },
+        "imaging": "documentary_available_light"
+    },
+    "科技|tech|technology|未来": {
+        "worlds": {
+            "advertising": 3,
+            "product_photography": 2
+        },
+        "intents": {
+            "demonstrate": 3,
+            "sell": 2
+        },
+        "subjects": [
+            "smartphone",
+            "luxury watch"
+        ],
+        "imaging": "industrial_product_photography"
+    },
+    "复古|vintage|retro|怀旧": {
+        "worlds": {
+            "documentary": 3,
+            "concept_art": 2
+        },
+        "intents": {
+            "evoke": 3,
+            "document": 2
+        },
+        "tensions": [
+            "memory_corruption",
+            "precision_vs_decay"
+        ],
+        "mechanisms": [
+            "time_discontinuity"
+        ]
+    },
+    "温暖|warm|cozy": {
+        "worlds": {
+            "miniature_fantasy": 3,
+            "documentary": 2
+        },
+        "intents": {
+            "evoke": 3
+        },
+        "tensions": [
+            "comfort_vs_clinical"
+        ],
+        "imaging": "documentary_available_light"
+    },
+    "冷酷|cold|clinical|极简": {
+        "worlds": {
+            "advertising": 3,
+            "product_photography": 3
+        },
+        "intents": {
+            "demonstrate": 3
+        },
+        "stages": [
+            "white cyclorama",
+            "clean studio tabletop"
+        ],
+        "tensions": [
+            "comfort_vs_clinical"
+        ],
+        "imaging": "industrial_product_photography"
+    },
+    "神秘|mysterious|enigmatic": {
+        "worlds": {
+            "concept_art": 4,
+            "miniature_fantasy": 2
+        },
+        "intents": {
+            "evoke": 3,
+            "explore": 2
+        },
+        "mechanisms": [
+            "missing_essential",
+            "label_lies"
+        ]
+    },
+    "诗意|poetic|artistic": {
+        "worlds": {
+            "concept_art": 3,
+            "miniature_fantasy": 2
+        },
+        "intents": {
+            "evoke": 4,
+            "explore": 2
+        },
+        "logics": {
+            "composition-study": 3
+        }
+    },
+    "幽默|humorous|funny|搞笑": {
+        "worlds": {
+            "meme_logic": 4,
+            "concept_art": 2
+        },
+        "intents": {
+            "entertain": 4,
+            "evoke": 2
+        },
+        "tensions": [
+            "deadpan_absurd",
+            "ritual_without_reason"
+        ],
+        "mechanisms": [
+            "label_lies",
+            "role_swap"
+        ]
+    },
+    "戏剧|dramatic|theatrical": {
+        "worlds": {
+            "advertising": 3,
+            "concept_art": 2
+        },
+        "intents": {
+            "evoke": 3,
+            "sell": 2
+        },
+        "logics": {
+            "narrative-moment": 3
+        }
+    },
+    "金属|metal|metallic": {
+        "mechanisms": [
+            "material_swap",
+            "cutaway_logic"
+        ],
+        "subjects": [
+            "luxury watch",
+            "smartphone",
+            "fragrance bottle"
+        ],
+        "imaging": "industrial_product_photography"
+    },
+    "玻璃|glass|transparent": {
+        "imaging": "jewelry_macro_photography",
+        "mechanisms": [
+            "cutaway_logic"
+        ],
+        "subjects": [
+            "fragrance bottle"
+        ]
+    },
+    "织物|fabric|textile|布料": {
+        "subjects": [
+            "chair"
+        ],
+        "mechanisms": [
+            "material_swap"
+        ],
+        "tensions": [
+            "comfort_vs_clinical"
+        ]
+    },
+    "木头|wood|wooden": {
+        "mechanisms": [
+            "material_swap"
+        ],
+        "subjects": [
+            "chair"
+        ],
+        "intents": {
+            "demonstrate": 2,
+            "evoke": 2
+        },
+        "tensions": [
+            "precision_vs_decay"
+        ]
+    },
+    "塑料|plastic": {
+        "mechanisms": [
+            "material_swap"
+        ],
+        "subjects": [
+            "smartphone",
+            "chair"
+        ],
+        "worlds": {
+            "product_photography": 2,
+            "concept_art": 2
+        }
+    },
+    "陶瓷|ceramic|porcelain": {
+        "imaging": "jewelry_macro_photography",
+        "mechanisms": [
+            "material_swap"
+        ],
+        "intents": {
+            "demonstrate": 2
+        }
+    },
+    "纸张|paper": {
+        "mechanisms": [
+            "material_swap",
+            "cutaway_logic"
+        ],
+        "tensions": [
+            "precision_vs_decay"
+        ]
+    },
+    "液体|liquid|fluid": {
+        "mechanisms": [
+            "phase_violation"
+        ],
+        "imaging": "jewelry_macro_photography",
+        "subjects": [
+            "fragrance bottle"
+        ]
+    },
+    "石头|stone|rock": {
+        "mechanisms": [
+            "material_swap"
+        ],
+        "tensions": [
+            "precision_vs_decay"
+        ],
+        "subjects": [
+            "chair"
+        ]
+    },
+    "水晶|crystal": {
+        "imaging": "jewelry_macro_photography",
+        "mechanisms": [
+            "cutaway_logic"
+        ],
+        "intents": {
+            "demonstrate": 3
+        }
+    },
+    "微观|micro|macro|细节": {
+        "worlds": {
+            "miniature_fantasy": 4,
+            "product_photography": 3
+        },
+        "mechanisms": [
+            "scale_mismatch",
+            "cutaway_logic"
+        ],
+        "imaging": "jewelry_macro_photography",
+        "logics": {
+            "composition-study": 2
+        }
+    },
+    "巨大|giant|massive|庞大": {
+        "mechanisms": [
+            "scale_mismatch"
+        ],
+        "tensions": [
+            "tiny_labor_vs_giant_object"
+        ]
+    },
+    "微小|tiny|miniature": {
+        "worlds": {
+            "miniature_fantasy": 4
+        },
+        "mechanisms": [
+            "scale_mismatch"
+        ],
+        "intents": {
+            "explore": 3,
+            "evoke": 2
+        }
+    },
+    "腐朽|decay|破败": {
+        "tensions": [
+            "precision_vs_decay",
+            "memory_corruption"
+        ],
+        "mechanisms": [
+            "missing_essential",
+            "time_discontinuity"
+        ],
+        "worlds": {
+            "concept_art": 3,
+            "documentary": 2
+        }
+    },
+    "控制|control|system": {
+        "tensions": [
+            "desire_vs_control",
+            "control_breakdown"
+        ],
+        "logics": {
+            "system-driven": 3
+        },
+        "intents": {
+            "demonstrate": 2
+        }
+    },
+    "失控|chaos|glitch": {
+        "tensions": [
+            "control_breakdown",
+            "routine_vs_glitch"
+        ],
+        "mechanisms": [
+            "missing_essential",
+            "rule_breaking_ui"
+        ],
+        "worlds": {
+            "meme_logic": 2,
+            "concept_art": 2
+        }
+    },
+    "精确|precision|accurate": {
+        "worlds": {
+            "product_photography": 3,
+            "advertising": 2
+        },
+        "intents": {
+            "demonstrate": 3
+        },
+        "imaging": "industrial_product_photography",
+        "tensions": [
+            "precision_vs_decay"
+        ]
+    },
+    "爆炸|explosion|burst": {
+        "mechanisms": [
+            "explosion_diagram"
+        ],
+        "intents": {
+            "demonstrate": 3,
+            "explore": 2
+        },
+        "worlds": {
+            "concept_art": 2,
+            "product_photography": 2
+        }
+    },
+    "融化|melting|dissolve": {
+        "mechanisms": [
+            "phase_violation"
+        ],
+        "tensions": [
+            "precision_vs_decay"
+        ],
+        "intents": {
+            "evoke": 3
+        }
+    },
+    "冻结|frozen|freeze": {
+        "mechanisms": [
+            "time_discontinuity"
+        ],
+        "intents": {
+            "evoke": 2,
+            "demonstrate": 2
+        }
+    },
+    "悬浮|floating|levitate": {
+        "mechanisms": [
+            "gravity_defiance"
+        ],
+        "intents": {
+            "evoke": 3,
+            "demonstrate": 2
+        },
+        "worlds": {
+            "concept_art": 2,
+            "advertising": 2
+        }
+    },
+    "透明|transparent|see-through": {
+        "mechanisms": [
+            "cutaway_logic"
+        ],
+        "imaging": "jewelry_macro_photography",
+        "intents": {
+            "demonstrate": 3
+        }
+    },
+    "对称|symmetry|symmetric": {
+        "logics": {
+            "composition-study": 3
+        },
+        "intents": {
+            "demonstrate": 2
+        }
+    },
+    "重复|repeat|pattern": {
+        "logics": {
+            "system-driven": 3
+        },
+        "mechanisms": [
+            "infinite_mirror"
+        ],
+        "intents": {
+            "explore": 2
+        }
+    },
+    "街头|street|urban": {
+        "worlds": {
+            "documentary": 4
+        },
+        "stages": [
+            "busy street corner",
+            "subway platform"
+        ],
+        "logics": {
+            "narrative-moment": 2
+        }
+    },
+    "工作室|studio|clean": {
+        "worlds": {
+            "advertising": 3,
+            "product_photography": 3
+        },
+        "stages": [
+            "clean studio tabletop",
+            "white cyclorama"
+        ],
+        "imaging": "industrial_product_photography"
+    },
+    "自然|nature|outdoor": {
+        "worlds": {
+            "documentary": 3,
+            "miniature_fantasy": 2
+        },
+        "stages": [
+            "forest clearing",
+            "lakeside"
+        ],
+        "imaging": "documentary_available_light",
+        "intents": {
+            "evoke": 2,
+            "document": 2
+        }
+    },
+    "室内|indoor|interior": {
+        "worlds": {
+            "documentary": 2,
+            "miniature_fantasy": 2
+        },
+        "stages": [
+            "domestic kitchen",
+            "living room corner"
+        ],
+        "intents": {
+            "evoke": 2,
+            "document": 2
+        }
+    },
+    "地下|underground|subway": {
+        "worlds": {
+            "documentary": 3,
+            "concept_art": 2
+        },
+        "stages": [
+            "subway platform"
+        ],
+        "intents": {
+            "document": 2,
+            "evoke": 2
+        }
+    },
+    "空中|aerial|sky": {
+        "mechanisms": [
+            "gravity_defiance"
+        ],
+        "intents": {
+            "evoke": 3
+        },
+        "worlds": {
+            "concept_art": 2,
+            "miniature_fantasy": 2
+        }
+    },
+    "水下|underwater": {
+        "mechanisms": [
+            "phase_violation",
+            "gravity_defiance"
+        ],
+        "intents": {
+            "evoke": 3,
+            "explore": 2
+        },
+        "worlds": {
+            "concept_art": 3
+        }
+    },
+    "黑白|monochrome|bw": {
+        "intents": {
+            "evoke": 3,
+            "document": 2
+        },
+        "worlds": {
+            "documentary": 3,
+            "concept_art": 2
+        },
+        "imaging": "documentary_available_light"
+    },
+    "彩色|colorful|vibrant": {
+        "worlds": {
+            "advertising": 3,
+            "miniature_fantasy": 2
+        },
+        "intents": {
+            "sell": 3,
+            "evoke": 2
+        }
+    },
+    "金色|golden|gold": {
+        "subjects": [
+            "luxury watch",
+            "fragrance bottle"
+        ],
+        "intents": {
+            "sell": 3
+        },
+        "tensions": [
+            "luxury_vs_absurd"
+        ]
+    },
+    "蓝色|blue": {
+        "intents": {
+            "evoke": 2
+        },
+        "worlds": {
+            "concept_art": 2
+        }
+    },
+    "红色|red": {
+        "intents": {
+            "evoke": 2,
+            "sell": 2
+        },
+        "worlds": {
+            "advertising": 2,
+            "concept_art": 2
+        }
+    },
+    "瞬间|moment|instant": {
+        "logics": {
+            "narrative-moment": 4
+        },
+        "intents": {
+            "document": 3,
+            "evoke": 2
+        },
+        "mechanisms": [
+            "time_discontinuity"
+        ]
+    },
+    "永恒|eternal|timeless": {
+        "intents": {
+            "evoke": 4
+        },
+        "tensions": [
+            "memory_corruption"
+        ],
+        "worlds": {
+            "concept_art": 3
+        }
+    },
+    "流动|flowing|motion": {
+        "mechanisms": [
+            "time_discontinuity"
+        ],
+        "intents": {
+            "evoke": 3
+        },
+        "logics": {
+            "narrative-moment": 2
+        }
+    },
+    "静止|still|static": {
+        "worlds": {
+            "product_photography": 3,
+            "advertising": 2
+        },
+        "intents": {
+            "demonstrate": 3
+        },
+        "imaging": "industrial_product_photography"
+    },
+    "人物|people|human": {
+        "worlds": {
+            "documentary": 3,
+            "advertising": 2
+        },
+        "logics": {
+            "narrative-moment": 3
+        },
+        "intents": {
+            "document": 2,
+            "sell": 2
+        }
+    },
+    "孤独|lonely|alone": {
+        "intents": {
+            "evoke": 4
+        },
+        "tensions": [
+            "desire_vs_control"
+        ],
+        "worlds": {
+            "documentary": 2,
+            "concept_art": 2
+        }
+    },
+    "群体|crowd|group": {
+        "worlds": {
+            "documentary": 3
+        },
+        "stages": [
+            "busy street corner"
+        ],
+        "logics": {
+            "narrative-moment": 2
+        }
+    },
+    "明亮|bright|light": {
+        "imaging": "industrial_product_photography",
+        "intents": {
+            "demonstrate": 2,
+            "sell": 2
+        },
+        "worlds": {
+            "advertising": 2,
+            "product_photography": 2
+        }
+    },
+    "黑暗|dark|shadow": {
+        "intents": {
+            "evoke": 3
+        },
+        "worlds": {
+            "concept_art": 3,
+            "documentary": 2
+        },
+        "imaging": "documentary_available_light"
+    },
+    "逆光|backlight": {
+        "imaging": "documentary_available_light",
+        "intents": {
+            "evoke": 3
+        },
+        "logics": {
+            "composition-study": 2
+        }
+    },
+    "聚光|spotlight": {
+        "worlds": {
+            "advertising": 3
+        },
+        "imaging": "industrial_product_photography",
+        "intents": {
+            "demonstrate": 3
+        }
+    },
+    "悬浮|floating|levitate|suspended": {
+        "worlds": {
+            "advertising": 3,
+            "concept_art": 2
+        },
+        "mechanisms": [
+            "zero_gravity_scatter",
+            "gravity_defiance"
+        ],
+        "imaging": "surreal_floating"
+    },
+    "碎片|fragment|shattered|mosaic": {
+        "worlds": {
+            "concept_art": 4
+        },
+        "mechanisms": [
+            "fragment_mosaic"
+        ],
+        "imaging": "sculptural_fragment_art"
+    },
+    "人像|portrait|肖像|bust": {
+        "worlds": {
+            "concept_art": 3,
+            "documentary": 2
+        },
+        "logics": {
+            "character-centric": 3
+        },
+        "imaging": "cinematic_portrait"
+    },
+    "食物|food|美食|gourmet": {
+        "worlds": {
+            "advertising": 4,
+            "product_photography": 3
+        },
+        "imaging": "dynamic_food_photography",
+        "intents": {
+            "sell": 3,
+            "demonstrate": 2
+        }
+    },
+    "微缩|miniature|diorama|微观世界": {
+        "worlds": {
+            "miniature_fantasy": 5,
+            "concept_art": 2
+        },
+        "mechanisms": [
+            "scale_mismatch"
+        ],
+        "intents": {
+            "explore": 3,
+            "evoke": 2
+        }
+    },
+    "纸艺|paper|origami|折纸": {
+        "worlds": {
+            "concept_art": 3
+        },
+        "mechanisms": [
+            "portrait_to_material",
+            "fragment_mosaic"
+        ],
+        "imaging": "sculptural_fragment_art"
+    },
+    "烟花|fireworks|焰火": {
+        "worlds": {
+            "advertising": 3
+        },
+        "mechanisms": [
+            "shape_morph"
+        ],
+        "intents": {
+            "evoke": 3,
+            "entertain": 2
+        }
+    },
+    "单色|monochrome|monochromatic|同色系": {
+        "worlds": {
+            "advertising": 3,
+            "product_photography": 3
+        },
+        "imaging": "minimalist_object_study",
+        "intents": {
+            "evoke": 2,
+            "sell": 2
+        }
+    },
+    "盒子|box|container|容器": {
+        "worlds": {
+            "miniature_fantasy": 4,
+            "concept_art": 2
+        },
+        "mechanisms": [
+            "scale_mismatch",
+            "cutaway_logic"
+        ],
+        "intents": {
+            "explore": 3
+        }
+    },
+    "品牌|brand|logo|标志": {
+        "worlds": {
+            "advertising": 5
+        },
+        "intents": {
+            "sell": 4
+        },
+        "imaging": "industrial_product_photography"
+    },
+    "键帽|keycap|artisan|机械键盘": {
+        "worlds": {
+            "miniature_fantasy": 5
+        },
+        "mechanisms": [
+            "keycap_world",
+            "transparent_container_reveal"
+        ],
+        "intents": {
+            "explore": 3,
+            "evoke": 2
+        }
+    },
+    "指甲|nail|美甲|nail art": {
+        "worlds": {
+            "miniature_fantasy": 4,
+            "concept_art": 2
+        },
+        "mechanisms": [
+            "body_as_canvas",
+            "miniature_occupation"
+        ],
+        "intents": {
+            "demonstrate": 3
+        }
+    },
+    "UI|界面|app|dashboard": {
+        "worlds": {
+            "advertising": 4
+        },
+        "mechanisms": [
+            "floating_ui_cards",
+            "digital_aura"
+        ],
+        "imaging": "glassmorphism_neon"
+    },
+    "食谱|recipe|cookbook|菜谱": {
+        "worlds": {
+            "miniature_fantasy": 4
+        },
+        "mechanisms": [
+            "book_as_stage",
+            "miniature_occupation"
+        ],
+        "imaging": "warm_tabletop_diorama"
+    },
+    "螺旋|spiral|helix|DNA": {
+        "worlds": {
+            "advertising": 3,
+            "concept_art": 3
+        },
+        "mechanisms": [
+            "spiral_assembly"
+        ],
+        "intents": {
+            "demonstrate": 2,
+            "evoke": 3
+        }
+    },
+    "节日|holiday|festival|christmas": {
+        "worlds": {
+            "advertising": 4,
+            "miniature_fantasy": 3
+        },
+        "mechanisms": [
+            "tech_festive_fusion"
+        ],
+        "intents": {
+            "evoke": 3,
+            "entertain": 2
+        }
+    },
+    "街头|street|urban|城市": {
+        "worlds": {
+            "documentary": 4,
+            "concept_art": 2
+        },
+        "imaging": "cinematic_street_bokeh",
+        "intents": {
+            "evoke": 3,
+            "document": 2
+        }
+    },
+    "羊毛毡|felt|wool|毛毡": {
+        "worlds": {
+            "miniature_fantasy": 5
+        },
+        "mechanisms": [
+            "felt_creature",
+            "cardboard_box_diorama"
+        ],
+        "imaging": "cozy_storybook_diorama",
+        "intents": {
+            "evoke": 4
+        }
+    },
+    "户外|outdoor|rugged|抗拓": {
+        "worlds": {
+            "advertising": 4,
+            "product_photography": 3
+        },
+        "mechanisms": [
+            "environment_assault"
+        ],
+        "imaging": "rugged_action_product",
+        "intents": {
+            "demonstrate": 4,
+            "sell": 2
+        }
+    },
+    "鹿|deer|elk|麻鹿": {
+        "worlds": {
+            "concept_art": 5
+        },
+        "mechanisms": [
+            "bioluminescent_part",
+            "magical_creature"
+        ],
+        "imaging": "mystical_forest_glow",
+        "intents": {
+            "evoke": 4
+        }
+    },
+    "角色设计|character design|立绘": {
+        "worlds": {
+            "concept_art": 5
+        },
+        "mechanisms": [
+            "outfit_breakdown"
+        ],
+        "imaging": "character_reference_sheet",
+        "intents": {
+            "demonstrate": 3
+        }
+    },
+    "炭笔|charcoal|sketch|速写": {
+        "worlds": {
+            "concept_art": 4
+        },
+        "mechanisms": [
+            "medium_as_motion"
+        ],
+        "imaging": "charcoal_motion_sketch",
+        "intents": {
+            "evoke": 3,
+            "explore": 2
+        }
+    },
+    "3D卡通|3d character|clay|泥塑": {
+        "worlds": {
+            "advertising": 3,
+            "concept_art": 3
+        },
+        "mechanisms": [
+            "stylized_3d_render"
+        ],
+        "imaging": "colorful_clay_render",
+        "intents": {
+            "entertain": 3,
+            "evoke": 2
+        }
+    },
+    "纸牌|playing card|poker|扑克": {
+        "worlds": {
+            "concept_art": 4,
+            "advertising": 2
+        },
+        "mechanisms": [
+            "card_frame_breakout"
+        ],
+        "imaging": "cinematic_card_portrait",
+        "intents": {
+            "evoke": 3
+        }
+    },
+    "书签|bookmark|明信片": {
+        "worlds": {
+            "advertising": 3,
+            "miniature_fantasy": 3
+        },
+        "mechanisms": [
+            "paper_cutout_layer",
+            "held_in_hand"
+        ],
+        "imaging": "travel_bokeh_overlay",
+        "intents": {
+            "evoke": 3,
+            "sell": 2
+        }
+    },
+    "运动广告|sports ad|Nike|运动品牌": {
+        "worlds": {
+            "advertising": 5
+        },
+        "mechanisms": [
+            "energy_trail",
+            "dynamic_freeze"
+        ],
+        "imaging": "neon_sports_action",
+        "intents": {
+            "sell": 4,
+            "demonstrate": 2
+        }
+    },
+    "怀旧|retro|vintage|80s|90s": {
+        "worlds": {
+            "advertising": 3,
+            "documentary": 2
+        },
+        "mechanisms": [
+            "knolling_layout"
+        ],
+        "imaging": "flat_lay_nostalgia",
+        "intents": {
+            "evoke": 4,
+            "document": 2
+        }
+    }
+}

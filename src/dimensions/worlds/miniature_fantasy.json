@@ -1,0 +1,534 @@
+{
+  "name": {
+    "en": "Miniature Fantasy",
+    "zh": "微缩奇幻"
+  },
+  "imaging_profile": "Macro photography, tilt-shift effect, shallow depth of field, miniature world, vibrant colors",
+  "forbidden_visual_terms": [
+    "wide angle",
+    "telephoto",
+    "realistic human scale"
+  ],
+  "deliverable_type": [
+    {
+      "id": "miniature_scene",
+      "en": "Miniature Scene",
+      "zh": "微缩场景"
+    },
+    {
+      "id": "diorama_shot",
+      "en": "Diorama Shot",
+      "zh": "透视画摄影"
+    },
+    {
+      "id": "toy_world_frame",
+      "en": "Toy World Frame",
+      "zh": "玩具世界定格"
+    }
+  ],
+  "entry_point": [
+    {
+      "id": "object",
+      "en": "Object",
+      "zh": "物体"
+    },
+    {
+      "id": "action",
+      "en": "Action",
+      "zh": "动作"
+    }
+  ],
+  "core_tension": [
+    {
+      "id": "tiny_labor_vs_giant_object",
+      "en": "Tiny Labor vs Giant Object",
+      "zh": "微小劳作 vs 巨大物体"
+    },
+    {
+      "id": "whimsical_vs_real_materials",
+      "en": "Whimsical vs Real Materials",
+      "zh": "异想天开 vs 真实材质"
+    },
+    {
+      "id": "cozy_vs_exposed",
+      "en": "Cozy vs Exposed",
+      "zh": "温馨 vs 暴露"
+    },
+    {
+      "id": "handmade_vs_mechanical",
+      "en": "Handmade vs Mechanical",
+      "zh": "手工 vs 机械"
+    },
+    {
+      "id": "contained_vs_infinite",
+      "en": "Contained vs Infinite",
+      "zh": "容纳 vs 无限"
+    },
+    {
+      "id": "nostalgia_vs_present",
+      "en": "Nostalgia vs Present",
+      "zh": "怀旧 vs 当下"
+    },
+    {
+      "id": "craft_vs_nature",
+      "en": "Craft vs Nature",
+      "zh": "工艺 vs 自然"
+    }
+  ],
+  "twist_mechanisms_pool": [
+    {
+      "id": "scale_mismatch",
+      "en": "Scale Mismatch",
+      "zh": "尺度错位"
+    },
+    {
+      "id": "cutaway_logic",
+      "en": "Cutaway Logic",
+      "zh": "剖面逻辑"
+    },
+    {
+      "id": "function_misuse",
+      "en": "Function Misuse",
+      "zh": "功能错配"
+    },
+    {
+      "id": "material_swap",
+      "en": "Material Swap",
+      "zh": "材质错置"
+    },
+    {
+      "id": "container_world",
+      "en": "Container World",
+      "zh": "容器世界"
+    },
+    {
+      "id": "keycap_world",
+      "en": "Keycap World",
+      "zh": "键帽世界"
+    },
+    {
+      "id": "book_as_stage",
+      "en": "Book as Stage",
+      "zh": "书籍舞台"
+    },
+    {
+      "id": "body_as_canvas",
+      "en": "Body as Canvas",
+      "zh": "身体画布"
+    },
+    {
+      "id": "miniature_occupation",
+      "en": "Miniature Occupation",
+      "zh": "微缩职业"
+    },
+    {
+      "id": "transparent_container_reveal",
+      "en": "Transparent Container Reveal",
+      "zh": "透明容器展示"
+    },
+    {
+      "id": "felt_creature",
+      "en": "Felt Creature",
+      "zh": "羊毛毡生物"
+    },
+    {
+      "id": "cardboard_box_diorama",
+      "en": "Cardboard Box Diorama",
+      "zh": "纸盒透视"
+    },
+    {
+      "id": "paper_cutout_layer",
+      "en": "Paper Cutout Layer",
+      "zh": "纸艺剪切层"
+    },
+    {
+      "id": "held_in_hand",
+      "en": "Held in Hand",
+      "zh": "手持展示"
+    }
+  ],
+  "stage_context": [
+    {
+      "en": "tabletop diorama",
+      "zh": "桌面透视画"
+    },
+    {
+      "en": "kitchen counter macro scene",
+      "zh": "厨房台面微距场景"
+    },
+    {
+      "en": "workbench miniature set",
+      "zh": "工作台微缩布景"
+    },
+    {
+      "en": "garden soil miniature landscape",
+      "zh": "花园泥土微缩景观"
+    },
+    {
+      "en": "office desk corner world",
+      "zh": "办公桌角落世界"
+    },
+    {
+      "en": "bookshelf level mini city",
+      "zh": "书架层级迷你城市"
+    },
+    {
+      "en": "bathroom sink port scene",
+      "zh": "浴室水槽港口场景"
+    },
+    {
+      "en": "wooden cutting board terrain",
+      "zh": "木质砧板地形"
+    },
+    {
+      "en": "window sill miniature farm",
+      "zh": "窗台微缩农场"
+    },
+    {
+      "en": "coffee table tilt-shift",
+      "zh": "咖啡桌移轴效果"
+    },
+    {
+      "en": "open book diorama",
+      "zh": "打开的书籍透视"
+    },
+    {
+      "en": "keyboard macro shot",
+      "zh": "键盘微距"
+    },
+    {
+      "en": "fingernail canvas",
+      "zh": "指甲画布"
+    },
+    {
+      "en": "artist studio tabletop",
+      "zh": "艺术家工作室桌面"
+    }
+  ],
+  "composition_rule": [
+    {
+      "en": "macro lens, shallow depth of field",
+      "zh": "微距镜头，浅景深"
+    },
+    {
+      "en": "hero object with tiny workers",
+      "zh": "主体物体配微小工人"
+    },
+    {
+      "en": "tilt-shift perspective",
+      "zh": "移轴透视"
+    },
+    {
+      "en": "extreme close-up scale play",
+      "zh": "极特写尺度游戏"
+    },
+    {
+      "en": "diorama box framing",
+      "zh": "透视箱取景"
+    },
+    {
+      "en": "forced perspective layers",
+      "zh": "强制透视分层"
+    },
+    {
+      "en": "miniature world aerial view",
+      "zh": "微缩世界俯瞰"
+    },
+    {
+      "en": "bokeh background isolation",
+      "zh": "焦外虚化隔离背景"
+    }
+  ],
+  "lighting_rule": [
+    {
+      "en": "warm practical light with soft shadows",
+      "zh": "温暖实用光配柔和阴影"
+    },
+    {
+      "en": "studio macro light, controlled highlights",
+      "zh": "影棚微距光，控制高光"
+    },
+    {
+      "en": "natural window light diffused",
+      "zh": "自然窗光漫射"
+    },
+    {
+      "en": "LED ring light macro",
+      "zh": "LED 环形微距光"
+    },
+    {
+      "en": "fairy lights miniature ambiance",
+      "zh": "灯串微缩氛围"
+    },
+    {
+      "en": "golden hour warm glow tiny world",
+      "zh": "黄金时段温暖微型世界"
+    },
+    {
+      "en": "spotlight dramatic mini scene",
+      "zh": "聚光灯戏剧性迷你场景"
+    }
+  ],
+  "subject_kits": [
+    {
+      "primary_subject": {
+        "en": "a macaron",
+        "zh": "马卡龙"
+      },
+      "secondary_elements": [
+        {
+          "en": "tiny ladders",
+          "zh": "微型梯子"
+        },
+        {
+          "en": "mini workers",
+          "zh": "迷你工人"
+        },
+        {
+          "en": "sugar dust",
+          "zh": "糖粉"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a pocket watch",
+        "zh": "怀表"
+      },
+      "secondary_elements": [
+        {
+          "en": "tiny ropes",
+          "zh": "微型绳索"
+        },
+        {
+          "en": "mini repair tools",
+          "zh": "迷你维修工具"
+        },
+        {
+          "en": "gears",
+          "zh": "齿轮"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a lipstick",
+        "zh": "口红"
+      },
+      "secondary_elements": [
+        {
+          "en": "mini scaffolding",
+          "zh": "迷你脚手架"
+        },
+        {
+          "en": "tiny paint rollers",
+          "zh": "微型油漆滚筒"
+        },
+        {
+          "en": "gloss reflections",
+          "zh": "光泽反射"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a tea cup",
+        "zh": "茶杯"
+      },
+      "secondary_elements": [
+        {
+          "en": "mini boats",
+          "zh": "迷你船"
+        },
+        {
+          "en": "steam as fog",
+          "zh": "蒸汽如雾"
+        },
+        {
+          "en": "spoons as bridges",
+          "zh": "勺子桥"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a sneaker",
+        "zh": "运动鞋"
+      },
+      "secondary_elements": [
+        {
+          "en": "tiny mountain climbers",
+          "zh": "微型登山者"
+        },
+        {
+          "en": "shoelace ropes",
+          "zh": "鞋带绳索"
+        },
+        {
+          "en": "sole texture terrain",
+          "zh": "鞋底纹理地形"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a vinyl record",
+        "zh": "黑胶唱片"
+      },
+      "secondary_elements": [
+        {
+          "en": "mini racing cars on grooves",
+          "zh": "沟槽上的迷你赛车"
+        },
+        {
+          "en": "tiny pit crew",
+          "zh": "微型维修团队"
+        },
+        {
+          "en": "circular track",
+          "zh": "环形赛道"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a hamburger",
+        "zh": "汉堡"
+      },
+      "secondary_elements": [
+        {
+          "en": "tiny construction workers",
+          "zh": "微型建筑工人"
+        },
+        {
+          "en": "sesame seed boulders",
+          "zh": "芝麻巨石"
+        },
+        {
+          "en": "lettuce as forest",
+          "zh": "生菜森林"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a cactus plant",
+        "zh": "仙人掌"
+      },
+      "secondary_elements": [
+        {
+          "en": "mini rock climbers",
+          "zh": "迷你攀岩者"
+        },
+        {
+          "en": "safety ropes on spines",
+          "zh": "刺上的安全绳"
+        },
+        {
+          "en": "tiny camping tents",
+          "zh": "微型帐篷"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a computer keyboard",
+        "zh": "电脑键盘"
+      },
+      "secondary_elements": [
+        {
+          "en": "mini office workers",
+          "zh": "迷你办公人员"
+        },
+        {
+          "en": "keys as buildings",
+          "zh": "按键作为建筑"
+        },
+        {
+          "en": "cable highways",
+          "zh": "线缆高速路"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "an ice cream cone",
+        "zh": "冰淇淋甜筒"
+      },
+      "secondary_elements": [
+        {
+          "en": "tiny skiers",
+          "zh": "微型滑雪者"
+        },
+        {
+          "en": "sprinkles as obstacles",
+          "zh": "糖粒作为障碍"
+        },
+        {
+          "en": "melting as avalanche",
+          "zh": "融化如雪崩"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a matchbox diorama",
+        "zh": "火柴盒微缩景"
+      },
+      "secondary_elements": [
+        {
+          "en": "tiny crime scene",
+          "zh": "迷你犯罪现场"
+        },
+        {
+          "en": "miniature street lamps",
+          "zh": "微型路灯"
+        },
+        {
+          "en": "matchsticks as props",
+          "zh": "火柴作为道具"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a teacup festival",
+        "zh": "茶杯集市"
+      },
+      "secondary_elements": [
+        {
+          "en": "tiny market stalls",
+          "zh": "迷你市场摆位"
+        },
+        {
+          "en": "festive string lights",
+          "zh": "节日灯串"
+        },
+        {
+          "en": "water reflection",
+          "zh": "水面倒影"
+        }
+      ]
+    },
+    {
+      "primary_subject": {
+        "en": "a vintage suitcase world",
+        "zh": "复古行李箱世界"
+      },
+      "secondary_elements": [
+        {
+          "en": "tiny travelers",
+          "zh": "微型旅行者"
+        },
+        {
+          "en": "travel stickers",
+          "zh": "旅行贴纸"
+        },
+        {
+          "en": "miniature landmarks",
+          "zh": "迷你地标"
+        }
+      ]
+    }
+  ]
+}
